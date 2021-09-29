@@ -14,6 +14,7 @@ export default function useCachedResources(){
   const [isNew,setIsNew] = React.useState(false)
 
   React.useEffect(()=>{
+
     async function loadResourcesAndDataAsync(){
       try {
         SplashScreen.preventAutoHideAsync();
@@ -63,7 +64,6 @@ export default function useCachedResources(){
       }
     }
   },[user,auth])
-
 
   return [auth]
 }

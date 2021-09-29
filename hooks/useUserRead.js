@@ -13,7 +13,7 @@ export default function useUserRead(val){
         console.warn('ERROR : retraving user',e);
         setUser(null)
       }
-      console.log('reading');
+     console.log('reading');
     }
     if(user == 'get')getUser()
   },[user])

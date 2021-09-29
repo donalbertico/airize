@@ -10,7 +10,6 @@ import Logout from './auth/components/logoutComponent'
 
 
 export default function HomeScreen(props){
-
   const [user,setUser] = useUserRead('get');
 
   React.useEffect(()=>{
@@ -29,27 +28,30 @@ export default function HomeScreen(props){
           <View style={{flex:5}}></View>
         </View>
       </View>
-      <View style={{flex:2}}></View>
-      <View style={styles.centeredBox,styles.alignCentered}>
-        <TouchableOpacity onPress={()=>props.navigation.navigate('login')}>
-          <Text>Wellcome to your app</Text>
-          {user? (
-            <Text>{user.displayName}</Text>
-          ):(
-            <Text></Text>
-          )}
-        </TouchableOpacity>
+      <View style={{flex:10}}>
+
+        <View style={styles.centeredBox,styles.alignCentered}>
+          <TouchableOpacity onPress={()=>props.navigation.navigate('login')}>
+            <Text>Wellcome to your app</Text>
+            {user? (
+              <Text>{user.displayName}</Text>
+            ):(
+              <Text></Text>
+            )}
+          </TouchableOpacity>
+        </View>
+
       </View>
-      <View style={{flex:3}}></View>
-      <View>
-        {user.uid? (
-          <View>
-            <Text>looged!</Text>
+      <View style={{flex:1}}>
+        <View style={styles.darkBackground}>
+          <View style={styles.horizontalView}>
+            <View style={{flex:1}}></View>
+            <Ionicons name="md-menu" size={32} color='white' onPress={()=>props.navigation.navigate('edit')}/>
+            <View style={{flex:1}}></View>
+            <Ionicons name="logo-ionic" size={32} color='white' onPress={()=>props.navigation.navigate('session')}/>
+            <View style={{flex:1}}></View>
           </View>
-        ) : (
-            <Text>no logged </Text>
-        )}
-        <Logout/>
+        </View>
       </View>
     </View>
   )

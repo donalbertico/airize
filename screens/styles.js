@@ -3,7 +3,8 @@ import { StyleSheet } from 'react-native'
 const theme = {
   colors : {
     primary : '#EA6132',
-    secondary : '#999999'
+    secondary : '#999999',
+    dark : '#343F4B'
   }
 }
 
@@ -29,6 +30,10 @@ const styles = StyleSheet.create({
   topMarginCentered:{
     marginTop : 20,
     alignItems : 'center'
+  },
+  darkBackground:{
+    backgroundColor : theme.colors.dark,
+    flex:1
   }
 })
 

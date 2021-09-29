@@ -1,10 +1,11 @@
 export default{
   firebase : {
-    apiKey: "AIzaSyAxts1pPS5uPf1RftB-2bSHzCR2OOVBfjM",
-    authDomain: "mobile-template-4054f.firebaseapp.com",
-    projectId: "mobile-template-4054f",
-    storageBucket: "mobile-template-4054f.appspot.com",
-    messagingSenderId: "859097494343",
-    appId: "1:859097494343:web:066a127bf35ee130c7d262"
+    apiKey: "AIzaSyDU-AvUc5z3SgMabD0dgTXIjSdjy7sTkrk",
+    authDomain: "airize-development.firebaseapp.com",
+    projectId: "airize-development",
+    storageBucket: "airize-development.appspot.com",
+    messagingSenderId: "420079497855",
+    appId: "1:420079497855:web:6ab07042945c415a14454a",
+    measurementId: "G-JRQ8TDGJ2N"
   }
 }
