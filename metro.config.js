@@ -1,7 +1,4 @@
-const { getDefaultConfig } = require('@expo/metro-config');
-console.log('SI O NO?');
-const defaultConfig = getDefaultConfig(__dirname);
+// Learn more https://docs.expo.io/guides/customizing-metro
+const { getDefaultConfig } = require('expo/metro-config');
 
-defaultConfig.resolver.assetExts.push('rhn');
-
-module.exports = defaultConfig;
+module.exports = getDefaultConfig(__dirname);

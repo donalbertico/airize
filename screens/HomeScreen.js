@@ -1,10 +1,8 @@
 import * as React from 'react'
 import {View,TouchableOpacity} from 'react-native'
-
 import {styles} from './styles'
 import { Text } from 'react-native-elements'
 import { Ionicons } from '@expo/vector-icons';
-
 import useUserRead from '../hooks/useUserRead'
 import Logout from './auth/components/logoutComponent'
 
@@ -29,7 +27,6 @@ export default function HomeScreen(props){
         </View>
       </View>
       <View style={{flex:10}}>
-
         <View style={styles.centeredBox,styles.alignCentered}>
           <TouchableOpacity onPress={()=>props.navigation.navigate('login')}>
             <Text>Wellcome to your app</Text>
@@ -45,6 +42,7 @@ export default function HomeScreen(props){
       <View style={{flex:1}}>
         <View style={styles.darkBackground}>
           <View style={styles.horizontalView}>
+            <Logout/>
             <View style={{flex:1}}></View>
             <Ionicons name="md-menu" size={32} color='white' onPress={()=>props.navigation.navigate('edit')}/>
             <View style={{flex:1}}></View>

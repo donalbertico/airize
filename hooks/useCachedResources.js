@@ -14,13 +14,12 @@ export default function useCachedResources(){
   const [isNew,setIsNew] = React.useState(false)
 
   React.useEffect(()=>{
-
     async function loadResourcesAndDataAsync(){
       try {
         SplashScreen.preventAutoHideAsync();
         firebase.initializeApp(apiKeys.firebase)
         firebase.auth().onAuthStateChanged((authUser)=>{
-          readUser('get')
+          console.log('noay?',(!authUser));
           if(authUser){
             setUserInfo({
               uid:authUser.uid,
@@ -44,7 +43,9 @@ export default function useCachedResources(){
     loadResourcesAndDataAsync();
   }, []);
 
+
   React.useEffect(()=>{
+    console.log(auth,user);
     if(auth==true&&user!='get'){
       if(user.uid){
         SplashScreen.hideAsync();
@@ -52,14 +53,19 @@ export default function useCachedResources(){
       }
       if(!isNew){
         let db = firebase.firestore()
+        db.settings({ experimentalForceLongPolling: true })
         let userRef = db.collection('users')
         userRef.doc(userInfo.uid).get()
             .then((doc)=>{
+              console.log('trayendoo');
               let newInfo = userInfo;
               newInfo.description = doc.data().description
               setUserInfo(newInfo)
               setUser(userInfo)
               SplashScreen.hideAsync()
+            })
+            .catch((e)=>{
+              console.log('pepeta',e);
             })
       }
     }

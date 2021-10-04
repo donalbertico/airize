@@ -20,16 +20,27 @@
       "supportsTablet": true,
       "infoPlist": {
         "NSMicrophoneUsageDescription": "This app uses the microphone to listen for commands and record messages"
-      }
+      },
+      "bundleIdentifier": "app.ios.airize"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#FFFFFF"
-      }
+      },
+      "package": "app.android.airize"
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "plugins": [
+      [
+        "@react-native-voice/voice",
+        {
+          "microphonePermision": "CUSTOM: Allow me bitch",
+          "speechRecognitionPermission": "CUSTOM: Allow me bitch speech"
+        }
+      ]
+    ]
   }
 }

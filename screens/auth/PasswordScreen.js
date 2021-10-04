@@ -1,5 +1,4 @@
 import * as React from 'react'
-import firebase from 'firebase'
 
 import {styles} from '../styles'
 import {Text, Input, Button} from 'react-native-elements'

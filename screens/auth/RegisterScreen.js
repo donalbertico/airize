@@ -1,6 +1,4 @@
 import * as React from 'react'
-import * as firebase from 'firebase'
-import 'firebase/firestore'
 
 import {View, ActivityIndicator} from 'react-native'
 import { Input, Text , Button} from 'react-native-elements'

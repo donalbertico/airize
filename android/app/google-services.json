@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "420079497855",
+    "project_id": "airize-development",
+    "storage_bucket": "airize-development.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:420079497855:android:f8b8faa986c390c314454a",
+        "android_client_info": {
+          "package_name": "app.android.airize"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "420079497855-ho0s410mf8n70rk7upst0r8384l76iq3.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCA97u9b_S7d8d6AtgKiEjoWKSS4nX1Bxs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "420079497855-ho0s410mf8n70rk7upst0r8384l76iq3.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
