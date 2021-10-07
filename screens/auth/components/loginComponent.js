@@ -4,9 +4,7 @@ import {styles} from '../../styles'
 import {Input,Text,Button} from 'react-native-elements'
 import {View, TouchableOpacity,ActivityIndicator} from 'react-native'
 
-
 export default function Login({handleToRegister,handleRecoverPassword}) {
-
   const [email, setEmail] = React.useState('')
   const [password, setPass] = React.useState('')
   const [loading, setLoading] = React.useState(false)

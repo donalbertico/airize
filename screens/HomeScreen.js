@@ -1,7 +1,7 @@
 import * as React from 'react'
 import {View,TouchableOpacity} from 'react-native'
 import {styles} from './styles'
-import { Text } from 'react-native-elements'
+import { Text, Button } from 'react-native-elements'
 import { Ionicons } from '@expo/vector-icons';
 import useUserRead from '../hooks/useUserRead'
 import Logout from './auth/components/logoutComponent'
@@ -29,7 +29,7 @@ export default function HomeScreen(props){
       <View style={{flex:10}}>
         <View style={styles.centeredBox,styles.alignCentered}>
           <TouchableOpacity onPress={()=>props.navigation.navigate('login')}>
-            <Text>Wellcome to your app</Text>
+            <Text>Wellcome</Text>
             {user? (
               <Text>{user.displayName}</Text>
             ):(
@@ -37,7 +37,15 @@ export default function HomeScreen(props){
             )}
           </TouchableOpacity>
         </View>
-
+        <View style={{flex:1}}></View>
+        <View style={styles.horizontalView}>
+          <View style={{flex:2}}></View>
+          <View style={{flex:4}}>
+            <Button title='Start Session' onPress={()=>props.navigation.navigate('session')}/>
+          </View>
+          <View style={{flex:2}}></View>
+        </View>
+        <View style={{flex:1}}></View>
       </View>
       <View style={{flex:1}}>
         <View style={styles.darkBackground}>

@@ -1,10 +1,12 @@
 import * as React from 'react';
 import * as SplashScreen from 'expo-splash-screen'
 import * as firebase from 'firebase'
+import * as Asset from 'expo-asset'
 import 'firebase/firestore'
 import apiKeys from '../constants/apiKeys.js'
 import useUserRead from './useUserRead'
 import useUserStore from './useUserStore'
+import useAssetStore from './useAssetStore'
 
 export default function useCachedResources(){
   const [auth, setAuth] = React.useState('toLoad')
@@ -12,6 +14,10 @@ export default function useCachedResources(){
   const [setUser] = useUserStore()
   const [user,readUser] = useUserRead('get')
   const [isNew,setIsNew] = React.useState(false)
+  const [assets,err] = Asset.useAssets([require('../assets/splash.png'),require('../assets/adaptive-icon.png')])
+  const [storedAssets,storeAssets] = useAssetStore()
+  const [assetsLoaded,setLoaded] = React.useState(false)
+  const [ready,setReady] = React.useState(false)
 
   React.useEffect(()=>{
     async function loadResourcesAndDataAsync(){
@@ -19,7 +25,6 @@ export default function useCachedResources(){
         SplashScreen.preventAutoHideAsync();
         firebase.initializeApp(apiKeys.firebase)
         firebase.auth().onAuthStateChanged((authUser)=>{
-          console.log('noay?',(!authUser));
           if(authUser){
             setUserInfo({
               uid:authUser.uid,
@@ -33,7 +38,7 @@ export default function useCachedResources(){
             setIsNew(false)
             setAuth(false)
             setUser({destroyed :true})
-            SplashScreen.hideAsync()
+            setReady(true)
           }
         })
       } catch (err) {
@@ -43,17 +48,15 @@ export default function useCachedResources(){
     loadResourcesAndDataAsync();
   }, []);
 
-
   React.useEffect(()=>{
-    console.log(auth,user);
     if(auth==true&&user!='get'){
       if(user.uid){
-        SplashScreen.hideAsync();
+        setReady(true)
         return;
       }
       if(!isNew){
         let db = firebase.firestore()
-        db.settings({ experimentalForceLongPolling: true })
+        // db.settings({ experimentalForceLongPolling: true })
         let userRef = db.collection('users')
         userRef.doc(userInfo.uid).get()
             .then((doc)=>{
@@ -62,7 +65,6 @@ export default function useCachedResources(){
               newInfo.description = doc.data().description
               setUserInfo(newInfo)
               setUser(userInfo)
-              SplashScreen.hideAsync()
             })
             .catch((e)=>{
               console.log('pepeta',e);
@@ -70,6 +72,23 @@ export default function useCachedResources(){
       }
     }
   },[user,auth])
+
+  React.useEffect(()=>{
+    let i = 0
+    let assetsOb = {}
+    if(assets){
+      assetsOb.splash = assets[0].localUri
+      assetsOb.logo = assets[1].localUri
+      storeAssets(assetsOb)
+      setLoaded(true)
+    }
+  },[assets])
+
+  React.useEffect(()=>{
+    if(assetsLoaded&&ready){
+      SplashScreen.hideAsync()
+    }
+  },[assetsLoaded,ready])
 
   return [auth]
 }

@@ -15,7 +15,7 @@ export default function useUserStore(val){
     }
     if(user){
       storeUser()
-      console.log('storing');
+      // console.log('storing');
     }
   },[user]);
 

@@ -37,8 +37,8 @@
       [
         "@react-native-voice/voice",
         {
-          "microphonePermision": "CUSTOM: Allow me bitch",
-          "speechRecognitionPermission": "CUSTOM: Allow me bitch speech"
+          "microphonePermision": "CUSTOM: Allow microphone use for voice command",
+          "speechRecognitionPermission": "CUSTOM: Allow speech recognition "
         }
       ]
     ]
