@@ -15,6 +15,7 @@ export default function HomeScreen(props){
   },[props.route.params])
 
   React.useEffect(()=>{
+    console.log('user?',user);
     if(user == 'get' || user.destroyed){setUser('get')}
   },[user])
 

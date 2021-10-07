@@ -1,8 +1,8 @@
 import React from 'react'
 import * as firebase from 'firebase'
 import {styles} from '../../styles'
-import {Input,Text,Button} from 'react-native-elements'
-import {View, TouchableOpacity,ActivityIndicator} from 'react-native'
+import {Input,Text,Button,Image} from 'react-native-elements'
+import {View, TouchableOpacity,ActivityIndicator,ImageBackground} from 'react-native'
 
 export default function Login({handleToRegister,handleRecoverPassword}) {
   const [email, setEmail] = React.useState('')
@@ -25,33 +25,29 @@ export default function Login({handleToRegister,handleRecoverPassword}) {
         })
   }
 
-    return (
-      <View>
-          {loading?(
-            <ActivityIndicator/>
-          ):(
-            <>
-              <Text>{error}</Text>
-              <Input placeholder = 'Email' value={email} onChangeText={email => setEmail(email)}/>
-              <Input placeholder = 'Password' value={password} secureTextEntry={true} onChangeText={password => setPass(password)}/>
-              <Button title='login' onPress={handleLogin}/>
+  return (
+    <View>
+        {loading?(
+          <ActivityIndicator/>
+        ):(
+          <>
+            <Text>{error}</Text>
+            <Input style={styles.ligthText} inputContainerStyle={styles.inputContainer} placeholder='Email' value={email} onChangeText={email => setEmail(email)}/>
+            <Input style={styles.ligthText} inputContainerStyle={styles.inputContainer} placeholder='Password' value={password} secureTextEntry={true} onChangeText={password => setPass(password)}/>
+            <Button title='Sign In' onPress={handleLogin}/>
+            <View style={{marginTop:10}}>
               <View style={styles.horizontalView}>
+                <TouchableOpacity onPress={()=>handleToRegister()}>
+                  <Text style={styles.ligthText}>Register</Text>
+                </TouchableOpacity>
                 <View style={{flex:1}}></View>
                 <TouchableOpacity onPress={()=>handleRecoverPassword()}>
-                  <Text style={{marginTop:10}}>forgot my password</Text>
+                  <Text style={styles.ligthText}>forgot my password</Text>
                 </TouchableOpacity>
               </View>
-             <View style={styles.topMarginCentered}>
-                <Text>Or</Text>
-              </View>
-              <View style={styles.topMarginCentered}>
-                  <TouchableOpacity onPress={()=>handleToRegister()}>
-                    <Text h4>Register</Text>
-                  </TouchableOpacity>
-              </View>
-            </>
-          )}
-      </View>
-    )
-
+            </View>
+          </>
+        )}
+    </View>
+  )
 }

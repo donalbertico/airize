@@ -96,7 +96,6 @@ export default function SessionScreen(props){
           props.navigation.dispatch(e.data.action)
         })
         let db = firebase.firestore()
-        db.settings({ experimentalForceLongPolling: true })
         let reference = db.collection('sessions')
         reference.add({users:[user.uid,'asdf'],status:'f',time:time})
           .then((doc)=>{

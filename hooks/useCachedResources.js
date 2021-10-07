@@ -21,9 +21,11 @@ export default function useCachedResources(){
 
   React.useEffect(()=>{
     async function loadResourcesAndDataAsync(){
+      SplashScreen.preventAutoHideAsync();
       try {
-        SplashScreen.preventAutoHideAsync();
         firebase.initializeApp(apiKeys.firebase)
+        let db = firebase.firestore()
+        db.settings({ experimentalForceLongPolling: true })
         firebase.auth().onAuthStateChanged((authUser)=>{
           if(authUser){
             setUserInfo({
@@ -55,8 +57,8 @@ export default function useCachedResources(){
         return;
       }
       if(!isNew){
+        console.log('not new');
         let db = firebase.firestore()
-        // db.settings({ experimentalForceLongPolling: true })
         let userRef = db.collection('users')
         userRef.doc(userInfo.uid).get()
             .then((doc)=>{
@@ -65,6 +67,7 @@ export default function useCachedResources(){
               newInfo.description = doc.data().description
               setUserInfo(newInfo)
               setUser(userInfo)
+              setReady(true)
             })
             .catch((e)=>{
               console.log('pepeta',e);

@@ -94,14 +94,14 @@ export default function PasswordScreen(props){
                       <ActivityIndicator/>
                       ):(change? (
                         <View>
-                          <Input placeholder='current' value={current} onChangeText={(current)=>setCurrent(current)}></Input>
-                          <Input placeholder='password' value={password} secureTextEntry={true} onChangeText={(password)=>setPass(password)}></Input>
-                          <Input placeholder='repeat password' value={repeat} secureTextEntry={true} onChangeText={(repeat)=>setRepeat(repeat)}></Input>
+                          <Input style={styles.ligthText} inputContainerStyle={styles.inputContainer} placeholder='current' value={current} onChangeText={(current)=>setCurrent(current)}></Input>
+                          <Input style={styles.ligthText} inputContainerStyle={styles.inputContainer} placeholder='password' value={password} secureTextEntry={true} onChangeText={(password)=>setPass(password)}></Input>
+                          <Input style={styles.ligthText} inputContainerStyle={styles.inputContainer} placeholder='repeat password' value={repeat} secureTextEntry={true} onChangeText={(repeat)=>setRepeat(repeat)}></Input>
                           <Button title='change password' onPress={handleReset}/>
                         </View>
                       ):(
                         <View>
-                          <Input inputContainerStyle={styles.inputContainer} placeholder='Email' value={email} onChangeText={(email)=>setEmail(email)}/>
+                          <Input style={styles.ligthText} inputContainerStyle={styles.inputContainer} placeholder='Email' value={email} onChangeText={(email)=>setEmail(email)}/>
                           <Button title='send ecovery link' onPress={handleSendMail}/>
                           <View style={styles.horizontalView}>
                             <View style={{flex:1}}></View>

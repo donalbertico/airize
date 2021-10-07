@@ -1,5 +1,5 @@
 import * as React from 'react'
-
+import * as firebase from 'firebase'
 import {View,ActivityIndicator,TouchableOpacity} from 'react-native'
 import {Input,Text,Button} from 'react-native-elements'
 import {styles} from '../styles'
@@ -8,8 +8,6 @@ import useUserStore from '../../hooks/useUserStore'
 import useUserRead from '../../hooks/useUserRead'
 
 export default function EditScreen(props){
-  // const db = firebase.firestore();
-
   const [email,setEmail] = React.useState('')
   const [name,setName] = React.useState('')
   const [loading,setLoading] = React.useState(false)
@@ -18,6 +16,7 @@ export default function EditScreen(props){
 
   handleEdit = ()=> {
     setLoading(true)
+    let db = firebase.firestore();
     let ref = db.collection('users').doc(user.uid)
     const authUser = firebase.auth().currentUser
     let newInfo = {description : 'ploplo'}
