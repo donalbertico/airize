@@ -33,7 +33,6 @@ export default function EditScreen(props){
               props.navigation.navigate('home',{userUpdate : true})
               setLoading(false)
             },(e)=>{
-              console.warn(e)
               setLoading(false)
             })
       })
