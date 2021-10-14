@@ -11,7 +11,7 @@ export default function Timer(props){
 
   React.useEffect(()=>{
     let that = this
-    if(!props.pause){
+    if(props.pause == false){
       that.timer = setInterval(()=>{
         setMs(ms=>ms+1)
       },1)

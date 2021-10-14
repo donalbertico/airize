@@ -16,9 +16,7 @@ export default function useAssetStore(val){
     async function read(){
       try {
         let data = await AsyncStorage.getItem('assets')
-        if (data) {
-          setAssets(JSON.parse(data))
-        }
+        if (data) setAssets(JSON.parse(data))
       } catch (e) {
         console.warn('ERROR reading assets:',e);
       }

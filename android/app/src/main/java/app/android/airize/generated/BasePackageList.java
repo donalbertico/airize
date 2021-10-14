@@ -10,13 +10,15 @@ public class BasePackageList {
         new expo.modules.application.ApplicationPackage(),
         new expo.modules.av.AVPackage(),
         new expo.modules.constants.ConstantsPackage(),
+        new expo.modules.crypto.CryptoPackage(),
         new expo.modules.errorrecovery.ErrorRecoveryPackage(),
         new expo.modules.filesystem.FileSystemPackage(),
         new expo.modules.font.FontLoaderPackage(),
         new expo.modules.imageloader.ImageLoaderPackage(),
         new expo.modules.keepawake.KeepAwakePackage(),
         new expo.modules.splashscreen.SplashScreenPackage(),
-        new expo.modules.updates.UpdatesPackage()
+        new expo.modules.updates.UpdatesPackage(),
+        new expo.modules.webbrowser.WebBrowserPackage()
     );
   }
 }

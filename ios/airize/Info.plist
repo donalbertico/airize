@@ -25,6 +25,7 @@
       <dict>
         <key>CFBundleURLSchemes</key>
         <array>
+          <string>airize</string>
           <string>app.ios.airize</string>
         </array>
       </dict>

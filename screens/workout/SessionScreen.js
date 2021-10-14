@@ -3,23 +3,29 @@ import * as firebase from 'firebase'
 import { Audio } from 'expo-av'
 import 'firebase/firestore'
 import Voice from '@react-native-voice/voice'
+import SpotifyWebApi from 'spotify-web-api-js'
 import {View,TouchableOpacity,Modal,ActivityIndicator} from 'react-native'
 import {Text} from 'react-native-elements'
 import { Ionicons } from '@expo/vector-icons';
 import {styles} from '../styles'
 import Timer from './components/timerComponent'
 import useUserRead from '../../hooks/useUserRead'
+import useSpotifyTokenRefresh from '../../hooks/useSpotifyTokenRefresh'
+import useSpotifyTokenStore from '../../hooks/useSpotifyTokenStore'
+import useSpotifyPlayStore from '../../hooks/useSpotifyPlayStore'
 
 export default function SessionScreen(props){
+  const [user] = useUserRead('get')
+  const [refreshErr,refreshedTokens,setRefresh] = useSpotifyTokenRefresh(false)
+  const [storedToken] = useSpotifyTokenStore()
+  const [playInfo,setPlayInfo] = useSpotifyPlayStore()
   const [isRecording,setIsRecording] = React.useState(false)
   const [pause,setPause] = React.useState(true)
-  const [listening,setListening] = React.useState(true)
+  const [listening,setListening] = React.useState(false)
   const [status,setStatus] = React.useState('w') //[w:work,r:record,s:stopping,p:playing]
-  const [check,setCheck] = React.useState(0)
   const [recordTime,setRecordTime] = React.useState(0)
   const [showModal,setModal] = React.useState(false)
-  const [user] = useUserRead('get')
-  const [time,setWorkTime] = React.useState()
+  const [time,setWorkoutTime] = React.useState()
   const [recording,setRecording] = React.useState()
   const [isReproducing,setIsReproducing] = React.useState(false)
   const [message,setMessage] = React.useState()
@@ -29,27 +35,34 @@ export default function SessionScreen(props){
   const [sessRef,setRf] = React.useState()
   const [recordUri,setRecordUri] = React.useState()
   const [storeMessageName,setMessageName] = React.useState()
+  const [tokenExpired,setTokenExpired] = React.useState(true)
+  const [spotifyAv,setSpotifyAv] = React.useState(false)
+  const [spotifyCall,setSpotifyCall] = React.useState()
+  const [spotifyToken,setSpotifyToken] = React.useState()
+  const [currentUri,setCurrentRui] = React.useState()
 
   const workSpeechResultsHandler = (results) =>{
     let options = results.value
     if(options){
-          for(var i in options){
-            if(options[i]=='stop'){
-              setListening(false)
-              Voice.destroy()
-              setStatus('s')
-              setPause(true)
-              setModal(true)
-              setListening(true)
-              setPause(false)
-            }else if(options[i]=='record'||options[i]=='send message'){
-              setListening(false)
-              Voice.destroy()
-              setStatus('r')
-              setIsRecording(true)
-              setRecordTime(1)
-            }
+        for(var i in options){
+          if(options[i]=='stop'){
+            setListening(false)
+            Voice.destroy()
+            setStatus('s')
+            setPause(true)
+            setModal(true)
+            setListening(true)
+            setPause(false)
+          }else if(options[i]=='record'||options[i]=='send message'){
+            setListening(false)
+            Voice.destroy()
+            setStatus('r')
+            setIsRecording(true)
+            setRecordTime(1)
+          }else if(options[i]=='play'||options[i]=='play music'){
+            setSpotifyCall('play')
           }
+        }
       }
   }
   const confirmationSpeechResultHandler = (results)=>{
@@ -73,35 +86,31 @@ export default function SessionScreen(props){
       }
     }
   }
-  const setSession = () =>{
+  const checkTokenExpired = ()=> {
+    let yesterday = new Date()
+    if(!storedToken)return;
+    console.log(storedToken.expires);
+    yesterday.setDate(yesterday.getDate()+1)
+    if(storedToken.expires <= new Date().getTime()){
+      console.log('ya nouay');
+      setRefresh(true)
+    }else{
+      setSpotifyToken(storedToken.access)
+    }
   }
-
+  //onMount hook
   React.useEffect(()=>{
-    //onMount hook
     props.navigation.addListener('beforeRemove',(e)=>{
       e.preventDefault()
     })
-    setListening(true)
-    async function askPermit(){
-      try {
-        console.log('Requesting permissions..');
-        await Audio.requestPermissionsAsync();
-        await Audio.setAudioModeAsync({
-          allowsRecordingIOS: true,
-          playsInSilentModeIOS: true,
-        });
-      } catch (err) {
-        console.error('Failed to start recording', err);
-      }
-    }
-    askPermit()
     let db = firebase.firestore();
     setRf(db.collection('sessions').doc(sessId).collection('messages'))
     setPause(false)
+    setListening(true)
   },[])
+  //status
+  //changes speech handlers
   React.useEffect(()=>{
-    //status
-    //changes speech handlers
     switch (status) {
       case 'w':
         Voice.onSpeechResults = workSpeechResultsHandler
@@ -125,6 +134,8 @@ export default function SessionScreen(props){
         break;
     }
   },[status])
+  //listening
+  //starts voice function to listen each 4 seconds
   React.useEffect(()=>{
     let that = this;
     if(listening){
@@ -137,10 +148,10 @@ export default function SessionScreen(props){
     }else{
       clearInterval(that.interval)
     }
-  },[listening,props.route.name])
+  },[listening])
+  //recordTime
+  //handle record command for (S) seconds
   React.useEffect(()=>{
-    //recordTime
-    //handle record command for (S) seconds
     let that = this
     async function record(){
       try{
@@ -166,13 +177,13 @@ export default function SessionScreen(props){
     if(recordTime == 6){
       clearInterval(that.interval)
       stopRecord()
-      setRecordTime(0)
+      setRecordTime(recordTime => 0)
       setIsRecording(false)
     }
   },[recordTime])
+  //recordUri
+  //uploads recoreded audio
   React.useEffect(()=>{
-    //isSending
-    //upload message and creates playback object
     async function upload(){
       setSending(true)
       try {
@@ -188,11 +199,9 @@ export default function SessionScreen(props){
           xhr.open('GET',recordUri,true)
           xhr.send(null)
         })
-        console.log('topien?');
         if(blob!=null){
           const uriParts = recordUri.split(".");
           const fileType = uriParts[uriParts.length - 1];
-          console.log('file',fileType);
           sessRef.add({user:user.uid}).then((doc)=>{
             setMessageName(`${doc.id}.${fileType}`)
             firebase
@@ -217,9 +226,9 @@ export default function SessionScreen(props){
     }
     if(recordUri)upload()
   },[recordUri])
+  //isSending
+  //creates plaback object with uri and reproduces audio
   React.useEffect(()=>{
-    //storeMessageName
-    //creates plaback object with uri
     async function playMessage(){
       setIsReproducing(true)
       const uri = await firebase.storage().ref(storeMessageName).getDownloadURL();
@@ -229,15 +238,16 @@ export default function SessionScreen(props){
         await soundObj.loadAsync({uri})
         setMessageDuration(1)
         await soundObj.playAsync()
+        setMessageName()
       } catch (e) {
         console.log('error playing',e);
       }
     }
     if(storeMessageName&&!isSending)playMessage()
   },[isSending])
+  //messageDuration
+  //count for message duration while it reproduces
   React.useEffect(()=>{
-    //messageDuration
-    //count for message duration
     let that = this
     if(messageDuration == 1){
       setIsReproducing(true)
@@ -254,9 +264,42 @@ export default function SessionScreen(props){
     }
     console.log('reproducing',messageDuration);
   },[messageDuration])
+  //spotify tokens
+  //check if spotify is authorized
+  React.useEffect(()=>{
+    if(storedToken)setSpotifyAv(true)
+  },[storedToken])
+  //tokenExpired, Spotifycall
+  //calls a spotify function if token isnt expired
+  React.useEffect(()=>{
+    const client = new SpotifyWebApi()
+    async function play(){
+      await client.play({
+        uris: ['spotify:track:1jhidLCLbiNc7MP4XjkENP'],
+        device_id: playInfo.device,
+        position_ms:0
+      })
+      setSpotifyCall('')
+    }
+    if(spotifyToken&&spotifyCall) {
+      console.log('ahooora',spotifyCall);
+      client.setAccessToken(spotifyToken)
+      switch (spotifyCall) {
+        case 'play':
+            play()
+          break;
+      }
+    }
+    if(spotifyCall)checkTokenExpired()
+  },[spotifyToken,spotifyCall])
+  //refreshedTokens
+  //set access token when refreshedTokens are set
+  React.useEffect(()=>{
+    if(refreshedTokens)setSpotifyToken(refreshedTokens.access)
+  },[refreshedTokens])
 
   handleOnTime = (e)=>{
-    setWorkTime(e)
+    setWorkoutTime(e)
   }
 
   return(
@@ -294,6 +337,13 @@ export default function SessionScreen(props){
             </View>
             <View style={{flex:2}}></View>
           </View>
+        </View>
+        <View>
+          {spotifyAv? (
+            <View><Text>SOOOnando</Text></View>
+          ):(
+            <View><Text>authroize spotify to share yout music</Text></View>
+          )}
         </View>
         <View style={{flex:2}}></View>
       </View>

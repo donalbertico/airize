@@ -3,10 +3,12 @@ import * as SplashScreen from 'expo-splash-screen'
 import * as firebase from 'firebase'
 import * as Asset from 'expo-asset'
 import 'firebase/firestore'
-import apiKeys from '../constants/apiKeys.js'
+import apiKeys from '../constants/apiKeys'
 import useUserRead from './useUserRead'
 import useUserStore from './useUserStore'
 import useAssetStore from './useAssetStore'
+import useKeyStore from './useKeyStore'
+import AsyncStorage from '@react-native-async-storage/async-storage'
 
 export default function useCachedResources(){
   const [auth, setAuth] = React.useState('toLoad')
@@ -18,6 +20,7 @@ export default function useCachedResources(){
   const [storedAssets,storeAssets] = useAssetStore()
   const [assetsLoaded,setLoaded] = React.useState(false)
   const [ready,setReady] = React.useState(false)
+  const [keys,storeKeys] = useKeyStore()
 
   React.useEffect(()=>{
     async function loadResourcesAndDataAsync(){
@@ -36,6 +39,7 @@ export default function useCachedResources(){
               setIsNew(true)
             }
             setAuth(true)
+            getKeys()
           }else{
             setIsNew(false)
             setAuth(false)
@@ -47,9 +51,24 @@ export default function useCachedResources(){
         console.warn(err);
       }
     }
+    async function getKeys(){
+      const uri = await firebase.storage().ref('scr/spotify.json').getDownloadURL()
+      let rs = await fetch(uri)
+      let json = await rs.json()
+      storeKeys({spotify:json.id})
+    }
+
+    async function removeSt(){
+      try {
+        await AsyncStorage.removeItem('spotifyToken')
+      } catch (e) {
+
+      }
+    }
+    // removeSt()
+
     loadResourcesAndDataAsync();
   }, []);
-
   React.useEffect(()=>{
     if(auth==true&&user!='get'){
       if(user.uid){
@@ -75,7 +94,6 @@ export default function useCachedResources(){
       }
     }
   },[user,auth])
-
   React.useEffect(()=>{
     let i = 0
     let assetsOb = {}
@@ -86,7 +104,6 @@ export default function useCachedResources(){
       setLoaded(true)
     }
   },[assets])
-
   React.useEffect(()=>{
     if(assetsLoaded&&ready){
       SplashScreen.hideAsync()

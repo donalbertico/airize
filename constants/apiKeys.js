@@ -7,5 +7,8 @@ export default{
     messagingSenderId: "420079497855",
     appId: "1:420079497855:web:6ab07042945c415a14454a",
     measurementId: "G-JRQ8TDGJ2N"
+  },
+  spotify : {
+    clientId : "2e4dab11cd8c42608560c988dbf341ab"
   }
 }
