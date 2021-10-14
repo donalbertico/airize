@@ -16,6 +16,12 @@ const styles = StyleSheet.create({
   centered : {
     flex : 5
   },
+  homeLigthBox :{
+    backgroundColor : theme.colors.ligth,
+    height:'100%',
+    borderTopStartRadius: 10,
+    justifyContent : 'center'
+  },
   alignCentered:{
     alignItems : 'center',
     justifyContent : 'center'
@@ -26,15 +32,16 @@ const styles = StyleSheet.create({
   header:{
     backgroundColor: theme.colors.primary,
     justifyContent : 'center',
-    flex:1
+    flex:3
   },
   topMarginCentered:{
     marginTop : 20,
     alignItems : 'center'
   },
-  darkBackground:{
+  bottomMenu:{
     backgroundColor : theme.colors.dark,
-    flex:1
+    flex :1 ,
+    justifyContent : 'center'
   },
   image:{
     flex:1,
@@ -64,6 +71,10 @@ const styles = StyleSheet.create({
   },
   ligthText:{
     color : theme.colors.ligth
+  },
+  menuOption:{
+    height : 70,
+    width : 50
   }
 })
 

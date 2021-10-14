@@ -37,7 +37,6 @@ export default function useSpotifyTokenRefresh(refresh){
 
   useEffect(()=>{
     if(result){
-      console.log(result);
       if(result.error)setError(error)
       if(result.access_token){
         let newTokens = {
@@ -45,7 +44,6 @@ export default function useSpotifyTokenRefresh(refresh){
           expires : new Date().getTime() + result.expires_in *1000,
           refresh : tokens.refresh
         }
-        storeTokens(newTokens)
         setRefreshedTokens(newTokens)
         setRefresh(false)
       }

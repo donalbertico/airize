@@ -16,7 +16,16 @@ export default function useCachedResources(){
   const [setUser] = useUserStore()
   const [user,readUser] = useUserRead('get')
   const [isNew,setIsNew] = React.useState(false)
-  const [assets,err] = Asset.useAssets([require('../assets/splash.png'),require('../assets/adaptive-icon.png')])
+  const [assets,err] = Asset.useAssets([
+    require('../assets/splash.png'),
+    require('../assets/adaptive-icon.png'),
+    require('../assets/avatar.png'),
+    require('../assets/homeSelected.png'),
+    require('../assets/searchUnselected.png'),
+    require('../assets/friendsUnselected.png'),
+    require('../assets/linkUnselected.png'),
+    require('../assets/propertiesUnselected.png')
+  ])
   const [storedAssets,storeAssets] = useAssetStore()
   const [assetsLoaded,setLoaded] = React.useState(false)
   const [ready,setReady] = React.useState(false)
@@ -100,6 +109,14 @@ export default function useCachedResources(){
     if(assets){
       assetsOb.splash = assets[0].localUri
       assetsOb.logo = assets[1].localUri
+      assetsOb.avatar= assets[2].localUri
+      assetsOb.menu = {
+        home: assets[3].localUri,
+        search: assets[4].localUri,
+        friends: assets[5].localUri,
+        link: assets[6].localUri,
+        set: assets[7].localUri
+      }
       storeAssets(assetsOb)
       setLoaded(true)
     }
