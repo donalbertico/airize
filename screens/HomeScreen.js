@@ -13,7 +13,7 @@ import useSpotifyPlayStore from '../hooks/useSpotifyPlayStore'
 import useAssetStore from '../hooks/useAssetStore'
 
 import Logout from './auth/components/logoutComponent'
-
+import NavBar from './components/bottomNavComponent'
 
 export default function HomeScreen(props){
   const [refreshErr,refreshedTokens,setRefresh] = useSpotifyTokenRefresh(false)
@@ -28,7 +28,6 @@ export default function HomeScreen(props){
   const [deviceAvalible,setDeviceAvalible] = React.useState()
   const [searchDevices,setSearchDevices] = React.useState(false)
   const [avatarUri,setAvatar] = React.useState()
-  const [menuUris,setMenuUris] = React.useState({home:'/'})
   //on mount
   React.useEffect(()=>{
     async function askPermissions(){
@@ -144,7 +143,6 @@ export default function HomeScreen(props){
   React.useEffect(()=>{
     if(assets){
       setAvatar(assets.avatar)
-      setMenuUris(assets.menu)
     }
   },[assets])
 
@@ -207,21 +205,7 @@ export default function HomeScreen(props){
         </View>
       </View>
       <View style={{flex:2}}>
-        <View style={styles.bottomMenu}>
-          <View style={styles.horizontalView}>
-            <View style={{flex:1}}></View>
-            <Image style={styles.menuOption} source={{uri:menuUris.home}}/>
-            <View style={{flex:1}}></View>
-            <Image style={styles.menuOption} source={{uri:menuUris.search}}/>
-            <View style={{flex:1}}></View>
-            <Image style={styles.menuOption} source={{uri:menuUris.friends}}/>
-            <View style={{flex:1}}></View>
-            <Image style={styles.menuOption} source={{uri:menuUris.link}}/>
-            <View style={{flex:1}}></View>
-            <Image style={styles.menuOption} source={{uri:menuUris.set}}/>
-            <View style={{flex:1}}></View>
-          </View>
-        </View>
+        <NavBar/>
       </View>
     </View>
   )
