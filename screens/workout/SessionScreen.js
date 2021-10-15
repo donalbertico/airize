@@ -4,7 +4,7 @@ import { Audio } from 'expo-av'
 import 'firebase/firestore'
 import Voice from '@react-native-voice/voice'
 import SpotifyWebApi from 'spotify-web-api-js'
-import {View,TouchableOpacity,Modal,ActivityIndicator} from 'react-native'
+import { View, TouchableOpacity, Modal, ActivityIndicator, Platform} from 'react-native'
 import {Text} from 'react-native-elements'
 import { Ionicons } from '@expo/vector-icons';
 import {styles} from '../styles'
@@ -44,44 +44,49 @@ export default function SessionScreen(props){
   const workSpeechResultsHandler = (results) =>{
     let options = results.value
     if(options){
-        for(var i in options){
-          if(options[i]=='stop'){
+      for(var i in options){
+        let string = options[i].split(' ')
+        for (var j in string) {
+          let word = string[j].toLowerCase();
+          if(word =='stop'){
             setListening(false)
-            Voice.destroy()
             setStatus('s')
             setPause(true)
             setModal(true)
-            setListening(true)
-            setPause(false)
-          }else if(options[i]=='record'||options[i]=='send message'){
+            return;
+          }else if(word=='record'||word=='send message'){
             setListening(false)
-            Voice.destroy()
             setStatus('r')
             setIsRecording(true)
             setRecordTime(1)
-          }else if(options[i]=='play'||options[i]=='play music'){
+            return;
+          }else if(word=='play'||word=='play music'){
+            setListening(false)
             setSpotifyCall('play')
+            return;
           }
         }
       }
+    }
   }
   const confirmationSpeechResultHandler = (results)=>{
     let options = results.value
     if(options){
       for(var i in options){
-        if(options[i]=='stop'||options[i]=='yes'){
-          setListening(false)
-          Voice.destroy()
-          setStatus('f')
-          setPause(true)
-        }else if(options[i]=='no'||options[i]=='continue'){
-          setListening(false)
-          Voice.destroy()
-          setStatus('w')
-          setPause(true)
-          setModal(false)
-          setListening(true)
-          setPause(false)
+        let string = options[i].split(' ')
+        for (var j in string) {
+          let word = string[j].toLowerCase();
+          if(word=='stop'||word=='yes'){
+            setListening(false)
+            setStatus('f')
+            setPause(true)
+            return
+          }else if(word=='no'||word=='continue'){
+            setListening(false)
+            setStatus('w')
+            setPause(false)
+            setModal(false)
+          }
         }
       }
     }
@@ -100,23 +105,38 @@ export default function SessionScreen(props){
   }
   //onMount hook
   React.useEffect(()=>{
+    async function allowRecordIos(){
+      try {
+        await Audio.setAudioModeAsync({
+          allowsRecordingIOS: true,
+          playsInSilentModeIOS: true,
+        });
+      } catch (e) {
+        console.log('ERROR setting recording',e);
+      }
+    }
     props.navigation.addListener('beforeRemove',(e)=>{
       e.preventDefault()
     })
     let db = firebase.firestore();
     setRf(db.collection('sessions').doc(sessId).collection('messages'))
     setPause(false)
-    setListening(true)
+    allowRecordIos()
   },[])
   //status
   //changes speech handlers
   React.useEffect(()=>{
+    Voice.stop()
+    Voice.removeAllListeners()
+    Voice.destroy()
     switch (status) {
       case 'w':
         Voice.onSpeechResults = workSpeechResultsHandler
+        setListening(true)
         break;
       case 's':
         Voice.onSpeechResults = confirmationSpeechResultHandler
+        setListening(true)
         break;
       case 'f':
         props.navigation.addListener('beforeRemove',(e)=>{
@@ -139,13 +159,9 @@ export default function SessionScreen(props){
   React.useEffect(()=>{
     let that = this;
     if(listening){
-      if(status=='s'){
-        Voice.start('en-UK')
-      }
-      that.interval = setInterval(()=>{
-        Voice.start('en-UK')
-      },4000)
+          Voice.start('en-UK')
     }else{
+      Voice.stop()
       clearInterval(that.interval)
     }
   },[listening])
@@ -169,7 +185,11 @@ export default function SessionScreen(props){
         setRecordUri(uri)
     }
     if(recordTime == 1){
-      record()
+      Voice.cancel()
+      Voice.stop()
+      Voice.destroy()
+      setTimeout(()=>{      record()},500)
+
       that.interval = setInterval(()=>{
         setRecordTime(recordTime => recordTime+1)
       },1000)
@@ -235,9 +255,13 @@ export default function SessionScreen(props){
       const soundObj = new Audio.Sound()
       console.log('cuantas cuentas',uri);
       try {
-        await soundObj.loadAsync({uri})
+        await Audio.setAudioModeAsync({
+          allowsRecordingIOS: true,
+          playsInSilentModeIOS: true,
+        });
+        await soundObj.loadAsync({uri :  uri },{ shouldPlay : true})
         setMessageDuration(1)
-        await soundObj.playAsync()
+        // await soundObj.playAsync()
         setMessageName()
       } catch (e) {
         console.log('error playing',e);
@@ -260,9 +284,7 @@ export default function SessionScreen(props){
       setMessageDuration(messageDuration=>0)
       setIsReproducing(false)
       setStatus('w')
-      setListening(true)
     }
-    console.log('reproducing',messageDuration);
   },[messageDuration])
   //spotify tokens
   //check if spotify is authorized
