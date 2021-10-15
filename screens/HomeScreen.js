@@ -3,7 +3,7 @@ import { Audio } from 'expo-av'
 import {styles} from './styles'
 import { View, TouchableOpacity, Image } from 'react-native'
 import { Text, Button } from 'react-native-elements'
-import { Ionicons } from '@expo/vector-icons';
+import Voice from '@react-native-voice/voice'
 import SpotifyWebApi from 'spotify-web-api-js'
 import useUserRead from '../hooks/useUserRead'
 import useSpotifyAuth from '../hooks/useSpotifyAuth'
@@ -34,11 +34,10 @@ export default function HomeScreen(props){
     async function askPermissions(){
       try {
         console.log('Requesting permissions..');
+        Voice.start()
         await Audio.requestPermissionsAsync();
-        await Audio.setAudioModeAsync({
-          allowsRecordingIOS: true,
-          playsInSilentModeIOS: true,
-        });
+        Voice.stop()
+        Voice.destroy()
       } catch (err) {
         console.error('Failed to start recording', err);
       }
@@ -63,15 +62,6 @@ export default function HomeScreen(props){
   React.useEffect(()=>{
     if(user == 'get' || user.destroyed){setUser('get')}
   },[user])
-  //audio Permissions
-  //ask if false
-  React.useEffect(()=>{
-    async function askPermission(){setRefresh
-      const {status} = await Permissions.askAsync(Permissions.AUDIO_RECORDING)
-      if(status=="granted"){setAudioGranted(true)}
-    }
-    if(audioGranted == false)askPermission()
-  },[audioGranted])
   //spotify authorization
   //check if auth is true
   React.useEffect(()=>{
@@ -194,7 +184,7 @@ export default function HomeScreen(props){
                   :(
                     <TouchableOpacity onPress={()=>{setSearchDevices(true);setSpotifyToken('refresh')}}>
                       <Text>Please make sure spotify app is open to listen</Text>
-                      <Text>Touch here if it is</Text>
+                      <Text>Touch here if it is =)</Text>
                     </TouchableOpacity>)
                   )
                   :(
