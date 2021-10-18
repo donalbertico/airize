@@ -15,7 +15,6 @@ export default function useSpotifyTokenRefresh(refresh){
   useEffect(()=>{
     async function refreshTokens(){
       const creds = btoa(`${apiKeys.spotify.clientId}:${keys.spotify}`)
-      console.log(tokens);
       try {
         const result = await fetch('https://accounts.spotify.com/api/token',{
           method: 'POST',

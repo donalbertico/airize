@@ -3,6 +3,7 @@ import * as firebase from 'firebase'
 import { Audio } from 'expo-av'
 import 'firebase/firestore'
 import Voice from '@react-native-voice/voice'
+import {PorcupineManager} from '@picovoice/porcupine-react-native'
 import SpotifyWebApi from 'spotify-web-api-js'
 import { View, TouchableOpacity, Modal, ActivityIndicator, Platform} from 'react-native'
 import {Text} from 'react-native-elements'
@@ -22,6 +23,8 @@ export default function SessionScreen(props){
   const [isRecording,setIsRecording] = React.useState(false)
   const [pause,setPause] = React.useState(true)
   const [listening,setListening] = React.useState(false)
+  const [porcupineReady,setPorcupineReady] = React.useState(false)
+  const [listenForWake,setListenForWake] = React.useState(false)
   const [status,setStatus] = React.useState('w') //[w:work,r:record,s:stopping,p:playing]
   const [recordTime,setRecordTime] = React.useState(0)
   const [showModal,setModal] = React.useState(false)
@@ -40,6 +43,7 @@ export default function SessionScreen(props){
   const [spotifyCall,setSpotifyCall] = React.useState()
   const [spotifyToken,setSpotifyToken] = React.useState()
   const [currentUri,setCurrentRui] = React.useState()
+  const [confirmationListening,setConfListening] = React.useState(false)
 
   const workSpeechResultsHandler = (results) =>{
     let options = results.value
@@ -49,47 +53,49 @@ export default function SessionScreen(props){
         for (var j in string) {
           let word = string[j].toLowerCase();
           if(word =='stop'){
-            setListening(false)
+            Voice.stop()
             setStatus('s')
             setPause(true)
             setModal(true)
             return;
           }else if(word=='record'||word=='send message'){
-            setListening(false)
             setStatus('r')
             setIsRecording(true)
             setRecordTime(1)
             return;
           }else if(word=='play'||word=='play music'){
-            setListening(false)
             setSpotifyCall('play')
+            setListening(false)
             return;
           }
         }
       }
     }
   }
-  const confirmationSpeechResultHandler = (results)=>{
+  const confirmationSpeechResultHandler = (results)=> {
     let options = results.value
+    console.log('en los otrros??',options);
     if(options){
       for(var i in options){
         let string = options[i].split(' ')
         for (var j in string) {
           let word = string[j].toLowerCase();
           if(word=='stop'||word=='yes'){
-            setListening(false)
             setStatus('f')
             setPause(true)
-            return
+            return;
           }else if(word=='no'||word=='continue'){
-            setListening(false)
             setStatus('w')
             setPause(false)
             setModal(false)
+            return;
           }
         }
       }
     }
+  }
+  const speechEndHandler = (error)=> {
+    console.log('STOPD');
   }
   const checkTokenExpired = ()=> {
     let yesterday = new Date()
@@ -97,7 +103,6 @@ export default function SessionScreen(props){
     console.log(storedToken.expires);
     yesterday.setDate(yesterday.getDate()+1)
     if(storedToken.expires <= new Date().getTime()){
-      console.log('ya nouay');
       setRefresh(true)
     }else{
       setSpotifyToken(storedToken.access)
@@ -123,22 +128,59 @@ export default function SessionScreen(props){
     setPause(false)
     allowRecordIos()
   },[])
+  //wake word
+  //wakeword started
+  React.useEffect(()=>{
+    let that = this
+    async function setPorcupine() {
+      try {
+        that.porcupineManager = await PorcupineManager.fromKeywords(
+          ['alexa','ok google','terminator','blueberry']
+          ,()=> {
+            setListening(true)
+          })
+        setPorcupineReady(true)
+      } catch (e) {
+        console.log('Error starting porcu',e);
+      }
+    }
+    if(!that.porcupineManager)setPorcupine()
+    if(listenForWake) {
+      Voice.stop()
+      that.porcupineManager?.start().then((started)=> {
+        if(started){
+          console.log('sisaaaaa');
+        }
+      })
+    }else {
+      that.porcupineManager?.stop().then((stopped)=> {
+        if(stopped){
+          Voice.start('en-UK')
+        }
+      })
+    }
+  },[listenForWake,porcupineReady])
+  //listenForWake
+  //sets an interval to activate in case long time passed and voice is not listening
+
   //status
   //changes speech handlers
   React.useEffect(()=>{
-    Voice.stop()
     Voice.removeAllListeners()
     Voice.destroy()
     switch (status) {
       case 'w':
         Voice.onSpeechResults = workSpeechResultsHandler
-        setListening(true)
+        Voice.onSpeechEnd = speechEndHandler
+        setListening(false)
         break;
       case 's':
         Voice.onSpeechResults = confirmationSpeechResultHandler
-        setListening(true)
+        Voice.onSpeechEnd = speechEndHandler
+        setListening(false)
         break;
       case 'f':
+        setListening(false)
         props.navigation.addListener('beforeRemove',(e)=>{
           props.navigation.dispatch(e.data.action)
         })
@@ -155,16 +197,25 @@ export default function SessionScreen(props){
     }
   },[status])
   //listening
-  //starts voice function to listen each 4 seconds
+  //starts voice function and stops porcupine
+  //starts porcupine and stops voice
   React.useEffect(()=>{
-    let that = this;
-    if(listening){
-          Voice.start('en-UK')
+    console.log(listening,status);
+    if (listening){
+      if(status == 's') setTimeout(()=>Voice.start(),150);
+      else setListenForWake(false);
     }else{
-      Voice.stop()
-      clearInterval(that.interval)
+      if (status == 's') setListening(true)
+      if (status != 'f' && status != 's') setListenForWake(true)
     }
   },[listening])
+  //confirmationListening
+  //starts voice again as in confirmatioin modal
+  React.useEffect(()=>{
+    if(confirmationListening){
+      Voice.start('en-UK')
+    }
+  },[confirmationListening])
   //recordTime
   //handle record command for (S) seconds
   React.useEffect(()=>{
@@ -187,7 +238,6 @@ export default function SessionScreen(props){
     if(recordTime == 1){
       Voice.cancel()
       Voice.stop()
-      Voice.destroy()
       setTimeout(()=>{      record()},500)
 
       that.interval = setInterval(()=>{

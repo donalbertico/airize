@@ -87,7 +87,6 @@ export default function HomeScreen(props){
   React.useEffect(()=>{
     if(searchDevices){
       if(storedToken.expires <= new Date().getTime()){
-        console.log('still good?');
         setRefresh(true)
       }else{
         setSpotifyToken(storedToken.access)
@@ -114,8 +113,8 @@ export default function HomeScreen(props){
         const result = await client.getMyDevices()
         if(result){
           let devices = result.devices
-          console.log('QEWCHUCHA',devices);
-          devices.forEach((device, i) => {
+          devices.forEach((device, i) => {3
+            console.log(device);
             if(device.type == "Smartphone"){
               setDeviceAvalible(true)
               setPlayInfo({device:device.id})
