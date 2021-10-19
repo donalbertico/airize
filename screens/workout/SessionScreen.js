@@ -5,7 +5,7 @@ import 'firebase/firestore'
 import Voice from '@react-native-voice/voice'
 import {PorcupineManager} from '@picovoice/porcupine-react-native'
 import SpotifyWebApi from 'spotify-web-api-js'
-import { View, TouchableOpacity, Modal, ActivityIndicator, Platform} from 'react-native'
+import { View, TouchableOpacity, Modal, ActivityIndicator, Platform, Image} from 'react-native'
 import {Text} from 'react-native-elements'
 import { Ionicons } from '@expo/vector-icons';
 import {styles} from '../styles'
@@ -19,12 +19,12 @@ export default function SessionScreen(props){
   const [user] = useUserRead('get')
   const [refreshErr,refreshedTokens,setRefresh] = useSpotifyTokenRefresh(false)
   const [storedToken] = useSpotifyTokenStore()
-  const [playInfo,setPlayInfo] = useSpotifyPlayStore()
+  const [playbackInfo,setPlayInfo] = useSpotifyPlayStore()
   const [isRecording,setIsRecording] = React.useState(false)
   const [pause,setPause] = React.useState(true)
-  const [listening,setListening] = React.useState(false)
+  const [voiceListening,setVoiceListening] = React.useState('started')
   const [porcupineReady,setPorcupineReady] = React.useState(false)
-  const [listenForWake,setListenForWake] = React.useState(false)
+  const [wakeListening,setWakeListening] = React.useState('started')
   const [status,setStatus] = React.useState('w') //[w:work,r:record,s:stopping,p:playing]
   const [recordTime,setRecordTime] = React.useState(0)
   const [showModal,setModal] = React.useState(false)
@@ -43,7 +43,6 @@ export default function SessionScreen(props){
   const [spotifyCall,setSpotifyCall] = React.useState()
   const [spotifyToken,setSpotifyToken] = React.useState()
   const [currentUri,setCurrentRui] = React.useState()
-  const [confirmationListening,setConfListening] = React.useState(false)
 
   const workSpeechResultsHandler = (results) =>{
     let options = results.value
@@ -53,19 +52,28 @@ export default function SessionScreen(props){
         for (var j in string) {
           let word = string[j].toLowerCase();
           if(word =='stop'){
-            Voice.stop()
+            setVoiceListening(false)
+            let next = string[j+1]?.toLowerCase()
+            if(next == 'music' || next == 'spotify'){
+              setSpotifyCall('pause')
+              return;
+            }
             setStatus('s')
             setPause(true)
             setModal(true)
             return;
-          }else if(word=='record'||word=='send message'){
+          }else if (word=='record'||word=='send'||word=='message'){
             setStatus('r')
             setIsRecording(true)
             setRecordTime(1)
             return;
-          }else if(word=='play'||word=='play music'){
+          }else if (word=='play'||word=='music'){
+            setVoiceListening(false)
             setSpotifyCall('play')
-            setListening(false)
+            return;
+          }else if ( word=='pause'){
+            setVoiceListening(false)
+            setSpotifyCall('pause')
             return;
           }
         }
@@ -74,13 +82,12 @@ export default function SessionScreen(props){
   }
   const confirmationSpeechResultHandler = (results)=> {
     let options = results.value
-    console.log('en los otrros??',options);
     if(options){
       for(var i in options){
         let string = options[i].split(' ')
         for (var j in string) {
           let word = string[j].toLowerCase();
-          if(word=='stop'||word=='yes'){
+          if(word=='stop' || word=='yes' || word=='yeah'){
             setStatus('f')
             setPause(true)
             return;
@@ -100,7 +107,6 @@ export default function SessionScreen(props){
   const checkTokenExpired = ()=> {
     let yesterday = new Date()
     if(!storedToken)return;
-    console.log(storedToken.expires);
     yesterday.setDate(yesterday.getDate()+1)
     if(storedToken.expires <= new Date().getTime()){
       setRefresh(true)
@@ -110,6 +116,8 @@ export default function SessionScreen(props){
   }
   //onMount hook
   React.useEffect(()=>{
+    let that = this
+
     async function allowRecordIos(){
       try {
         await Audio.setAudioModeAsync({
@@ -120,6 +128,19 @@ export default function SessionScreen(props){
         console.log('ERROR setting recording',e);
       }
     }
+    async function setPorcupine() {
+      try {
+        that.porcupineManager = await PorcupineManager.fromKeywords(
+          ['alexa','ok google','terminator','blueberry']
+          ,()=> {
+            setWakeListening(false)
+          })
+        setPorcupineReady(true)
+      } catch (e) {
+        console.log('Error starting porcu',e);
+      }
+    }
+
     props.navigation.addListener('beforeRemove',(e)=>{
       e.preventDefault()
     })
@@ -127,95 +148,108 @@ export default function SessionScreen(props){
     setRf(db.collection('sessions').doc(sessId).collection('messages'))
     setPause(false)
     allowRecordIos()
+    setPorcupine()
+
+
+    return () => {
+      Voice.cancel()
+      Voice.stop()
+      Voice.destroy()
+      that.porcupineManager?.delete()
+      that.porcupineReady = null
+    }
   },[])
-  //wake word
-  //wakeword started
+  //wakeListening
+  //sets an interval to activate in case long time passed and voice is not voiceListening
   React.useEffect(()=>{
     let that = this
-    async function setPorcupine() {
-      try {
-        that.porcupineManager = await PorcupineManager.fromKeywords(
-          ['alexa','ok google','terminator','blueberry']
-          ,()=> {
-            setListening(true)
-          })
-        setPorcupineReady(true)
-      } catch (e) {
-        console.log('Error starting porcu',e);
+
+    if(porcupineReady && wakeListening != 'started'){
+      if(wakeListening) {
+        that.porcupineManager?.start().then((started)=> {
+          if(started){
+            console.log('sisaaaaa');
+          }
+        })
+      }else {
+        that.porcupineManager?.stop().then((stopped)=> {
+          if(stopped){
+            setVoiceListening(true)
+          }
+        })
       }
     }
-    if(!that.porcupineManager)setPorcupine()
-    if(listenForWake) {
-      Voice.stop()
-      that.porcupineManager?.start().then((started)=> {
-        if(started){
-          console.log('sisaaaaa');
-        }
-      })
-    }else {
-      that.porcupineManager?.stop().then((stopped)=> {
-        if(stopped){
-          Voice.start('en-UK')
-        }
-      })
-    }
-  },[listenForWake,porcupineReady])
-  //listenForWake
-  //sets an interval to activate in case long time passed and voice is not listening
 
+  },[wakeListening,porcupineReady])
+  //voiceListening
+  //starts voice function and stops porcupine
+  //starts porcupine and stops voice
+  React.useEffect(()=>{
+    console.log(voiceListening,status);
+    if(voiceListening != 'started'){
+      if ( voiceListening ){
+        Voice.start('en-UK')
+      }else{
+        Voice.cancel()
+        Voice.stop()
+        Voice.removeAllListeners()
+        Voice.destroy()
+      }
+    }
+  },[voiceListening])
+  //voiceListening - wakeListening
+  //starts an interval in case listening deactives
+  React.useEffect(()=>{
+    let that = this
+    if( voiceListening && !wakeListening ){
+      that.timer = setInterval(()=>{
+        console.log('a ver?');
+        if(!wakeListening && voiceListening){
+          setVoiceListening(false)
+          setWakeListening(true)
+        }
+      },10000)
+    }else if(wakeListening){
+      clearInterval(that.timer)
+    }
+    return () => {
+      clearInterval(that.timer)
+    }
+  },[voiceListening,wakeListening])
   //status
   //changes speech handlers
   React.useEffect(()=>{
-    Voice.removeAllListeners()
-    Voice.destroy()
     switch (status) {
       case 'w':
         Voice.onSpeechResults = workSpeechResultsHandler
         Voice.onSpeechEnd = speechEndHandler
-        setListening(false)
+        setWakeListening(true)
         break;
       case 's':
         Voice.onSpeechResults = confirmationSpeechResultHandler
         Voice.onSpeechEnd = speechEndHandler
-        setListening(false)
+        setTimeout(()=>setVoiceListening(true),100)
         break;
       case 'f':
-        setListening(false)
+        setVoiceListening(false)
         props.navigation.addListener('beforeRemove',(e)=>{
           props.navigation.dispatch(e.data.action)
         })
         let db = firebase.firestore()
         let reference = db.collection('sessions')
-        reference.add({users:[user.uid,'asdf'],status:'f',time:time})
+
+        reference.add({users:[user.uid,'asdf'],status:'f'})
           .then((doc)=>{
             setPause(true)
             setModal(false)
+            Voice.stop()
+            Voice.destroy()
             props.navigation.navigate('home')
           })
           .catch((e)=>{console.log(e);})
         break;
     }
   },[status])
-  //listening
-  //starts voice function and stops porcupine
-  //starts porcupine and stops voice
-  React.useEffect(()=>{
-    console.log(listening,status);
-    if (listening){
-      if(status == 's') setTimeout(()=>Voice.start(),150);
-      else setListenForWake(false);
-    }else{
-      if (status == 's') setListening(true)
-      if (status != 'f' && status != 's') setListenForWake(true)
-    }
-  },[listening])
-  //confirmationListening
-  //starts voice again as in confirmatioin modal
-  React.useEffect(()=>{
-    if(confirmationListening){
-      Voice.start('en-UK')
-    }
-  },[confirmationListening])
   //recordTime
   //handle record command for (S) seconds
   React.useEffect(()=>{
@@ -339,7 +373,10 @@ export default function SessionScreen(props){
   //spotify tokens
   //check if spotify is authorized
   React.useEffect(()=>{
-    if(storedToken)setSpotifyAv(true)
+    if(storedToken){
+      setSpotifyAv(true)
+      setSpotifyCall('getSaved')
+    }
   },[storedToken])
   //tokenExpired, Spotifycall
   //calls a spotify function if token isnt expired
@@ -347,10 +384,29 @@ export default function SessionScreen(props){
     const client = new SpotifyWebApi()
     async function play(){
       await client.play({
-        uris: ['spotify:track:1jhidLCLbiNc7MP4XjkENP'],
-        device_id: playInfo.device,
+        uris: [playbackInfo.id],
+        device_id: playbackInfo.device,
         position_ms:0
       })
+      setSpotifyCall('')
+    }
+    async function pause(){
+      await client.pause({})
+      setSpotifyCall('')
+    }
+    async function getSaved(){
+      try {
+        const tracks = await client.getMySavedTracks({limit:1})
+        console.log(tracks.items[0].track.album.images);
+        if (tracks?.items[0]) setPlayInfo({
+          id : tracks.items[0].track.uri,
+          image : tracks.items[0].track.album.images[0].url,
+          next : '',
+          device : playbackInfo.device
+        });
+      } catch (e) {
+        console.warn('error with saved tracks',e);
+      }
       setSpotifyCall('')
     }
     if(spotifyToken&&spotifyCall) {
@@ -359,6 +415,14 @@ export default function SessionScreen(props){
       switch (spotifyCall) {
         case 'play':
             play()
+            setWakeListening(true)
+          break;
+        case 'getSaved':
+            getSaved()
+          break;
+        case 'pause':
+            pause()
+            setWakeListening(true)
           break;
       }
     }
@@ -366,9 +430,13 @@ export default function SessionScreen(props){
   },[spotifyToken,spotifyCall])
   //refreshedTokens
   //set access token when refreshedTokens are set
-  React.useEffect(()=>{
+  React.useEffect(() => {
     if(refreshedTokens)setSpotifyToken(refreshedTokens.access)
   },[refreshedTokens])
+  //playbackInfo
+  //show text for set the device
+  React.useEffect(() => {
+  },[playbackInfo])
 
   handleOnTime = (e)=>{
     setWorkoutTime(e)
@@ -381,8 +449,9 @@ export default function SessionScreen(props){
             <Text h2>Are you sure you want to stop?</Text>
           </View>
       </Modal>
-      <View style={styles.header}></View>
-      <View style={{flex:3}}>
+      <View style={styles.header}>
+      </View>
+      <View style={{flex:10}}>
         <View style={{flex:1}}></View>
         <View>
           <View style={styles.horizontalView}>
@@ -405,17 +474,29 @@ export default function SessionScreen(props){
                   )
                 )
               )}
-              <Timer pause={pause} handleOnTime={handleOnTime}/>
             </View>
             <View style={{flex:2}}></View>
           </View>
         </View>
         <View>
-          {spotifyAv? (
-            <View><Text>SOOOnando</Text></View>
-          ):(
-            <View><Text>authroize spotify to share yout music</Text></View>
-          )}
+          <View style={styles.horizontalView}>
+            <View style={{flex:1}}></View>
+            {spotifyAv? (
+              playbackInfo.device? (
+                  <View>
+                    <Image style={{height:200, width:200}} source={{ uri:playbackInfo.image }}/>
+                  </View>
+                ) : (
+                  <View>
+                    <Text>Spotify app is not open, please open it and come back</Text>
+                  </View>
+                )
+            ):(
+              <View><Text>authroize spotify to share your music</Text></View>
+            )}
+            <View style={{flex:1}}></View>
+
+          </View>
         </View>
         <View style={{flex:2}}></View>
       </View>

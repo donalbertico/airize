@@ -113,7 +113,11 @@ export default function HomeScreen(props){
         const result = await client.getMyDevices()
         if(result){
           let devices = result.devices
-          devices.forEach((device, i) => {3
+          if(devices?.length == 0) {
+            setDeviceAvalible(false)
+            setPlayInfo({})
+          }
+          devices.forEach((device, i) => {
             console.log(device);
             if(device.type == "Smartphone"){
               setDeviceAvalible(true)
