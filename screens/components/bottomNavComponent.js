@@ -23,11 +23,11 @@ export default function NavBar(props){
           <Image style={styles.menuOption} source={{uri:menuUris.search}}/>
         </TouchableOpacity>
         <View style={{flex:1}}></View>
-        <TouchableOpacity onPress={()=>props.navigation.navigate('friends')}>
+        <TouchableOpacity onPress={() => props.navigation.navigate('friends')}>
           <Image style={styles.menuOption} source={{uri:menuUris.friends}}/>
         </TouchableOpacity>
         <View style={{flex:1}}></View>
-        <TouchableOpacity>
+        <TouchableOpacity onPress={() => props.handleSession()}>
           <Image style={styles.menuOption} source={{uri:menuUris.link}}/>
         </TouchableOpacity>
         <View style={{flex:1}}></View>

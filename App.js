@@ -12,7 +12,7 @@ import EditScreen from './screens/profile/EditScreen.js'
 import RegisterScreen from './screens/auth/RegisterScreen.js'
 import SessionScreen from './screens/workout/SessionScreen.js'
 import HomeScreen from './screens/HomeScreen.js'
-import WellcomeScreen from './screens/WellcomeScreen.js'
+import FriendsScreen from './screens/FriendsScreen.js'
 import LoadingScreen from './screens/LoadingScreen.js'
 import PasswordScreen from './screens/auth/PasswordScreen.js'
 import Logout from './screens/auth/components/logoutComponent'
@@ -39,11 +39,11 @@ export default function App(props) {
               <Stack.Screen name='home' component={HomeScreen}/>
               <Stack.Screen name='session' component={SessionScreen}/>
               <Stack.Screen name='edit' component={EditScreen}/>
+              <Stack.Screen name='friends' component={FriendsScreen}/>
             </>
           ) : (
             <>
               <Stack.Screen name='login' component={LoginScreen}/>
-              <Stack.Screen name='wellcome' component={WellcomeScreen}/>
               <Stack.Screen name='register' component={RegisterScreen}/>
               <Stack.Screen name='loading' component={LoadingScreen}/>
             </>

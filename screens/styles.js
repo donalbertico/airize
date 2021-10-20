@@ -24,7 +24,8 @@ const styles = StyleSheet.create({
   },
   alignCentered:{
     alignItems : 'center',
-    justifyContent : 'center'
+    justifyContent : 'center',
+    flex : 1
   },
   horizontalView:{
     flexDirection : 'row'
@@ -75,6 +76,25 @@ const styles = StyleSheet.create({
   menuOption:{
     height : 70,
     width : 50
+  },
+  sessionItem: {
+    backgroundColor: theme.colors.ligth,
+    borderRadius: 5,
+    margin : 5
+  },
+  modalView: {
+    alignItems: 'center',
+    shadowOffset : {
+      width: 0,
+      height: 2
+    },
+    elevation : 5,
+    backgroundColor : theme.colors.ligth,
+    margin : 20,
+    padding : 30
+  },
+  buttonOpen: {
+    backgroundColor : theme.colors.secondary
   }
 })
 

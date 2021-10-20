@@ -1,7 +1,9 @@
 import * as React from 'react'
 import { Audio } from 'expo-av'
 import {styles} from './styles'
-import { View, TouchableOpacity, Image } from 'react-native'
+import * as firebase from 'firebase'
+import 'firebase/firestore'
+import { View, TouchableOpacity, Image, Modal } from 'react-native'
 import { Text, Button } from 'react-native-elements'
 import Voice from '@react-native-voice/voice'
 import SpotifyWebApi from 'spotify-web-api-js'
@@ -14,6 +16,7 @@ import useAssetStore from '../hooks/useAssetStore'
 
 import Logout from './auth/components/logoutComponent'
 import NavBar from './components/bottomNavComponent'
+import SessionList from './components/sessionListComponent'
 
 export default function HomeScreen(props){
   const [refreshErr,refreshedTokens,setRefresh] = useSpotifyTokenRefresh(false)
@@ -28,8 +31,28 @@ export default function HomeScreen(props){
   const [deviceAvalible,setDeviceAvalible] = React.useState()
   const [searchDevices,setSearchDevices] = React.useState(false)
   const [avatarUri,setAvatar] = React.useState()
+  const [sessionsReference,setSessionsReference] = React.useState()
+  const [sessions,setSessions] = React.useState()
+  const [sessStarting,setSessStarting] = React.useState(false)
+  const [latentSession,setLatentSession] = React.useState()
+
+  const createSession = () => {
+    sessionsReference.add({
+        users: [user.uid,'asdf'],
+        status: 'c',
+        dueDate : firebase.firestore.FieldValue.serverTimestamp()
+      })
+      .then((doc)=>{
+        console.log('created');
+      })
+      .catch((e)=>{console.log(e);})
+  }
+  const askforToken = () => {
+    askToken(true)
+  }
   //on mount
   React.useEffect(()=>{
+    let db = firebase.firestore()
     async function askPermissions(){
       try {
         console.log('Requesting permissions..');
@@ -50,6 +73,7 @@ export default function HomeScreen(props){
       }
     }
     checkPermissions()
+    setSessionsReference(db.collection('sessions'))
   },[])
   //.route
   //lookf for user because it has been updated
@@ -126,7 +150,7 @@ export default function HomeScreen(props){
           });
         }
       } catch (e) {
-        console.log('response',e);
+        // console.log('response',e);
       }
     }
     if(spotifyToken&&spotifyToken!='refresh')getDevices()
@@ -138,13 +162,62 @@ export default function HomeScreen(props){
       setAvatar(assets.avatar)
     }
   },[assets])
+  //useruid and sessions reference
+  //set Sessions listener
+  React.useEffect(() => {
+    let that = this;
+    if(!that) return ()=>{};
+    let start = new Date()
+    let end = new Date()
+    start.setUTCHours(0,0,0,0)
+    end.setUTCHours(23,59,59,999)
+    if(user.uid && sessionsReference) {
+      if(!that.sessionListener){
+        that.sessionListener =
+          sessionsReference
+            .where('users' ,'array-contains', user.uid)
+            .where('dueDate' ,'>=', start)
+            .where('dueDate' ,'<', end)
+            .onSnapshot((snapshot) => {
+              console.log('?');
+              let sessArray = []
+              snapshot.forEach((sess, i) => {
+                let session = sess.data()
+                let sessDate = new Date(session.dueDate.seconds)
+                session.id = sess.id
+                session.dueDate = `${sessDate.getHours()} : ${sessDate.getMinutes()}`
+                sessArray = [...sessArray,session]
+                if(session.status == 'r') {
+                  setSessStarting(true)
+                  setLatentSession(session)
+                }
+              });
+              setSessions(sessArray)
+            })
+      }
+    }
+    return () => {
+      if(that.sessionListener) that.sessionListener()
+    }
+  },[user,sessionsReference])
 
-  askforToken = ()=> {
-    askToken(true)
-  }
 
   return(
     <View style={styles.container}>
+      <Modal transparent={true} visible={sessStarting}>
+        <View style={styles.alignCentered}>
+          <View style={styles.modalView}>
+            <Text >
+              User is asking to start
+            </Text>
+            <View></View>
+            <View>
+              <Button style={styles.buttonOpen} title='Start Session' buttonStyle={{borderRadius:100, height:110}}
+                titleStyle={{fontSize:20}} onPress={() => props.navigation.navigate('session',{ session : latentSession})}/>
+            </View>
+          </View>
+        </View>
+      </Modal>
       <View style={styles.header}>
         <View style={styles.horizontalView}>
           <View stlye={{flex:2}}>
@@ -167,13 +240,15 @@ export default function HomeScreen(props){
         </View>
       </View>
       <View style={{flex:12}}>
-        <View style={{flex:1}}></View>
         <View style={styles.horizontalView}>
-          <View style={{flex:2}}></View>
-          <View style={{flex:4}}>
-            <Button title='Start Session' onPress={()=>props.navigation.navigate('session')}/>
+          <View style={{flex:1}}></View>
+          <View style={{flex:5}}>
+            <View style={{margin: 20}}>
+              <Text>Today's Sessions :</Text>
+            </View>
+            <SessionList sessions={sessions}/>
           </View>
-          <View style={{flex:2}}></View>
+          <View style={{flex:1}}></View>
         </View>
         <View style={{flex:1}}></View>
         <View style={{flex:1}}>
@@ -183,7 +258,7 @@ export default function HomeScreen(props){
               {spotifyAv?
                 (deviceAvalible? (<View></View>)
                   :(
-                    <TouchableOpacity onPress={()=>{setSearchDevices(true);setSpotifyToken('refresh')}}>
+                    <TouchableOpacity onPress={() => {setSearchDevices(true); setSpotifyToken('refresh')}}>
                       <Text>Please make sure spotify app is open to listen</Text>
                       <Text>Touch here if it is =)</Text>
                     </TouchableOpacity>)
@@ -192,13 +267,13 @@ export default function HomeScreen(props){
                   <TouchableOpacity onPress={askforToken}>
                     <Text>Connect with Spotify to share music while working out</Text>
                   </TouchableOpacity>
-              )}
+                )}
             </View>
           </View>
         </View>
       </View>
       <View style={{flex:2}}>
-        <NavBar/>
+        <NavBar handleSession={createSession} navigation={props.navigation}/>
       </View>
     </View>
   )

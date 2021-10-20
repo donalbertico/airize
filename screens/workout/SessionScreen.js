@@ -179,7 +179,6 @@ export default function SessionScreen(props){
         })
       }
     }
-
   },[wakeListening,porcupineReady])
   //voiceListening
   //starts voice function and stops porcupine
@@ -236,14 +235,11 @@ export default function SessionScreen(props){
           props.navigation.dispatch(e.data.action)
         })
         let db = firebase.firestore()
-        let reference = db.collection('sessions')
-
-        reference.add({users:[user.uid,'asdf'],status:'f'})
+        let sessReference = db.collection('sessions')
+        sessReference.add({users:[user.uid,'asdf'],status:'f'})
           .then((doc)=>{
             setPause(true)
             setModal(false)
-            Voice.stop()
-            Voice.destroy()
             props.navigation.navigate('home')
           })
           .catch((e)=>{console.log(e);})
@@ -272,7 +268,7 @@ export default function SessionScreen(props){
     if(recordTime == 1){
       Voice.cancel()
       Voice.stop()
-      setTimeout(()=>{      record()},500)
+      setTimeout(()=>{ record()},500)
 
       that.interval = setInterval(()=>{
         setRecordTime(recordTime => recordTime+1)
@@ -283,6 +279,9 @@ export default function SessionScreen(props){
       stopRecord()
       setRecordTime(recordTime => 0)
       setIsRecording(false)
+    }
+    return () => {
+      clearInterval(that.interval)
     }
   },[recordTime])
   //recordUri
@@ -337,7 +336,6 @@ export default function SessionScreen(props){
       setIsReproducing(true)
       const uri = await firebase.storage().ref(storeMessageName).getDownloadURL();
       const soundObj = new Audio.Sound()
-      console.log('cuantas cuentas',uri);
       try {
         await Audio.setAudioModeAsync({
           allowsRecordingIOS: true,
@@ -368,6 +366,9 @@ export default function SessionScreen(props){
       setMessageDuration(messageDuration=>0)
       setIsReproducing(false)
       setStatus('w')
+    }
+    return () => {
+      clearInterval(that.interval)
     }
   },[messageDuration])
   //spotify tokens
