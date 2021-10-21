@@ -23,32 +23,32 @@ export default function HomeScreen(props){
   const [user,setUser] = useUserRead('get')
   const [newTokens,authErr,askToken] = useSpotifyAuth(false)
   const [storedToken,setStoredToken] = useSpotifyTokenStore()
-  const [playInfo,setPlayInfo] = useSpotifyPlayStore()
   const [assets,setAssets] = useAssetStore()
+  const [playbackDevice,setDevice] = React.useState()
   const [spotifyAv, setSpotifyAv] = React.useState(false)
   const [audioGranted,setAudioGranted] = React.useState()
   const [spotifyToken,setSpotifyToken] = React.useState()
-  const [deviceAvalible,setDeviceAvalible] = React.useState()
   const [searchDevices,setSearchDevices] = React.useState(false)
   const [avatarUri,setAvatar] = React.useState()
   const [sessionsReference,setSessionsReference] = React.useState()
   const [sessions,setSessions] = React.useState()
+  const [isHost,setIsHost] = React.useState(false)
   const [sessStarting,setSessStarting] = React.useState(false)
   const [latentSession,setLatentSession] = React.useState()
 
-  const createSession = () => {
-    sessionsReference.add({
-        users: [user.uid,'asdf'],
-        status: 'c',
-        dueDate : firebase.firestore.FieldValue.serverTimestamp()
-      })
-      .then((doc)=>{
-        console.log('created');
-      })
-      .catch((e)=>{console.log(e);})
+  const getSessionReady = (session) => {
+    setSessStarting(true)
+    if(session.host == user.uid){
+      setIsHost(true)
+      sessionsReference.doc(session.id)
+        .update({
+          status : 'r'
+        })
+    }
   }
-  const askforToken = () => {
-    askToken(true)
+  const startSession = () => {
+    sessionsReference.doc(latentSession.id)
+      .update({status : 's'})
   }
   //on mount
   React.useEffect(()=>{
@@ -138,14 +138,12 @@ export default function HomeScreen(props){
         if(result){
           let devices = result.devices
           if(devices?.length == 0) {
-            setDeviceAvalible(false)
-            setPlayInfo({})
+            setDevice()
           }
           devices.forEach((device, i) => {
             console.log(device);
             if(device.type == "Smartphone"){
-              setDeviceAvalible(true)
-              setPlayInfo({device:device.id})
+              setDevice(device.id)
             }
           });
         }
@@ -175,7 +173,7 @@ export default function HomeScreen(props){
       if(!that.sessionListener){
         that.sessionListener =
           sessionsReference
-            .where('users' ,'array-contains', user.uid)
+            .where('users', 'array-contains', user.uid)
             .where('dueDate' ,'>=', start)
             .where('dueDate' ,'<', end)
             .onSnapshot((snapshot) => {
@@ -186,9 +184,14 @@ export default function HomeScreen(props){
                 session.id = sess.id
                 session.dueDate = `${sessDate.getHours()} : ${sessDate.getMinutes()}`
                 sessArray = [...sessArray,session]
-                if(session.status == 'r') {
+                if(session.status == 'r'|| session.host != user.uid) {
                   setSessStarting(true)
                   setLatentSession(session)
+                  return;
+                }
+                if(session.status == 's') {
+                  props.navigation.navigate('session',{ session : session, host: isHost})
+                  return;
                 }
               });
               setSessions(sessArray)
@@ -206,14 +209,25 @@ export default function HomeScreen(props){
       <Modal transparent={true} visible={sessStarting}>
         <View style={styles.alignCentered}>
           <View style={styles.modalView}>
-            <Text >
-              User is asking to start
-            </Text>
-            <View></View>
-            <View>
-              <Button style={styles.buttonOpen} title='Start Session' buttonStyle={{borderRadius:100, height:110}}
-                titleStyle={{fontSize:20}} onPress={() => props.navigation.navigate('session',{ session : latentSession})}/>
-            </View>
+            {isHost? (
+              <View>
+                <Text h4>
+                  Waiting for your partner to start
+                </Text>
+                <View></View>
+              </View>
+            ): (
+              <View>
+                <Text >
+                  User is asking to start
+                </Text>
+                <View></View>
+                <View>
+                  <Button style={styles.buttonOpen} title='Start Session' buttonStyle={{borderRadius:100, height:110}}
+                    titleStyle={{fontSize:20}} onPress={() => startSession}/>
+                </View>
+              </View>
+            )}
           </View>
         </View>
       </Modal>
@@ -245,7 +259,7 @@ export default function HomeScreen(props){
             <View style={{margin: 20}}>
               <Text>Today's Sessions :</Text>
             </View>
-            <SessionList sessions={sessions}/>
+            <SessionList sessions={sessions} handleSessionSelected={getSessionReady}/>
           </View>
           <View style={{flex:1}}></View>
         </View>
@@ -255,7 +269,7 @@ export default function HomeScreen(props){
             <View style={{flex:1}}></View>
             <View style={{flex:2}}>
               {spotifyAv?
-                (deviceAvalible? (<View></View>)
+                (playbackDevice? (<View></View>)
                   :(
                     <TouchableOpacity onPress={() => {setSearchDevices(true); setSpotifyToken('refresh')}}>
                       <Text>Please make sure spotify app is open to listen</Text>
@@ -263,7 +277,7 @@ export default function HomeScreen(props){
                     </TouchableOpacity>)
                   )
                   :(
-                  <TouchableOpacity onPress={askforToken}>
+                  <TouchableOpacity onPress={()=>askToken(true)}>
                     <Text>Connect with Spotify to share music while working out</Text>
                   </TouchableOpacity>
                 )}
@@ -272,7 +286,7 @@ export default function HomeScreen(props){
         </View>
       </View>
       <View style={{flex:2}}>
-        <NavBar handleSession={createSession} navigation={props.navigation}/>
+        <NavBar navigation={props.navigation}/>
       </View>
     </View>
   )

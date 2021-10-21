@@ -1,5 +1,6 @@
 import * as React from 'react'
-import { View, FlatList, Text, TouchableOpacity} from 'react-native'
+import DateTimePicker from '@react-native-community/datetimepicker'
+import { View, FlatList, Text, TouchableOpacity, Modal} from 'react-native'
 import * as firebase from 'firebase'
 import {styles} from './styles'
 import 'firebase/firestore'
@@ -11,12 +12,19 @@ export default function FriendsScreen(props){
   const [friends,setFriends] = React.useState()
   const [user,readUser] = useUserRead('get')
   const [sessionsReference,setSessionsReference] = React.useState()
+  const [showCalendar,setShowCalendar] = React.useState(false)
+  const [candidate,setCandidate] = React.useState()
+  const [date,setDate] = React.useState(new Date())
 
-  const createSession = (friendId) => {
+  const createSession = (date) => {
+    setShowCalendar(false)
+    if(!date) return;
+    console.log(date,candidate);
     sessionsReference.add({
-        users: [user.uid,friendId],
+        users: [candidate,user.uid],
         status: 'c',
-        dueDate : firebase.firestore.FieldValue.serverTimestamp()
+        dueDate : firebase.firestore.Timestamp.fromDate(date),
+        host : user.uid
       })
       .then((doc)=>{
         console.log('created');
@@ -43,20 +51,32 @@ export default function FriendsScreen(props){
 
   return (
     <View style={styles.container}>
+      <Modal transparent={true} visible={showCalendar}>
+        <View style={styles.alignCentered}>
+          <View style={styles.modalView}>
+            <Text h4>Please choose a date</Text>
+          </View>
+        </View>
+      </Modal>
+      {showCalendar && (
+        <DateTimePicker value={date}
+          onChange={(e,date) => {createSession(date)}}/>
+      )}
       <View style={{flex:1}}>
       </View>
       <View style={{flex:5}}>
         <FlatList data={friends} renderItem={
             ({item}) =>
             <View style={styles.sessionItem}>
-              <TouchableOpacity onPress={()=>createSession(item.id)}>
-                <Text>{item.description}</Text>
+              <TouchableOpacity
+                onPress={()=>{ setCandidate(item.id);setShowCalendar(!showCalendar)}}>
+                <Text>{item.firstName} {item.lastName}</Text>
               </TouchableOpacity>
             </View>
           }/>
       </View>
       <View style={{flex:1}}>
-        <NavBar/>
+        <NavBar navigation={props.navigation}/>
       </View>
     </View>
   )

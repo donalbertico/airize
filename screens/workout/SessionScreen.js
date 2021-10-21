@@ -13,13 +13,12 @@ import Timer from './components/timerComponent'
 import useUserRead from '../../hooks/useUserRead'
 import useSpotifyTokenRefresh from '../../hooks/useSpotifyTokenRefresh'
 import useSpotifyTokenStore from '../../hooks/useSpotifyTokenStore'
-import useSpotifyPlayStore from '../../hooks/useSpotifyPlayStore'
 
 export default function SessionScreen(props){
   const [user] = useUserRead('get')
   const [refreshErr,refreshedTokens,setRefresh] = useSpotifyTokenRefresh(false)
   const [storedToken] = useSpotifyTokenStore()
-  const [playbackInfo,setPlayInfo] = useSpotifyPlayStore()
+  const [playbackInfo,setPlayInfo] = React.useState()
   const [isRecording,setIsRecording] = React.useState(false)
   const [pause,setPause] = React.useState(true)
   const [voiceListening,setVoiceListening] = React.useState('started')
@@ -32,9 +31,9 @@ export default function SessionScreen(props){
   const [recording,setRecording] = React.useState()
   const [isReproducing,setIsReproducing] = React.useState(false)
   const [message,setMessage] = React.useState()
+  const [playbackDevice,setPlaybackDevice] = React.useState()
   const [messageDuration,setMessageDuration] = React.useState(0)
   const [isSending,setSending] = React.useState(false)
-  const sessId = '3npzsgvRcjqObSfJ8UJD'
   const [sessRef,setRf] = React.useState()
   const [recordUri,setRecordUri] = React.useState()
   const [storeMessageName,setMessageName] = React.useState()
@@ -43,6 +42,8 @@ export default function SessionScreen(props){
   const [spotifyCall,setSpotifyCall] = React.useState()
   const [spotifyToken,setSpotifyToken] = React.useState()
   const [currentUri,setCurrentRui] = React.useState()
+  const [updateSession,setUpdateSession] = React.useState()
+  const [sessionReference, setSessionReference] = React.useState()
 
   const workSpeechResultsHandler = (results) =>{
     let options = results.value
@@ -55,7 +56,8 @@ export default function SessionScreen(props){
             setVoiceListening(false)
             let next = string[j+1]?.toLowerCase()
             if(next == 'music' || next == 'spotify'){
-              setSpotifyCall('pause')
+              setUpdateSession('pause')
+              setWakeListening(true)
               return;
             }
             setStatus('s')
@@ -69,11 +71,13 @@ export default function SessionScreen(props){
             return;
           }else if (word=='play'||word=='music'){
             setVoiceListening(false)
-            setSpotifyCall('play')
+            setUpdateSession('play')
+            setWakeListening(true)
             return;
           }else if ( word=='pause'){
             setVoiceListening(false)
-            setSpotifyCall('pause')
+            setUpdateSession('pause')
+            setWakeListening(true)
             return;
           }
         }
@@ -116,8 +120,9 @@ export default function SessionScreen(props){
   }
   //onMount hook
   React.useEffect(()=>{
+    let db = firebase.firestore()
     let that = this
-
+    if(!that) return;
     async function allowRecordIos(){
       try {
         await Audio.setAudioModeAsync({
@@ -144,13 +149,10 @@ export default function SessionScreen(props){
     props.navigation.addListener('beforeRemove',(e)=>{
       e.preventDefault()
     })
-    let db = firebase.firestore();
-    setRf(db.collection('sessions').doc(sessId).collection('messages'))
+    setSessionReference(db.collection('sessions').doc(props.route.params.session.id))
     setPause(false)
     allowRecordIos()
     setPorcupine()
-
-
     return () => {
       Voice.cancel()
       Voice.stop()
@@ -159,11 +161,65 @@ export default function SessionScreen(props){
       that.porcupineReady = null
     }
   },[])
+  //sessionsReference
+  //set session listener
+  React.useEffect(() => {
+    let that = this;
+    if(sessionReference){
+      that.sessionListener =
+        sessionReference.onSnapshot((snapshot) => {
+          let data = snapshot.data()
+          let playback = data.playback
+          console.log('cuantas, cuentas');
+          if(playback){
+            console.log('iupdatinggg',playback);
+            setPlayInfo(playback)
+          }
+        })
+      that.messagesListener =
+        sessionReference.collection('messages')
+          .onSnapshot((snapshot) => {
+            snapshot.forEach((message, i) => {
+                console.log(message.data());
+            });
+        })
+    }
+    return () => {
+      if(that.sessionListener)that.sessionListener()
+      if(that.messagesListener)that.messagesListener()
+    }
+  },[sessionReference])
+  //updateSession
+  //updates Session based on state param
+  React.useEffect(() => {
+    switch(updateSession){
+      case 'play':
+        sessionReference.update({
+          playback : {
+            uri : playbackInfo.uri,
+            status : 'p',
+            image :playbackInfo.image
+          }
+        })
+        setUpdateSession('')
+        break;
+      case 'pause':
+        sessionReference.update({
+          playback : {
+            uri : playbackInfo.uri,
+            status : 's',
+            image :playbackInfo.image
+          }
+        })
+        setUpdateSession('')
+        break;
+    }
+  },[updateSession])
   //wakeListening
   //sets an interval to activate in case long time passed and voice is not voiceListening
   React.useEffect(()=>{
     let that = this
-
+    if(!that) return;
     if(porcupineReady && wakeListening != 'started'){
       if(wakeListening) {
         that.porcupineManager?.start().then((started)=> {
@@ -235,8 +291,8 @@ export default function SessionScreen(props){
           props.navigation.dispatch(e.data.action)
         })
         let db = firebase.firestore()
-        let sessReference = db.collection('sessions')
-        sessReference.add({users:[user.uid,'asdf'],status:'f'})
+        let sessionReference = db.collection('sessions')
+        sessionReference.add({users:[user.uid,'asdf'],status:'f'})
           .then((doc)=>{
             setPause(true)
             setModal(false)
@@ -305,7 +361,8 @@ export default function SessionScreen(props){
         if(blob!=null){
           const uriParts = recordUri.split(".");
           const fileType = uriParts[uriParts.length - 1];
-          sessRef.add({user:user.uid}).then((doc)=>{
+          sessionReference.collection('messages')
+            .add({user:user.uid}).then((doc)=>{
             setMessageName(`${doc.id}.${fileType}`)
             firebase
               .storage()
@@ -376,7 +433,7 @@ export default function SessionScreen(props){
   React.useEffect(()=>{
     if(storedToken){
       setSpotifyAv(true)
-      setSpotifyCall('getSaved')
+      setSpotifyCall('getDevices')
     }
   },[storedToken])
   //tokenExpired, Spotifycall
@@ -384,11 +441,18 @@ export default function SessionScreen(props){
   React.useEffect(()=>{
     const client = new SpotifyWebApi()
     async function play(){
-      await client.play({
-        uris: [playbackInfo.id],
-        device_id: playbackInfo.device,
-        position_ms:0
-      })
+      console.log('playback', playbackInfo);
+      try {
+        await client.play({
+          uris: [playbackInfo.uri],
+          device_id: playbackDevice,
+          position_ms:0
+        })
+      } catch (e) {
+        console.log('error playing',e);
+        setSpotifyCall('')
+      }
+
       setSpotifyCall('')
     }
     async function pause(){
@@ -398,20 +462,40 @@ export default function SessionScreen(props){
     async function getSaved(){
       try {
         const tracks = await client.getMySavedTracks({limit:1})
-        console.log(tracks.items[0].track.album.images);
         if (tracks?.items[0]) setPlayInfo({
-          id : tracks.items[0].track.uri,
+          uri : tracks.items[0].track.uri,
           image : tracks.items[0].track.album.images[0].url,
           next : '',
-          device : playbackInfo.device
+          status : 'x'
         });
       } catch (e) {
         console.warn('error with saved tracks',e);
       }
       setSpotifyCall('')
     }
+    async function getDevices(){
+      const client = new SpotifyWebApi()
+      client.setAccessToken(spotifyToken)
+      setSpotifyCall('')
+      try {
+        const result = await client.getMyDevices()
+        if(result){
+          let devices = result.devices
+          if(devices?.length == 0) {
+            setPlaybackDevice()
+          }
+          devices.forEach((device, i) => {
+            if(device.type == "Smartphone"){
+              setPlaybackDevice(device.id)
+              setSpotifyCall('getSaved')
+            }
+          });
+        }
+      } catch (e) {
+        // console.log('response',e);
+      }
+    }
     if(spotifyToken&&spotifyCall) {
-      console.log('ahooora',spotifyCall);
       client.setAccessToken(spotifyToken)
       switch (spotifyCall) {
         case 'play':
@@ -425,6 +509,9 @@ export default function SessionScreen(props){
             pause()
             setWakeListening(true)
           break;
+        case 'getDevices':
+            getDevices()
+          break;
       }
     }
     if(spotifyCall)checkTokenExpired()
@@ -437,7 +524,18 @@ export default function SessionScreen(props){
   //playbackInfo
   //show text for set the device
   React.useEffect(() => {
+    if(playbackInfo){
+      switch (playbackInfo.status) {
+        case 's':
+          setSpotifyCall('pause')
+          break;
+        case 'p':
+          setSpotifyCall('play')
+          break;
+      }
+    }
   },[playbackInfo])
+
 
   handleOnTime = (e)=>{
     setWorkoutTime(e)
@@ -483,12 +581,13 @@ export default function SessionScreen(props){
           <View style={styles.horizontalView}>
             <View style={{flex:1}}></View>
             {spotifyAv? (
-              playbackInfo.device? (
+              playbackDevice? (
                   <View>
-                    <Image style={{height:200, width:200}} source={{ uri:playbackInfo.image }}/>
+                    <Image style={{height:200, width:200}} source={{ uri:playbackInfo?.image }}/>
                   </View>
                 ) : (
                   <View>
+                    <Text>{playbackDevice}</Text>
                     <Text>Spotify app is not open, please open it and come back</Text>
                   </View>
                 )
