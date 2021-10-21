@@ -93,6 +93,8 @@ export default function useCachedResources(){
               console.log('trayendoo');
               let newInfo = userInfo;
               newInfo.description = doc.data().description
+              newInfo.firstName = doc.data().firstName
+              newInfo.lastName = doc.data().lastName
               setUserInfo(newInfo)
               setUser(userInfo)
               setReady(true)

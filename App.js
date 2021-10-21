@@ -2,7 +2,6 @@ import { StatusBar } from 'expo-status-bar';
 import React from 'react';
 import { NavigationContainer } from '@react-navigation/native'
 import { createStackNavigator } from '@react-navigation/stack'
-import { Text, View } from 'react-native';
 import { ThemeProvider } from 'react-native-elements'
 import {theme} from './screens/styles'
 
@@ -28,7 +27,6 @@ export default function App(props) {
     if(auth == true) setShowApp(true)
     if(!auth) setShowApp(false)
   },[auth])
-
 
   return (
     <ThemeProvider theme={theme}>

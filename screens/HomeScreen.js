@@ -179,7 +179,6 @@ export default function HomeScreen(props){
             .where('dueDate' ,'>=', start)
             .where('dueDate' ,'<', end)
             .onSnapshot((snapshot) => {
-              console.log('?');
               let sessArray = []
               snapshot.forEach((sess, i) => {
                 let session = sess.data()
@@ -230,7 +229,7 @@ export default function HomeScreen(props){
             <View style={{flex:1}}>
               <View style={styles.homeLigthBox}>
                 {user? (
-                  <Text h3>{user.displayName}</Text>
+                  <Text h3>{user.firstName} {user.lastName}</Text>
                 ):(
                   <Text></Text>
                 )}

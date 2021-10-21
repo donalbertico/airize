@@ -13,7 +13,6 @@ export default function FriendsScreen(props){
   const [sessionsReference,setSessionsReference] = React.useState()
 
   const createSession = (friendId) => {
-    console.log(friendId);
     sessionsReference.add({
         users: [user.uid,friendId],
         status: 'c',

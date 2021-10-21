@@ -58,7 +58,8 @@ const styles = StyleSheet.create({
   inputContainer:{
     borderBottomWidth:3,
     borderWidth:3,
-    borderRadius:10
+    borderRadius:10,
+    marginBottom: -10
   },
   percentageFull:{
     height:'100%',
@@ -95,6 +96,9 @@ const styles = StyleSheet.create({
   },
   buttonOpen: {
     backgroundColor : theme.colors.secondary
+  },
+  buttonStyle: {
+    borderRadius: 10
   }
 })
 
