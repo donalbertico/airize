@@ -89,7 +89,6 @@ export default function useCachedResources(){
         let userRef = db.collection('users')
         userRef.doc(userInfo.uid).get()
             .then((doc)=>{
-              console.log('trayendoo');
               let newInfo = userInfo;
               newInfo.description = doc.data().description
               newInfo.firstName = doc.data().firstName

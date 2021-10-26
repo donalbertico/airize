@@ -47,6 +47,8 @@
         </dict>
       </dict>
     </dict>
+    <key>NSContactsUsageDescription</key>
+    <string>Allow $(PRODUCT_NAME) to access your contacts</string>
     <key>NSMicrophoneUsageDescription</key>
     <string>This app uses the microphone to listen for commands and record messages</string>
     <key>NSSpeechRecognitionUsageDescription</key>
