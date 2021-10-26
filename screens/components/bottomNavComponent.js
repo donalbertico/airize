@@ -2,7 +2,7 @@ import React from 'react'
 import { View, Image, TouchableOpacity } from 'react-native'
 import {styles} from '../styles'
 import useAssetStore from '../../hooks/useAssetStore'
-
+import Logout from '../auth/components/logoutComponent'
 
 export default function NavBar(props){
   const [assets,setAssets] = useAssetStore()
@@ -15,7 +15,7 @@ export default function NavBar(props){
     <View style={styles.bottomMenu}>
       <View style={styles.horizontalView}>
         <View style={{flex:1}}></View>
-        <TouchableOpacity>
+        <TouchableOpacity onPress={()=> props.navigation.navigate('home')}>
           <Image style={styles.menuOption} source={{uri:menuUris.home}}/>
         </TouchableOpacity>
         <View style={{flex:1}}></View>
@@ -33,7 +33,7 @@ export default function NavBar(props){
         <View style={{flex:1}}></View>
         <TouchableOpacity>
           <Image style={styles.menuOption} source={{uri:menuUris.set}}/>
-        </TouchableOpacity>
+      </TouchableOpacity>
         <View style={{flex:1}}></View>
       </View>
     </View>

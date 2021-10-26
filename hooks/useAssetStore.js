@@ -21,7 +21,7 @@ export default function useAssetStore(val){
         console.warn('ERROR reading assets:',e);
       }
     }
-    if(assets){
+    if(assets && assets!=='get'){
       store()
     }else {
       read()

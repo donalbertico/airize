@@ -9,14 +9,24 @@ import useAssetStore from '../../hooks/useAssetStore'
 export default function LoginScreen(props){
   const [splashUrl,setSplash] = React.useState()
   const [logoUrl,setLogo] = React.useState()
+  const [reload,setReload] = React.useState(false)
   const [assets,setAssets] = useAssetStore()
 
-  React.useEffect(()=>{
+  React.useEffect(() => {
     if(assets){
       setSplash(assets.splash)
       setLogo(assets.logo)
+      setReload(false)
+    }else{
+      setReload(true)
+      setAssets(true)
     }
   },[assets])
+  React.useEffect(() => {
+    if(reload){
+      setTimeout(()=>setAssets('get'),100)
+    }
+  },[reload])
 
   return(
     <View style={styles.container}>

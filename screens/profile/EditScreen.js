@@ -20,7 +20,7 @@ export default function EditScreen(props){
     let ref = db.collection('users').doc(user.uid)
     const authUser = firebase.auth().currentUser
     let newInfo = {description : 'ploplo'}
-    ref.set(newInfo)
+    ref.update(newInfo)
       .then(()=>{
         authUser.updateProfile({
               displayName : name
