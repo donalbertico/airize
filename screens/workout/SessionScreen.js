@@ -170,8 +170,7 @@ export default function SessionScreen(props){
       that.sessionListener =
         sessionReference.onSnapshot((snapshot) => {
           let data = snapshot.data()
-          let playback = data.playback
-          console.log('cuantas, cuentas');
+          let playback = data?.playback
           if(playback){
             console.log('iupdatinggg',playback);
             setPlayInfo(playback)
@@ -183,11 +182,11 @@ export default function SessionScreen(props){
           .limit(1)
           .onSnapshot((snapshot) => {
             snapshot.forEach((message, i) => {
-              let data = message.data()
-              data.id = message.id
-              if(data.status == 's' && data.user != user.uid){
-                  console.log('confirme?',`${data.id}${data.extension}`);
-                  setMessageId(`${data.id}${data.extension}`)
+              let messageData = message.data()
+              messageData.id = message.id
+              if(messageData.status == 's' && messageData.user !== user.uid){
+                  console.log(`${messageData.id}.${messageData.fileType}`);
+                  setMessageId(`${messageData.id}.${messageData.fileType}`)
               }
             });
         })
