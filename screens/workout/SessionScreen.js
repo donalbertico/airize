@@ -186,8 +186,8 @@ export default function SessionScreen(props){
               let data = message.data()
               data.id = message.id
               if(data.status == 's' && data.user != user.uid){
-                  console.log('confirme?',`${data.id}.m4a`);
-                  setMessageId(`${data.id}.m4a`)
+                  console.log('confirme?',`${data.id}${data.extension}`);
+                  setMessageId(`${data.id}${data.extension}`)
               }
             });
         })
@@ -367,7 +367,8 @@ export default function SessionScreen(props){
             .add({
               user: user.uid,
               status: 'u',
-              time: firebase.firestore.Timestamp.fromDate(new Date())
+              time: firebase.firestore.Timestamp.fromDate(new Date()),
+              fileType: fileType
             }).then((doc)=>{
             firebase.storage().ref()
               .child(`${doc.id}.${fileType}`)
@@ -396,10 +397,10 @@ export default function SessionScreen(props){
   React.useEffect(()=>{
     async function playMessage(){
       setIsReproducing(true)
+      try {
       const uri = await firebase.storage().ref(storeMessageId).getDownloadURL();
       const soundObj = new Audio.Sound()
-      try {
-        await soundObj.loadAsync({uri :  uri },{ shouldPlay : true})
+        await soundObj.loadAsync({uri :  uri },{shouldPlay : true})
         setMessageDuration(1)
         setMessageId()
       } catch (e) {
@@ -443,7 +444,7 @@ export default function SessionScreen(props){
         await client.play({
           uris: [playbackInfo.uri],
           device_id: playbackDevice,
-          position_ms:0
+          position_ms: 0
         })
       } catch (e) {
         console.log('error playing',e);
@@ -565,8 +566,7 @@ export default function SessionScreen(props){
                   <View>
                     <ActivityIndicator style={{flex:2}}/>
                   </View>
-                )
-                )
+                ))
               )}
             </View>
             <View style={{flex:2}}></View>
@@ -590,7 +590,6 @@ export default function SessionScreen(props){
               <View><Text>authroize spotify to share your music</Text></View>
             )}
             <View style={{flex:1}}></View>
-
           </View>
         </View>
         <View style={{flex:2}}></View>

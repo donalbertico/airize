@@ -54,7 +54,6 @@ export default function FriendsScreen(props){
           });
           setFriends(friendsArr)
           getContacts()
-
         })
     }
   },[user])
