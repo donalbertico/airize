@@ -186,8 +186,8 @@ export default function SessionScreen(props){
               let data = message.data()
               data.id = message.id
               if(data.status == 's' && data.user != user.uid){
-                  console.log('confirme?',`${data.id}${data.extension}`);
-                  setMessageId(`${data.id}${data.extension}`)
+                  console.log('confirme?',`${data.id}.${data.fileType}`);
+                  setMessageId(`${data.id}.${data.fileType}`)
               }
             });
         })
