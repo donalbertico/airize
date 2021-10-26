@@ -185,8 +185,7 @@ export default function SessionScreen(props){
             snapshot.forEach((message, i) => {
               let data = message.data()
               data.id = message.id
-              console.log(data);
-              if(data.status == 's'){
+              if(data.status == 's' && data.user != user.uid){
                   console.log('confirme?',`${data.id}.m4a`);
                   setMessageId(`${data.id}.m4a`)
               }
@@ -332,10 +331,8 @@ export default function SessionScreen(props){
     }
     if(recordTime == 1){
       setTimeout(()=>{ record()},100)
-
       that.interval = setInterval(()=>{
         console.log('confirme?');
-
         setRecordTime(recordTime => recordTime+1)
       },1000)
     }
@@ -406,7 +403,6 @@ export default function SessionScreen(props){
       try {
         await soundObj.loadAsync({uri :  uri },{ shouldPlay : true})
         setMessageDuration(1)
-        // await soundObj.playAsync()
         setMessageId()
       } catch (e) {
         console.log('error playing',e);
@@ -567,13 +563,11 @@ export default function SessionScreen(props){
                 <View>
                   <Ionicons name="play-outline" size={70} color='black'/>
                 </View>
-              ):(isSending?(
+              ):(isSending &&(
                   <View>
                     <ActivityIndicator style={{flex:2}}/>
                   </View>
-                ):(
-                  <View></View>
-                  )
+                )
                 )
               )}
             </View>

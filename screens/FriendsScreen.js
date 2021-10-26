@@ -1,6 +1,5 @@
 import * as React from 'react'
-import { PermissionsAndroid } from 'react-native';
-import Contacts from 'react-native-contacts';
+import * as Contacts from 'expo-contacts';
 import DateTimePicker from '@react-native-community/datetimepicker'
 import { View, FlatList, Text, TouchableOpacity, Modal} from 'react-native'
 import * as firebase from 'firebase'
@@ -36,15 +35,8 @@ export default function FriendsScreen(props){
   React.useEffect(() => {
     async function getContacts(){
       try {
-        PermissionsAndroid.request(
-          PermissionsAndroid.PERMISSIONS.READ_CONTACTS,
-          {
-            'title': 'Contacts',
-            'message': 'This app would like to view your contacts.',
-            'buttonPositive': 'Please accept bare mortal'
-          }
-        )
-
+        const { status } = await Contacts.requestPermissionsAsync();
+        console.log('confirmee',status);
       } catch (e) {
         console.log('error in contacts',e);
       }
