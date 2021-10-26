@@ -147,7 +147,7 @@ export default function HomeScreen(props){
           });
         }
       } catch (e) {
-        // console.log('response',e);
+        console.log('EEROR spotify devices',e);
       }
     }
     if(spotifyToken&&spotifyToken!='refresh')getDevices()
@@ -183,13 +183,14 @@ export default function HomeScreen(props){
                 session.id = sess.id
                 session.dueDate = `${sessDate.getHours()} : ${sessDate.getMinutes()}`
                 sessArray = [...sessArray,session]
-                if(session.status == 'r'|| session.host != user.uid) {
+                if(session.status == 'r') {
                   setSessStarting(true)
                   setLatentSession(session)
                   return;
                 }
                 if(session.status == 's') {
                   props.navigation.navigate('session',{ session : session, host: isHost})
+                  setSessStarting(false)
                   return;
                 }
               });
@@ -223,7 +224,7 @@ export default function HomeScreen(props){
                 <View></View>
                 <View>
                   <Button style={styles.buttonOpen} title='Start Session' buttonStyle={{borderRadius:100, height:110}}
-                    titleStyle={{fontSize:20}} onPress={() => startSession}/>
+                    titleStyle={{fontSize:20}} onPress={() => startSession()}/>
                 </View>
               </View>
             )}

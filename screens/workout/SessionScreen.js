@@ -332,7 +332,6 @@ export default function SessionScreen(props){
     if(recordTime == 1){
       setTimeout(()=>{ record()},100)
       that.interval = setInterval(()=>{
-        console.log('confirme?');
         setRecordTime(recordTime => recordTime+1)
       },1000)
     }
@@ -370,7 +369,6 @@ export default function SessionScreen(props){
               status: 'u',
               time: firebase.firestore.Timestamp.fromDate(new Date())
             }).then((doc)=>{
-            // setMessageId(`${doc.id}.${fileType}`)
             firebase.storage().ref()
               .child(`${doc.id}.${fileType}`)
               .put( blob,{
@@ -529,7 +527,7 @@ export default function SessionScreen(props){
           setSpotifyCall('pause')
           break;
         case 'p':
-          setSpotifyCall('play')
+          if(playbackInfo.uri)setSpotifyCall('play')
           break;
       }
     }
