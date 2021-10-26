@@ -36,7 +36,7 @@ export default function SessionScreen(props){
   const [isSending,setSending] = React.useState(false)
   const [sessRef,setRf] = React.useState()
   const [recordUri,setRecordUri] = React.useState()
-  const [storeMessageName,setMessageName] = React.useState()
+  const [storeMessageId,setMessageId] = React.useState()
   const [tokenExpired,setTokenExpired] = React.useState(true)
   const [spotifyAv,setSpotifyAv] = React.useState(false)
   const [spotifyCall,setSpotifyCall] = React.useState()
@@ -65,6 +65,7 @@ export default function SessionScreen(props){
             setModal(true)
             return;
           }else if (word=='record'||word=='send'||word=='message'){
+            setVoiceListening(false)
             setStatus('r')
             setIsRecording(true)
             setRecordTime(1)
@@ -178,9 +179,17 @@ export default function SessionScreen(props){
         })
       that.messagesListener =
         sessionReference.collection('messages')
+          .orderBy('time')
+          .limit(1)
           .onSnapshot((snapshot) => {
             snapshot.forEach((message, i) => {
-                console.log(message.data());
+              let data = message.data()
+              data.id = message.id
+              console.log(data);
+              if(data.status == 's'){
+                  console.log('confirme?',`${data.id}.m4a`);
+                  setMessageId(`${data.id}.m4a`)
+              }
             });
         })
     }
@@ -322,11 +331,11 @@ export default function SessionScreen(props){
         setRecordUri(uri)
     }
     if(recordTime == 1){
-      Voice.cancel()
-      Voice.stop()
-      setTimeout(()=>{ record()},500)
+      setTimeout(()=>{ record()},100)
 
       that.interval = setInterval(()=>{
+        console.log('confirme?');
+
         setRecordTime(recordTime => recordTime+1)
       },1000)
     }
@@ -335,9 +344,6 @@ export default function SessionScreen(props){
       stopRecord()
       setRecordTime(recordTime => 0)
       setIsRecording(false)
-    }
-    return () => {
-      clearInterval(that.interval)
     }
   },[recordTime])
   //recordUri
@@ -362,17 +368,21 @@ export default function SessionScreen(props){
           const uriParts = recordUri.split(".");
           const fileType = uriParts[uriParts.length - 1];
           sessionReference.collection('messages')
-            .add({user:user.uid}).then((doc)=>{
-            setMessageName(`${doc.id}.${fileType}`)
-            firebase
-              .storage()
-              .ref()
+            .add({
+              user: user.uid,
+              status: 'u',
+              time: firebase.firestore.Timestamp.fromDate(new Date())
+            }).then((doc)=>{
+            // setMessageId(`${doc.id}.${fileType}`)
+            firebase.storage().ref()
               .child(`${doc.id}.${fileType}`)
-              .put(blob,{
+              .put( blob,{
                 contentType:`audio/${fileType}`
               })
-              .then(()=>{
-                setSending(false)
+              .then(() => {
+                doc.update({ status: 's' }).then(() => {
+                  setSending(false)
+                })
               })
               .catch((e)=>{
                 console.log('error',e);
@@ -391,23 +401,19 @@ export default function SessionScreen(props){
   React.useEffect(()=>{
     async function playMessage(){
       setIsReproducing(true)
-      const uri = await firebase.storage().ref(storeMessageName).getDownloadURL();
+      const uri = await firebase.storage().ref(storeMessageId).getDownloadURL();
       const soundObj = new Audio.Sound()
       try {
-        await Audio.setAudioModeAsync({
-          allowsRecordingIOS: true,
-          playsInSilentModeIOS: true,
-        });
         await soundObj.loadAsync({uri :  uri },{ shouldPlay : true})
         setMessageDuration(1)
         // await soundObj.playAsync()
-        setMessageName()
+        setMessageId()
       } catch (e) {
         console.log('error playing',e);
       }
     }
-    if(storeMessageName&&!isSending)playMessage()
-  },[isSending])
+    if(storeMessageId)playMessage()
+  },[storeMessageId])
   //messageDuration
   //count for message duration while it reproduces
   React.useEffect(()=>{
@@ -423,9 +429,6 @@ export default function SessionScreen(props){
       setMessageDuration(messageDuration=>0)
       setIsReproducing(false)
       setStatus('w')
-    }
-    return () => {
-      clearInterval(that.interval)
     }
   },[messageDuration])
   //spotify tokens

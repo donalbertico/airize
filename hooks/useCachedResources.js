@@ -78,14 +78,13 @@ export default function useCachedResources(){
 
     loadResourcesAndDataAsync();
   }, []);
-  React.useEffect(()=>{
-    if(auth==true&&user!='get'){
+  React.useEffect(() => {
+    if(auth==true && user!='get'){
       if(user.uid){
         setReady(true)
         return;
       }
       if(!isNew){
-        console.log('not new');
         let db = firebase.firestore()
         let userRef = db.collection('users')
         userRef.doc(userInfo.uid).get()
@@ -105,7 +104,7 @@ export default function useCachedResources(){
       }
     }
   },[user,auth])
-  React.useEffect(()=>{
+  React.useEffect(() => {
     let i = 0
     let assetsOb = {}
     if(assets){
@@ -123,8 +122,8 @@ export default function useCachedResources(){
       setLoaded(true)
     }
   },[assets])
-  React.useEffect(()=>{
-    if(assetsLoaded&&ready){
+  React.useEffect(() => {
+    if(assetsLoaded && ready){
       SplashScreen.hideAsync()
     }
   },[assetsLoaded,ready])

@@ -1,4 +1,6 @@
 import * as React from 'react'
+import { PermissionsAndroid } from 'react-native';
+import Contacts from 'react-native-contacts';
 import DateTimePicker from '@react-native-community/datetimepicker'
 import { View, FlatList, Text, TouchableOpacity, Modal} from 'react-native'
 import * as firebase from 'firebase'
@@ -19,7 +21,6 @@ export default function FriendsScreen(props){
   const createSession = (date) => {
     setShowCalendar(false)
     if(!date) return;
-    console.log(date,candidate);
     sessionsReference.add({
         users: [candidate,user.uid],
         status: 'c',
@@ -32,7 +33,22 @@ export default function FriendsScreen(props){
       .catch((e)=>{console.log(e);})
   }
 
-  React.useEffect(()=>{
+  React.useEffect(() => {
+    async function getContacts(){
+      try {
+        PermissionsAndroid.request(
+          PermissionsAndroid.PERMISSIONS.READ_CONTACTS,
+          {
+            'title': 'Contacts',
+            'message': 'This app would like to view your contacts.',
+            'buttonPositive': 'Please accept bare mortal'
+          }
+        )
+
+      } catch (e) {
+        console.log('error in contacts',e);
+      }
+    }
     if(user.uid){
       let db = firebase.firestore()
       setSessionsReference(db.collection('sessions'))
@@ -45,9 +61,11 @@ export default function FriendsScreen(props){
             friendsArr = [...friendsArr,friend]
           });
           setFriends(friendsArr)
+          getContacts()
+
         })
     }
-  },[user,])
+  },[user])
 
   return (
     <View style={styles.container}>

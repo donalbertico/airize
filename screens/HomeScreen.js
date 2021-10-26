@@ -11,7 +11,6 @@ import useUserRead from '../hooks/useUserRead'
 import useSpotifyAuth from '../hooks/useSpotifyAuth'
 import useSpotifyTokenStore from '../hooks/useSpotifyTokenStore'
 import useSpotifyTokenRefresh from '../hooks/useSpotifyTokenRefresh'
-import useSpotifyPlayStore from '../hooks/useSpotifyPlayStore'
 import useAssetStore from '../hooks/useAssetStore'
 
 import Logout from './auth/components/logoutComponent'
