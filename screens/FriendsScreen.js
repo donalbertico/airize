@@ -46,10 +46,8 @@ export default function FriendsScreen(props){
           if (data.length > 0) {
             const contact = data[0];
             console.log(contact);
-          }          
+          }
         }
-
-
       } catch (e) {
         console.log('error in contacts',e);
       }
@@ -81,7 +79,7 @@ export default function FriendsScreen(props){
         </View>
       </Modal>
       {showCalendar && (
-        <DateTimePicker value={date}
+        <DateTimePicker mode='datetime' value={date}
           onChange={(e,date) => {createSession(date)}}/>
       )}
       <View style={{flex:1}}>
