@@ -13,6 +13,7 @@ import SessionScreen from './screens/workout/SessionScreen.js'
 import HomeScreen from './screens/HomeScreen.js'
 import FriendsScreen from './screens/FriendsScreen.js'
 import LoadingScreen from './screens/LoadingScreen.js'
+import SessionFormScreen from './screens/profile/SessionFormScreen.js'
 import PasswordScreen from './screens/auth/PasswordScreen.js'
 import Logout from './screens/auth/components/logoutComponent'
 
@@ -36,6 +37,7 @@ export default function App(props) {
             <>
               <Stack.Screen name='home' component={HomeScreen}/>
               <Stack.Screen name='session' component={SessionScreen}/>
+              <Stack.Screen name='newSession' component={SessionFormScreen}/>
               <Stack.Screen name='edit' component={EditScreen}/>
               <Stack.Screen name='friends' component={FriendsScreen}/>
             </>

@@ -104,6 +104,12 @@ const styles = StyleSheet.create({
     height:100,
     width:100,
     borderRadius: 100
+  },
+  verticalJump:{
+    height: '5%'
+  },
+  verticalSpace:{
+    height: '20%'
   }
 })
 

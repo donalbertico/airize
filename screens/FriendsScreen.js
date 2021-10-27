@@ -1,6 +1,5 @@
 import * as React from 'react'
 import * as Contacts from 'expo-contacts';
-import DateTimePicker from '@react-native-community/datetimepicker'
 import { View, FlatList, Text, TouchableOpacity, Modal} from 'react-native'
 import * as firebase from 'firebase'
 import {styles} from './styles'
@@ -46,10 +45,8 @@ export default function FriendsScreen(props){
           if (data.length > 0) {
             const contact = data[0];
             console.log(contact);
-          }          
+          }
         }
-
-
       } catch (e) {
         console.log('error in contacts',e);
       }
@@ -80,10 +77,6 @@ export default function FriendsScreen(props){
           </View>
         </View>
       </Modal>
-      {showCalendar && (
-        <DateTimePicker value={date}
-          onChange={(e,date) => {createSession(date)}}/>
-      )}
       <View style={{flex:1}}>
       </View>
       <View style={{flex:5}}>
@@ -91,7 +84,7 @@ export default function FriendsScreen(props){
             ({item}) =>
             <View style={styles.sessionItem}>
               <TouchableOpacity
-                onPress={()=>{ setCandidate(item.id);setShowCalendar(!showCalendar)}}>
+                onPress={()=>{ props.navigation.navigate('newSession',{guests : [item] }) }}>
                 <Text>{item.firstName} {item.lastName}</Text>
               </TouchableOpacity>
             </View>

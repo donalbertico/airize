@@ -178,7 +178,8 @@ export default function HomeScreen(props){
               let sessArray = []
               snapshot.forEach((sess, i) => {
                 let session = sess.data()
-                let sessDate = new Date(session.dueDate.seconds)
+                let sessDate = new firebase.firestore.Timestamp(session.dueDate.seconds,session.dueDate.nanoseconds)
+                sessDate = sessDate.toDate()
                 session.id = sess.id
                 session.dueDate = `${sessDate.getHours()} : ${sessDate.getMinutes()}`
                 sessArray = [...sessArray,session]
