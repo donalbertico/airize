@@ -184,6 +184,8 @@ export default function SessionScreen(props){
             snapshot.forEach((message, i) => {
               let messageData = message.data()
               messageData.id = message.id
+              console.log(messageData.user, user.uid);
+              console.log(messageData.user !== user.uid);
               if(messageData.status == 's' && messageData.user !== user.uid){
                   console.log(`${messageData.id}.${messageData.fileType}`);
                   setMessageId(`${messageData.id}.${messageData.fileType}`)
@@ -314,8 +316,18 @@ export default function SessionScreen(props){
   React.useEffect(()=>{
     let that = this
     async function record(){
+      const recording = new Audio.Recording()
       try{
-        const {recording} = await Audio.Recording.createAsync(Audio.RECORDING_OPTIONS_PRESET_HIGH_QUALITY)
+        const { ios, android } = Audio.RECORDING_OPTIONS_PRESET_HIGH_QUALITY
+        await recording.prepareToRecordAsync({
+          android : android,
+          ios : {
+            ...ios,
+            extension: '.mp4',
+            outputFormat: Audio.RECORDING_OPTION_IOS_OUTPUT_FORMAT_MPEG4AAC
+          }
+        })
+        await recording.startAsync()
         setRecording(recording)
         console.log('reacording');
       }catch(e){
