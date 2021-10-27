@@ -70,13 +70,6 @@ export default function FriendsScreen(props){
 
   return (
     <View style={styles.container}>
-      <Modal transparent={true} visible={showCalendar}>
-        <View style={styles.alignCentered}>
-          <View style={styles.modalView}>
-            <Text h4>Please choose a date</Text>
-          </View>
-        </View>
-      </Modal>
       <View style={{flex:1}}>
       </View>
       <View style={{flex:5}}>

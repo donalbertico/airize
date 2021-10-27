@@ -149,6 +149,7 @@ export default function HomeScreen(props){
         }
       } catch (e) {
         console.log('EEROR spotify devices',e);
+        setRefresh(true)
       }
     }
     if(spotifyToken&&spotifyToken!='refresh')getDevices()

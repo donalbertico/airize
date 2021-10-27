@@ -41,7 +41,6 @@ export default function SessionScreen(props){
   const [messageDuration,setMessageDuration] = React.useState(0)
   const [isSending,setSending] = React.useState(false)
   const [recordUri,setRecordUri] = React.useState()
-  const [storeMessageId,setMessageId] = React.useState()
   const [tokenExpired,setTokenExpired] = React.useState(true)
   const [spotifyAv,setSpotifyAv] = React.useState(false)
   const [spotifyCall,setSpotifyCall] = React.useState()
@@ -206,11 +205,8 @@ export default function SessionScreen(props){
             snapshot.forEach((message, i) => {
               let messageData = message.data()
               messageData.id = message.id
-              console.log(messageData.user, user.uid);
-              console.log(messageData.user !== user.uid);
-              if(messageData.status == 's' && messageData.user !== user.uid){
-                  console.log(`${messageData.id}.${messageData.fileType}`);
-                  setMessageId(`${messageData.id}.${messageData.fileType}`)
+              if(messageData.status == 's'){
+                  setMessage({...messageData, name :`${messageData.id}.${messageData.fileType}`})
               }
             });
         })
@@ -442,17 +438,18 @@ export default function SessionScreen(props){
     async function playMessage(){
       setIsReproducing(true)
       try {
-      const uri = await firebase.storage().ref(storeMessageId).getDownloadURL();
+      const uri = await firebase.storage().ref(message.name).getDownloadURL();
       const soundObj = new Audio.Sound()
         await soundObj.loadAsync({uri :  uri },{shouldPlay : true})
         setMessageDuration(1)
-        setMessageId()
+        setMessage()
       } catch (e) {
         console.log('error playing',e);
       }
     }
-    if(storeMessageId)playMessage()
-  },[storeMessageId])
+    console.log(message);
+    if(message && message.user != user.uid)playMessage()
+  },[message])
   //messageDuration
   //count for message duration while it reproduces
   React.useEffect(()=>{
