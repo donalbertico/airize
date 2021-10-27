@@ -36,7 +36,20 @@ export default function FriendsScreen(props){
     async function getContacts(){
       try {
         const { status } = await Contacts.requestPermissionsAsync();
-        console.log('confirmee',status);
+        console.log('?',status);
+
+        if(status == 'granted'){
+          const { data } = await Contacts.getContactsAsync({
+            fields: [Contacts.Fields.Emails],
+          });
+
+          if (data.length > 0) {
+            const contact = data[0];
+            console.log(contact);
+          }          
+        }
+
+
       } catch (e) {
         console.log('error in contacts',e);
       }
@@ -53,8 +66,8 @@ export default function FriendsScreen(props){
             friendsArr = [...friendsArr,friend]
           });
           setFriends(friendsArr)
-          getContacts()
         })
+        getContacts()
     }
   },[user])
 

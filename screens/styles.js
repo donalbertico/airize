@@ -99,6 +99,11 @@ const styles = StyleSheet.create({
   },
   buttonStyle: {
     borderRadius: 10
+  },
+  roundImage: {
+    height:100,
+    width:100,
+    borderRadius: 100
   }
 })
 

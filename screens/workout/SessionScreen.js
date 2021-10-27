@@ -10,6 +10,7 @@ import {Text} from 'react-native-elements'
 import { Ionicons } from '@expo/vector-icons';
 import {styles} from '../styles'
 import Timer from './components/timerComponent'
+import useAssetStore from '../../hooks/useAssetStore'
 import useUserRead from '../../hooks/useUserRead'
 import useSpotifyTokenRefresh from '../../hooks/useSpotifyTokenRefresh'
 import useSpotifyTokenStore from '../../hooks/useSpotifyTokenStore'
@@ -18,6 +19,8 @@ export default function SessionScreen(props){
   const [user] = useUserRead('get')
   const [refreshErr,refreshedTokens,setRefresh] = useSpotifyTokenRefresh(false)
   const [storedToken] = useSpotifyTokenStore()
+  const [assets,setAssets] = useAssetStore()
+  const [avatarUri,setAvatar] = React.useState()
   const [playbackInfo,setPlayInfo] = React.useState()
   const [isRecording,setIsRecording] = React.useState(false)
   const [pause,setPause] = React.useState(true)
@@ -146,7 +149,6 @@ export default function SessionScreen(props){
         console.log('Error starting porcu',e);
       }
     }
-
     props.navigation.addListener('beforeRemove',(e)=>{
       e.preventDefault()
     })
@@ -532,7 +534,13 @@ export default function SessionScreen(props){
       }
     }
   },[playbackInfo])
-
+  //assets
+  //load images url
+  React.useEffect(() => {
+    if(assets) {
+      setAvatar(assets.avatar)
+    }
+  },[assets])
 
   handleOnTime = (e)=>{
     setWorkoutTime(e)
@@ -546,6 +554,15 @@ export default function SessionScreen(props){
           </View>
       </Modal>
       <View style={styles.header}>
+        <View style={styles.horizontalView}>
+          <View style={{margin:10}}>
+            <Image style={styles.roundImage} source={{uri:avatarUri}}/>
+          </View>
+          <View style={{flex:1}}></View>
+          <View style={{margin:10}}>
+            <Image style={styles.roundImage} source={{uri:avatarUri}}/>
+          </View>
+        </View>
       </View>
       <View style={{flex:10}}>
         <View style={{flex:1}}></View>

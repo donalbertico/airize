@@ -12,7 +12,6 @@ import useSpotifyAuth from '../hooks/useSpotifyAuth'
 import useSpotifyTokenStore from '../hooks/useSpotifyTokenStore'
 import useSpotifyTokenRefresh from '../hooks/useSpotifyTokenRefresh'
 import useAssetStore from '../hooks/useAssetStore'
-
 import Logout from './auth/components/logoutComponent'
 import NavBar from './components/bottomNavComponent'
 import SessionList from './components/sessionListComponent'
@@ -235,7 +234,7 @@ export default function HomeScreen(props){
         <View style={styles.horizontalView}>
           <View stlye={{flex:2}}>
             <View style={{margin:10}}>
-              <Image style={{height:100,width:100,borderRadius: 100}} source={{uri:avatarUri}}/>
+              <Image style={styles.roundImage} source={{uri:avatarUri}}/>
             </View>
           </View>
           <View style={{flex:5}}>
