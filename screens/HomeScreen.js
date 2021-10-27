@@ -147,6 +147,7 @@ export default function HomeScreen(props){
         }
       } catch (e) {
         console.log('EEROR spotify devices',e);
+        setRefresh(true)
       }
     }
     if(spotifyToken&&spotifyToken!='refresh')getDevices()
@@ -202,7 +203,6 @@ export default function HomeScreen(props){
       if(that.sessionListener) that.sessionListener()
     }
   },[user,sessionsReference])
-
 
   return(
     <View style={styles.container}>

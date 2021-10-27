@@ -1,7 +1,7 @@
 import * as React from 'react'
 import * as firebase from 'firebase'
 import DateTimePicker from '@react-native-community/datetimepicker'
-import {View, TouchableOpacity} from 'react-native'
+import {View, TouchableOpacity,Platform } from 'react-native'
 import {Text, Button} from 'react-native-elements'
 import { Ionicons } from '@expo/vector-icons'
 import {styles} from '../styles'
@@ -16,6 +16,7 @@ export default function SessionFormScreen(props) {
   const [guests,setGuests] = React.useState([])
   const [date,setDate] = React.useState(new Date())
   const [formated,setFormated] = React.useState()
+  const [platformIOS,setPlatformIOS] = React.useState(Platform.OS == 'ios' ? true : false)
 
   const handleDateChanged = (date) => {
     if(date){
@@ -55,7 +56,11 @@ export default function SessionFormScreen(props) {
   React.useEffect(() => {
     console.log(date.toLocaleString('default', {month: 'long'}).split(' ').slice(0,3))
     let formated = date.toLocaleString('default', {month: 'long'}).split(' ')
-    setFormated(`${formated[0]} ${formated[1]} ${formated[2]}`)
+    if (formated[1]){
+      setFormated(`${formated[0]} ${formated[1]} ${formated[2]}`)
+    }else {
+      setFormated(`${formated[0]} ${date.getDate()}`)
+    }
   },[date])
 
 
@@ -69,22 +74,32 @@ export default function SessionFormScreen(props) {
             <Text h4>new workout with</Text>
             {guests && (<Text h3>{guests[0]?.firstName} {guests[0]?.lastName}</Text>)}
             <View style={styles.verticalSpace}></View>
-            <TouchableOpacity onPress={()=>setShowCalendar(!showCalendar)}>
-              <View><Text><Ionicons name="ios-calendar" size={20}/> Date : {formated}</Text></View>
-              <View><Text><Ionicons name="time-outline" size={20}/> Time : {date.getHours()} : {date.getMinutes()}</Text></View>
-            </TouchableOpacity>
-            <View style={styles.verticalSpace}></View>
-            <View style={styles.verticalSpace}></View>
-            <Button buttonStyle={styles.buttonStyle} title='submit' onPress={()=>createSession()}></Button>
-
-            {showCalendar && (
+            {platformIOS ? (
               <DateTimePicker mode="datetime" value={date}
-                onChange={(e,date) => {handleDateChanged(date)}}/>
+                onChange={(e,date) => {setDate(date)}}/>
+            ) : (
+              <>
+                <TouchableOpacity onPress={()=>setShowCalendar(!showCalendar)}>
+                  <View><Text><Ionicons name="ios-calendar" size={20}/> Date : {formated}</Text></View>
+                  <View><Text><Ionicons name="time-outline" size={20}/> Time : {date.getHours()} : {date.getMinutes()}</Text></View>
+                </TouchableOpacity>
+                {showCalendar ? (
+                  <DateTimePicker mode="datetime" value={date}
+                    onChange={(e,date) => {handleDateChanged(date)}}/>
+                ) : (
+                  <>
+                  <View style={styles.verticalSpace}></View>
+                  <View style={styles.verticalSpace}></View>
+                  </>
+                )}
+                {showTimer && (
+                  <DateTimePicker mode="time" value={date}
+                    onChange={(e,time) => {handleTimeChanged(time)}}/>
+                )}
+              </>
             )}
-            {showTimer && (
-              <DateTimePicker mode="time" value={date}
-                onChange={(e,time) => {handleTimeChanged(time)}}/>
-            )}
+
+            <Button buttonStyle={styles.buttonStyle} title='submit' onPress={()=>createSession()}></Button>
           </View>
           <View style={{flex:1}}></View>
         </View>
