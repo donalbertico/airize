@@ -70,8 +70,8 @@ export default function SessionScreen(props){
             setUpdateSession('askLeave')
             return;
           }else if (word=='record'||word=='send'||word=='message'){
-            setTellChange('recording')
             setVoiceListening(false)
+            setTellChange('recording')
             setStatus('r')
             setIsRecording(true)
             setRecordTime(1)
@@ -182,6 +182,7 @@ export default function SessionScreen(props){
           if(data?.playback)setPlayInfo(data.plaback)
           switch (data.status) {
             case 'a':
+              setWakeListening(false)
               setleaver(data.leaver)
               setAskPause(true)
               break;
@@ -321,13 +322,11 @@ export default function SessionScreen(props){
       case 'w':
         Voice.onSpeechResults = workSpeechResultsHandler
         Voice.onSpeechEnd = speechEndHandler
-        setWakeListening(true)
         setTellChange('working')
         break;
       case 'a':
         Voice.onSpeechResults = confirmationSpeechResultHandler
         Voice.onSpeechEnd = speechEndHandler
-        setWakeListening(true)
         break;
       case 'f':
         setVoiceListening(false)
@@ -588,14 +587,17 @@ export default function SessionScreen(props){
       case 'askLeave':
           Speech.speak('friend is asking to stop')
           setTellChange('')
+          setWakeListening(true)
         break;
       case 'waitLeaveConfirmation':
           Speech.speak('asking friend to stop')
           setTellChange('')
+          setWakeListening(true)
         break;
       case 'working':
           Speech.speak('arise')
           setTellChange('')
+          setWakeListening(true)
         break;
       case 'recording':
           Speech.speak('recording')
