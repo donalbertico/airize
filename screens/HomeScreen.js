@@ -12,6 +12,7 @@ import useSpotifyAuth from '../hooks/useSpotifyAuth'
 import useSpotifyTokenStore from '../hooks/useSpotifyTokenStore'
 import useSpotifyTokenRefresh from '../hooks/useSpotifyTokenRefresh'
 import useAssetStore from '../hooks/useAssetStore'
+import useAppState from '../hooks/useAppState'
 import Logout from './auth/components/logoutComponent'
 import NavBar from './components/bottomNavComponent'
 import SessionList from './components/sessionListComponent'
@@ -22,6 +23,7 @@ export default function HomeScreen(props){
   const [newTokens,authErr,askToken] = useSpotifyAuth(false)
   const [storedToken,setStoredToken] = useSpotifyTokenStore()
   const [assets,setAssets] = useAssetStore()
+  const [foreground] = useAppState()
   const [playbackDevice,setDevice] = React.useState()
   const [spotifyAv, setSpotifyAv] = React.useState(false)
   const [audioGranted,setAudioGranted] = React.useState()
@@ -202,7 +204,14 @@ export default function HomeScreen(props){
       if(that.sessionListener) that.sessionListener()
     }
   },[user,sessionsReference])
-
+  // foreground
+  // refreshe some states when app in foreground
+  React.useEffect(() => {
+    if(foreground){
+      setSearchDevices(true)
+      setSpotifyToken('refresh')
+    }
+  },[foreground])
 
   return(
     <View style={styles.container}>

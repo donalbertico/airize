@@ -1,5 +1,6 @@
 import * as React from 'react'
 import * as firebase from 'firebase'
+import * as Speech from 'expo-speech'
 import { Audio } from 'expo-av'
 import 'firebase/firestore'
 import Voice from '@react-native-voice/voice'
@@ -14,12 +15,14 @@ import useAssetStore from '../../hooks/useAssetStore'
 import useUserRead from '../../hooks/useUserRead'
 import useSpotifyTokenRefresh from '../../hooks/useSpotifyTokenRefresh'
 import useSpotifyTokenStore from '../../hooks/useSpotifyTokenStore'
+import useAppState from '../../hooks/useAppState'
 
 export default function SessionScreen(props){
   const [user] = useUserRead('get')
   const [refreshErr,refreshedTokens,setRefresh] = useSpotifyTokenRefresh(false)
   const [storedToken] = useSpotifyTokenStore()
   const [assets,setAssets] = useAssetStore()
+  const [foreground] = useAppState()
   const [avatarUri,setAvatar] = React.useState()
   const [playbackInfo,setPlayInfo] = React.useState()
   const [isRecording,setIsRecording] = React.useState(false)
@@ -27,9 +30,9 @@ export default function SessionScreen(props){
   const [voiceListening,setVoiceListening] = React.useState('started')
   const [porcupineReady,setPorcupineReady] = React.useState(false)
   const [wakeListening,setWakeListening] = React.useState('started')
-  const [status,setStatus] = React.useState('w') //[w:work,r:record,s:stopping,p:playing]
+  const [status,setStatus] = React.useState() //[w:work,r:record,s:stopping,p:playing]
   const [recordTime,setRecordTime] = React.useState(0)
-  const [showModal,setModal] = React.useState(false)
+  const [askPause,setAskPause] = React.useState(false)
   const [time,setWorkoutTime] = React.useState()
   const [recording,setRecording] = React.useState()
   const [isReproducing,setIsReproducing] = React.useState(false)
@@ -37,7 +40,6 @@ export default function SessionScreen(props){
   const [playbackDevice,setPlaybackDevice] = React.useState()
   const [messageDuration,setMessageDuration] = React.useState(0)
   const [isSending,setSending] = React.useState(false)
-  const [sessRef,setRf] = React.useState()
   const [recordUri,setRecordUri] = React.useState()
   const [storeMessageId,setMessageId] = React.useState()
   const [tokenExpired,setTokenExpired] = React.useState(true)
@@ -47,6 +49,8 @@ export default function SessionScreen(props){
   const [currentUri,setCurrentRui] = React.useState()
   const [updateSession,setUpdateSession] = React.useState()
   const [sessionReference, setSessionReference] = React.useState()
+  const [leaver, setleaver] = React.useState()
+  const [tellChange, setTellChange] = React.useState()
 
   const workSpeechResultsHandler = (results) =>{
     let options = results.value
@@ -63,11 +67,11 @@ export default function SessionScreen(props){
               setWakeListening(true)
               return;
             }
-            setStatus('s')
-            setPause(true)
-            setModal(true)
+            setStatus('a')
+            setUpdateSession('askLeave')
             return;
           }else if (word=='record'||word=='send'||word=='message'){
+            setTellChange('recording')
             setVoiceListening(false)
             setStatus('r')
             setIsRecording(true)
@@ -95,14 +99,18 @@ export default function SessionScreen(props){
         let string = options[i].split(' ')
         for (var j in string) {
           let word = string[j].toLowerCase();
-          if(word=='stop' || word=='yes' || word=='yeah'){
-            setStatus('f')
-            setPause(true)
+          if(word=='stop' || word=='finish' ){
+            setUpdateSession('finish')
             return;
-          }else if(word=='no'||word=='continue'){
-            setStatus('w')
-            setPause(false)
-            setModal(false)
+          }else if(word=='keep'||word=='continue'){
+            setUpdateSession('working')
+            return;
+          }else if (word=='record'||word=='send'||word=='message'){
+            setTellChange('recording')
+            setVoiceListening(false)
+            setStatus('r')
+            setIsRecording(true)
+            setRecordTime(1)
             return;
           }
         }
@@ -172,12 +180,24 @@ export default function SessionScreen(props){
       that.sessionListener =
         sessionReference.onSnapshot((snapshot) => {
           let data = snapshot.data()
-          let playback = data?.playback
-          if(playback){
-            console.log('iupdatinggg',playback);
-            setPlayInfo(playback)
+          if(data?.playback)setPlayInfo(data.plaback)
+          switch (data.status) {
+            case 'a':
+              setleaver(data.leaver)
+              setAskPause(true)
+              break;
+            case 'f':
+              setAskPause(false)
+              setStatus('f')
+              setPause(true)
+              break;
+            case 's':
+              setAskPause(false)
+              setPause(false)
+              setStatus('w')
+              break;
           }
-        })
+      })
       that.messagesListener =
         sessionReference.collection('messages')
           .orderBy('time')
@@ -223,6 +243,22 @@ export default function SessionScreen(props){
           }
         })
         setUpdateSession('')
+        break;
+      case 'askLeave':
+        sessionReference.update({
+          leaver : user.uid,
+          status : 'a'
+        })
+        break;
+      case 'finish':
+        sessionReference.update({
+          status : 'f'
+        })
+        break;
+      case 'working':
+        sessionReference.update({
+          status : 's'
+        })
         break;
     }
   },[updateSession])
@@ -290,26 +326,19 @@ export default function SessionScreen(props){
         Voice.onSpeechResults = workSpeechResultsHandler
         Voice.onSpeechEnd = speechEndHandler
         setWakeListening(true)
+        setTellChange('working')
         break;
-      case 's':
+      case 'a':
         Voice.onSpeechResults = confirmationSpeechResultHandler
         Voice.onSpeechEnd = speechEndHandler
-        setTimeout(()=>setVoiceListening(true),100)
+        setWakeListening(true)
         break;
       case 'f':
         setVoiceListening(false)
         props.navigation.addListener('beforeRemove',(e)=>{
           props.navigation.dispatch(e.data.action)
         })
-        let db = firebase.firestore()
-        let sessionReference = db.collection('sessions')
-        sessionReference.add({users:[user.uid,'asdf'],status:'f'})
-          .then((doc)=>{
-            setPause(true)
-            setModal(false)
-            props.navigation.navigate('home')
-          })
-          .catch((e)=>{console.log(e);})
+        props.navigation.navigate('home')
         break;
     }
   },[status])
@@ -390,7 +419,9 @@ export default function SessionScreen(props){
               })
               .then(() => {
                 doc.update({ status: 's' }).then(() => {
+                  setTellChange('sent')
                   setSending(false)
+                  setWakeListening(true)
                 })
               })
               .catch((e)=>{
@@ -553,6 +584,47 @@ export default function SessionScreen(props){
       setAvatar(assets.avatar)
     }
   },[assets])
+  //tellChange
+  //set expo speech depending of activity
+  React.useEffect(() => {
+    switch (tellChange) {
+      case 'askLeave':
+          Speech.speak('friend is asking to stop')
+          setTellChange('')
+        break;
+      case 'waitLeaveConfirmation':
+          Speech.speak('asking friend to stop')
+          setTellChange('')
+        break;
+      case 'working':
+          Speech.speak('arise')
+          setTellChange('')
+        break;
+      case 'recording':
+          Speech.speak('recording')
+          setTellChange('')
+        break;
+    }
+  },[tellChange])
+  //leaver
+  //check for leaver and set tellChange
+  React.useEffect(() => {
+    console.log('leaver?',leaver);
+    if(!leaver)return;
+    if(leaver == user.uid){
+      setTellChange('waitLeaveConfirmation')
+    }else {
+      setTellChange('askLeave')
+    }
+  },[leaver])
+  //foreground
+  //check if app came from background
+  React.useEffect(() => {
+    if(foreground){
+      checkTokenExpired()
+      setSpotifyCall('getDevices')
+    }
+  },[foreground])
 
   handleOnTime = (e)=>{
     setWorkoutTime(e)
@@ -560,9 +632,19 @@ export default function SessionScreen(props){
 
   return(
     <View style={styles.container}>
-      <Modal visible={showModal}>
-          <View>
-            <Text h2>Are you sure you want to stop?</Text>
+      <Modal transparent={true} visible={askPause}>
+          <View style={styles.alignCentered}>
+            <View style={styles.modalView}>
+              {leaver==user.uid ? (
+                <View>
+                  <Text h4> asking your partener to leave ..</Text>
+                </View>
+              ):(
+                <View>
+                  <Text h4> your partner is asking to leave</Text>
+                </View>
+              )}
+            </View>
           </View>
       </Modal>
       <View style={styles.header}>

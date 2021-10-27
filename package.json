@@ -35,7 +35,8 @@
     "react-native-screens": "~3.4.0",
     "react-native-unimodules": "0.14.10",
     "react-native-web": "~0.13.12",
-    "spotify-web-api-js": "^1.5.2"
+    "spotify-web-api-js": "^1.5.2",
+    "expo-speech": "~9.2.0"
   },
   "devDependencies": {
     "@babel/core": "^7.9.0"
