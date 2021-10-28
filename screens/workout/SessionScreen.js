@@ -48,7 +48,7 @@ export default function SessionScreen(props){
   const [currentUri,setCurrentRui] = React.useState()
   const [updateSession,setUpdateSession] = React.useState()
   const [sessionReference, setSessionReference] = React.useState()
-  const [leaver, setleaver] = React.useState()
+  const [leaver, setLeaver] = React.useState()
   const [tellChange, setTellChange] = React.useState()
 
   const workSpeechResultsHandler = (results) =>{
@@ -66,7 +66,6 @@ export default function SessionScreen(props){
               setWakeListening(true)
               return;
             }
-            setStatus('a')
             setUpdateSession('askLeave')
             return;
           }else if (word=='record'||word=='send'||word=='message'){
@@ -182,8 +181,8 @@ export default function SessionScreen(props){
           if(data?.playback)setPlayInfo(data.playback)
           switch (data.status) {
             case 'a':
-              setWakeListening(false)
-              setleaver(data.leaver)
+              setStatus('a')
+              setLeaver(data.leaver)
               setAskPause(true)
               break;
             case 'f':
@@ -265,18 +264,22 @@ export default function SessionScreen(props){
     let that = this
     if(!that) return;
     if(porcupineReady && wakeListening != 'started'){
-      if(wakeListening) {
+      if(wakeListening == true) {
         that.porcupineManager?.start().then((started)=> {
           if(started){
             console.log('sisaaaaa');
           }
         })
-      }else {
+      }else if(wakeListening == false){
         that.porcupineManager?.stop().then((stopped)=> {
           if(stopped){
-            setVoiceListening(true)
+              setVoiceListening(true)
+              console.log('voice listen?');
           }
         })
+      }else if(wakeListening == 'off'){
+        console.log('vengo?');
+        that.porcupineManager?.stop()
       }
     }
   },[wakeListening,porcupineReady])
@@ -443,11 +446,12 @@ export default function SessionScreen(props){
       const soundObj = new Audio.Sound()
         await soundObj.loadAsync({uri :  uri },{shouldPlay : true})
         setMessageDuration(1)
+        setWakeListening('off')
       } catch (e) {
         console.log('error playing',e);
+        setWakeListening(true)
       }
     }
-    console.log(message);
     if(message)playMessage()
   },[message])
   //messageDuration
