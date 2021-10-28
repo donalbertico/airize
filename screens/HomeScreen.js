@@ -110,10 +110,10 @@ export default function HomeScreen(props){
   //check if token is expried and sets access token setSpotifyToken
   React.useEffect(()=>{
     if(searchDevices){
-      if(storedToken.expires <= new Date().getTime()){
+      if(storedToken?.expires <= new Date().getTime()){
         setRefresh(true)
       }else{
-        setSpotifyToken(storedToken.access)
+        setSpotifyToken(storedToken?.access)
         setSearchDevices(false)
       }
     }

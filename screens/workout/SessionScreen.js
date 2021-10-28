@@ -179,7 +179,7 @@ export default function SessionScreen(props){
       that.sessionListener =
         sessionReference.onSnapshot((snapshot) => {
           let data = snapshot.data()
-          if(data?.playback)setPlayInfo(data.plaback)
+          if(data?.playback)setPlayInfo(data.playback)
           switch (data.status) {
             case 'a':
               setWakeListening(false)
@@ -368,12 +368,14 @@ export default function SessionScreen(props){
     }
     if(recordTime == 1){
       setTimeout(()=>{ record()},100)
+      setSpotifyCall('pause')
       that.interval = setInterval(()=>{
         setRecordTime(recordTime => recordTime+1)
       },1000)
     }
     if(recordTime == 6){
       clearInterval(that.interval)
+      setSpotifyCall('play')
       stopRecord()
       setRecordTime(recordTime => 0)
       setIsRecording(false)
@@ -490,7 +492,6 @@ export default function SessionScreen(props){
         console.log('error playing',e);
         setSpotifyCall('')
       }
-
       setSpotifyCall('')
     }
     async function pause(){
@@ -620,7 +621,6 @@ export default function SessionScreen(props){
   //check if app came from background
   React.useEffect(() => {
     if(foreground){
-      checkTokenExpired()
       setSpotifyCall('getDevices')
     }
   },[foreground])

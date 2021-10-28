@@ -49,6 +49,7 @@ export default function RegisterScreen(props){
                 db.collection('users').doc(user.uid).set({
                       firstName: name,
                       lastName: lastName,
+                      email: email
                     })
                     .then(()=>{
                       console.log('setting user',user);

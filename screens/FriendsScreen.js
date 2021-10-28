@@ -9,12 +9,14 @@ import useUserRead from '../hooks/useUserRead'
 import NavBar from './components/bottomNavComponent'
 
 export default function FriendsScreen(props){
+  const [users,setUsers] = React.useState()
   const [friends,setFriends] = React.useState()
   const [user,readUser] = useUserRead('get')
   const [sessionsReference,setSessionsReference] = React.useState()
   const [showCalendar,setShowCalendar] = React.useState(false)
   const [candidate,setCandidate] = React.useState()
   const [date,setDate] = React.useState(new Date())
+  const [contacts, setContacts] = React.useState()
 
   const createSession = (date) => {
     setShowCalendar(false)
@@ -43,8 +45,7 @@ export default function FriendsScreen(props){
           });
 
           if (data.length > 0) {
-            const contact = data[0];
-            console.log(contact);
+            setContacts(data)
           }
         }
       } catch (e) {
@@ -62,11 +63,26 @@ export default function FriendsScreen(props){
             friend.id = item.id
             friendsArr = [...friendsArr,friend]
           });
-          setFriends(friendsArr)
+          setUsers(friendsArr)
         })
         getContacts()
     }
   },[user])
+  React.useEffect(() => {
+    if(contacts && users){
+      let friends = []
+      contacts.forEach((contact, i) => {
+        contact.emails.forEach((email, i) => {
+          users.forEach((user, i) => {
+            if(email.email == user.email) friends = [...friends, {...contact, uid : user.uid}]
+          });
+        });
+      });
+      setFriends(friends)
+      console.log(friends);
+    }
+  },[contacts,users])
+
 
   return (
     <View style={styles.container}>
