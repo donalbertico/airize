@@ -175,7 +175,7 @@ export default function SessionScreen(props){
   //set session listener
   React.useEffect(() => {
     let that = this;
-    if(sessionReference){
+    if(sessionReference && user.uid){
       that.sessionListener =
         sessionReference.onSnapshot((snapshot) => {
           let data = snapshot.data()
@@ -200,8 +200,8 @@ export default function SessionScreen(props){
       })
       that.messagesListener =
         sessionReference.collection('messages')
-          .orderBy('time')
-          .limit(1)
+          .where('status','==','s')
+          .where('user','!=',user.uid)
           .onSnapshot((snapshot) => {
             snapshot.forEach((message, i) => {
               let messageData = message.data()
@@ -216,7 +216,7 @@ export default function SessionScreen(props){
       if(that.sessionListener)that.sessionListener()
       if(that.messagesListener)that.messagesListener()
     }
-  },[sessionReference])
+  },[sessionReference,user])
   //updateSession
   //updates Session based on state param
   React.useEffect(() => {
@@ -443,13 +443,12 @@ export default function SessionScreen(props){
       const soundObj = new Audio.Sound()
         await soundObj.loadAsync({uri :  uri },{shouldPlay : true})
         setMessageDuration(1)
-        setMessage()
       } catch (e) {
         console.log('error playing',e);
       }
     }
     console.log(message);
-    if(message && message.user != user.uid)playMessage()
+    if(message)playMessage()
   },[message])
   //messageDuration
   //count for message duration while it reproduces
@@ -464,6 +463,11 @@ export default function SessionScreen(props){
     if(messageDuration == 5){
       clearInterval(that.interval)
       setMessageDuration(messageDuration=>0)
+      sessionReference.collection('messages')
+        .doc(message.id)
+        .update({ status: 'l' }).then(() => {
+          setMessage()
+        })
       setIsReproducing(false)
       setStatus('w')
     }
