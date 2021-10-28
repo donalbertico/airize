@@ -416,9 +416,9 @@ export default function SessionScreen(props){
               })
               .then(() => {
                 doc.update({ status: 's' }).then(() => {
+                  setRecordUri()
                   setTellChange('sent')
                   setSending(false)
-                  setWakeListening(true)
                 })
               })
               .catch((e)=>{
@@ -469,7 +469,7 @@ export default function SessionScreen(props){
           setMessage()
         })
       setIsReproducing(false)
-      setStatus('w')
+      setWakeListening(true)
     }
   },[messageDuration])
   //spotify tokens
@@ -606,6 +606,11 @@ export default function SessionScreen(props){
         break;
       case 'recording':
           Speech.speak('recording')
+          setTellChange('')
+        break;
+      case 'sent':
+          Speech.speak('message sent')
+          setWakeListening(true)
           setTellChange('')
         break;
     }

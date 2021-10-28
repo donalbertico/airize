@@ -39,7 +39,7 @@ export default function SessionFormScreen(props) {
     let db = firebase.firestore()
     let ref = db.collection('sessions')
     ref.add({
-        users: [guests[0].id,host.uid],
+        users: [guests[0].uid,host.uid],
         status: 'c',
         dueDate : firebase.firestore.Timestamp.fromDate(date),
         host : host.uid

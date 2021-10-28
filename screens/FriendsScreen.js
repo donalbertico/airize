@@ -57,13 +57,13 @@ export default function FriendsScreen(props){
       setSessionsReference(db.collection('sessions'))
       db.collection('users').get()
         .then((docs) => {
-          let friendsArr = []
+          let userArray = []
           docs.forEach((item, i) => {
-            let friend = item.data()
-            friend.id = item.id
-            friendsArr = [...friendsArr,friend]
+            let user = item.data()
+            user.uid = item.id
+            userArray = [...userArray,user]
           });
-          setUsers(friendsArr)
+          setUsers(userArray)
         })
         getContacts()
     }
