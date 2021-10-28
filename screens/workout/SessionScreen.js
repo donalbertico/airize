@@ -19,6 +19,7 @@ import useAppState from '../../hooks/useAppState'
 
 export default function SessionScreen(props){
   const [user] = useUserRead('get')
+  const [messageLimit,setMessageLimit] = React.useState(10)
   const [refreshErr,refreshedTokens,setRefresh] = useSpotifyTokenRefresh(false)
   const [storedToken] = useSpotifyTokenStore()
   const [assets,setAssets] = useAssetStore()
@@ -50,6 +51,8 @@ export default function SessionScreen(props){
   const [sessionReference, setSessionReference] = React.useState()
   const [leaver, setLeaver] = React.useState()
   const [tellChange, setTellChange] = React.useState()
+  const [playing, setPlaying] = React.useState(false)
+  const [wasPlaying, setWasPlaying] = React.useState(false)
 
   const workSpeechResultsHandler = (results) =>{
     let options = results.value
@@ -69,6 +72,10 @@ export default function SessionScreen(props){
             setUpdateSession('askLeave')
             return;
           }else if (word=='record'||word=='send'||word=='message'){
+            if(playing){
+              setWasPlaying(true)
+              setSpotifyCall('pause');
+            }
             setVoiceListening(false)
             setTellChange('recording')
             setStatus('r')
@@ -371,17 +378,20 @@ export default function SessionScreen(props){
     }
     if(recordTime == 1){
       setTimeout(()=>{ record()},100)
-      setSpotifyCall('pause')
       that.interval = setInterval(()=>{
         setRecordTime(recordTime => recordTime+1)
       },1000)
     }
-    if(recordTime == 6){
+    if(recordTime == messageLimit){
       clearInterval(that.interval)
-      setSpotifyCall('play')
       stopRecord()
       setRecordTime(recordTime => 0)
       setIsRecording(false)
+      if(wasPlaying){
+        spotifyCall('play')
+        setPlaying('false')
+        setWasPlaying('false')
+      }
     }
   },[recordTime])
   //recordUri
@@ -464,7 +474,7 @@ export default function SessionScreen(props){
         setMessageDuration(messageDuration=>messageDuration+1)
       },1000)
     }
-    if(messageDuration == 5){
+    if(messageDuration == messageLimit){
       clearInterval(that.interval)
       setMessageDuration(messageDuration=>0)
       sessionReference.collection('messages')
@@ -496,15 +506,22 @@ export default function SessionScreen(props){
           device_id: playbackDevice,
           position_ms: 0
         })
+        setPlaying(true)
       } catch (e) {
         console.log('error playing',e);
+        setPlaying(false)
         setSpotifyCall('')
       }
       setSpotifyCall('')
     }
     async function pause(){
-      await client.pause({})
-      setSpotifyCall('')
+      try {
+        await client.pause({})
+        setSpotifyCall('')
+        setPlaying(false)
+      } catch (e) {
+        console.warn('user not premiun');
+      }
     }
     async function getSaved(){
       try {
@@ -622,7 +639,6 @@ export default function SessionScreen(props){
   //leaver
   //check for leaver and set tellChange
   React.useEffect(() => {
-    console.log('leaver?',leaver);
     if(!leaver)return;
     if(leaver == user.uid){
       setTellChange('waitLeaveConfirmation')
