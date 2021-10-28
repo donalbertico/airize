@@ -469,7 +469,7 @@ export default function SessionScreen(props){
           setMessage()
         })
       setIsReproducing(false)
-      setStatus('w')
+      setWakeListening(true)
     }
   },[messageDuration])
   //spotify tokens
