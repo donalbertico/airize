@@ -39,6 +39,8 @@ PODS:
     - UMCore
   - EXRandom (11.2.0):
     - React-Core
+  - EXSpeech (9.2.1):
+    - UMCore
   - EXSplashScreen (0.11.4):
     - React-Core
     - UMCore
@@ -304,13 +306,13 @@ PODS:
     - React-Core (= 0.63.4)
     - React-cxxreact (= 0.63.4)
     - React-jsi (= 0.63.4)
-  - RNCAsyncStorage (1.15.8):
+  - RNCAsyncStorage (1.15.9):
     - React-Core
   - RNDateTimePicker (3.5.2):
     - React-Core
   - RNGestureHandler (1.10.3):
     - React-Core
-  - RNReanimated (2.2.2):
+  - RNReanimated (2.2.3):
     - DoubleConversion
     - FBLazyVector
     - FBReactNativeSpec
@@ -366,6 +368,7 @@ DEPENDENCIES:
   - EXKeepAwake (from `../node_modules/expo-keep-awake/ios`)
   - ExpoModulesCore (from `../node_modules/expo-modules-core/ios`)
   - EXRandom (from `../node_modules/expo-random/ios`)
+  - EXSpeech (from `../node_modules/expo-speech/ios`)
   - EXSplashScreen (from `../node_modules/expo-splash-screen/ios`)
   - EXStructuredHeaders (from `../node_modules/expo-structured-headers/ios`)
   - EXUpdates (from `../node_modules/expo-updates/ios`)
@@ -443,6 +446,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/expo-modules-core/ios"
   EXRandom:
     :path: "../node_modules/expo-random/ios"
+  EXSpeech:
+    :path: "../node_modules/expo-speech/ios"
   EXSplashScreen:
     :path: "../node_modules/expo-splash-screen/ios"
   EXStructuredHeaders:
@@ -533,28 +538,29 @@ EXTERNAL SOURCES:
 SPEC CHECKSUMS:
   boost-for-react-native: 39c7adb57c4e60d6c5479dd8623128eb5b3f0f2c
   DoubleConversion: cde416483dac037923206447da6e1454df403714
-  EXApplication: cdc959fd8b706b039621de03585375f11a066a47
-  EXAV: f2df8aac66a8e9ffe7be4e5dded4244cf55bc864
-  EXConstants: d0969e870d37f824cc940751d8e7e3c50afe6063
-  EXContacts: f0a3b1670bce4ec13a68bcefa74b5ea95c03d2b3
-  EXCrypto: 1df3b5e40133d07db7deaf938d29985602d2e1d1
-  EXErrorRecovery: e092308f1fad9030d298e5116585c2d79671c8e6
-  EXFileSystem: 94496f1160b0bf7f000fe04e38ecb2aa63083a2c
-  EXFont: cb2350960187470ec54ff4668755abb74fde9839
-  EXImageLoader: 6494524ac2b99af4edcacada0e19c71600423e59
-  EXKeepAwake: db7607300383508b9ccf1da5bed4eab541f53e25
-  ExpoModulesCore: 730c7158b2fb179ba5921230e56a083a2304974d
-  EXRandom: 5aad254d8e60bd441d6bef67ec2840b1dafe572b
-  EXSplashScreen: f537a41eed0ad091fa599e1591ad4f94e38c6ca9
-  EXStructuredHeaders: 5c1dfd030edc0128927fe3cb7ec73bec84b73ab4
-  EXUpdates: 9d6127984b515fa2c0404b2a4662861e42b88d98
-  EXUpdatesInterface: e4c4c7b7c49250314ad7137ffca09446c5b2c492
-  EXWebBrowser: 8bd1e653ac73114cc126eeff5fb2b2fedf9e1fb0
+  EXApplication: 9ff2a206009d6e55bca6c20b3f33d07986b51ef3
+  EXAV: 67bcc1d0afeb1fab854b206c84b9f2afbd61d0cd
+  EXConstants: 4cb52b6d8f636c767104a44bf7db3873e9c01a6f
+  EXContacts: c981b8d94c0e5b176d61568746a69b3c2d7edae7
+  EXCrypto: 46e28f1eb7ec3e2ae5aab652fe1dc4d46bafb386
+  EXErrorRecovery: 404d827bc7d42f306c062d58a60b06afc4d082b3
+  EXFileSystem: 0a04aba8da751b9ac954065911bcf166503f8267
+  EXFont: 9846ba1bb6f5f5aed44e20eea3ac70693323832d
+  EXImageLoader: d3531a3fe530b22925c19977cb53bb43e3821fe6
+  EXKeepAwake: f4105ef469be7b283f66ce2d7234bb71ac80cd26
+  ExpoModulesCore: 2734852616127a6c1fc23012197890a6f3763dc7
+  EXRandom: ecb71f5d01991f29bb0277f8a2c35d168f85d637
+  EXSpeech: 383ebe43433a44990b0fd3534f0abc658b990f42
+  EXSplashScreen: 847e0d8026731c1090bf269ede3e15ac87d88958
+  EXStructuredHeaders: e52b880264d15b8ad07d36670226c29476af6334
+  EXUpdates: 013d26649cb6ab4f8d8d80c35d3d4be150b47e7c
+  EXUpdatesInterface: b68e78b912a03fff7901a5f46ec200c45e3506a5
+  EXWebBrowser: 76783ba5dcb8699237746ecf41a9643d428a4cc5
   FBLazyVector: 3bb422f41b18121b71783a905c10e58606f7dc3e
   FBReactNativeSpec: f2c97f2529dd79c083355182cc158c9f98f4bd6e
   Folly: b73c3869541e86821df3c387eb0af5f65addfab4
   glog: 40a13f7840415b9a77023fbcae0f1e6f43192af3
-  porcupine-react-native: 473ea48ea5f505e2e4651f6bcbc2b1ccbca6cf95
+  porcupine-react-native: d62f881d5f9bee68eef4c82a42521c4cac86543b
   RCTRequired: 082f10cd3f905d6c124597fd1c14f6f2655ff65e
   RCTTypeSafety: 8c9c544ecbf20337d069e4ae7fd9a377aadf504b
   React: b0a957a2c44da4113b0c4c9853d8387f8e64e615
@@ -565,9 +571,9 @@ SPEC CHECKSUMS:
   React-jsi: a0418934cf48f25b485631deb27c64dc40fb4c31
   React-jsiexecutor: 93bd528844ad21dc07aab1c67cb10abae6df6949
   React-jsinspector: 58aef7155bc9a9683f5b60b35eccea8722a4f53a
-  react-native-safe-area-context: e471852c5ed67eea4b10c5d9d43c1cebae3b231d
-  react-native-voice: 448612ac1ecf0781c253b3cc65be4d63b59b2f84
-  react-native-voice-processor: cb7be718852e6250a79eaf44f83f9dd040410354
+  react-native-safe-area-context: f0906bf8bc9835ac9a9d3f97e8bde2a997d8da79
+  react-native-voice: 634b2749a0f67676a999e97df4d8220ce59ac738
+  react-native-voice-processor: d6de50c8942d0c9b9e89d7c1c982c85c298a8b6f
   React-RCTActionSheet: 89a0ca9f4a06c1f93c26067af074ccdce0f40336
   React-RCTAnimation: 1bde3ecc0c104c55df246eda516e0deb03c4e49b
   React-RCTBlob: a97d378b527740cc667e03ebfa183a75231ab0f0
@@ -578,15 +584,15 @@ SPEC CHECKSUMS:
   React-RCTText: 5c51df3f08cb9dedc6e790161195d12bac06101c
   React-RCTVibration: ae4f914cfe8de7d4de95ae1ea6cc8f6315d73d9d
   ReactCommon: 73d79c7039f473b76db6ff7c6b159c478acbbb3b
-  RNCAsyncStorage: 0f655864a81214d1c5a9bf0faf79d86dc25c383e
-  RNDateTimePicker: c9911be59b1f8670b9f244b85af3a7c295e175ed
+  RNCAsyncStorage: 26f25150da507524a7815f2ada06ca0967f65633
+  RNDateTimePicker: 7658208086d86d09e1627b5c34ba0cf237c60140
   RNGestureHandler: a479ebd5ed4221a810967000735517df0d2db211
-  RNReanimated: 6ec2460b9c6c8f3b1403bd0eaa12d359a98650e3
+  RNReanimated: 8744fb15baf4c582367d910f4f32f5097fb350cb
   RNScreens: 21b73c94c9117e1110a79ee0ee80c93ccefed8ce
-  UMAppLoader: db2dae4bc3085e21f56d6d9cf7783d08c5999af4
-  UMCore: ad33bbda30dee343a248e3696f30502092d9842d
-  UMReactNativeAdapter: c10564ac78d5117d448b75b87862173deb043ec5
-  UMTaskManagerInterface: 75462b0d8580ec91ae23f88a4f9271a3130efb02
+  UMAppLoader: 21af63390e55c82e037fb9752d93114a80ecf16e
+  UMCore: ce3a4faa010239063b8343895b29a6d97b01069d
+  UMReactNativeAdapter: d03cefd0e4e4179ab8c490408589f1c8a6c8b785
+  UMTaskManagerInterface: 2be431101b73604e64fbfffcf759336f9d8fccbb
   Yoga: 4bd86afe9883422a7c4028c00e34790f560923d6
 
 PODFILE CHECKSUM: 512084204582ab349b416ada4b361c23932c9dec
