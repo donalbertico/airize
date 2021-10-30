@@ -53,17 +53,22 @@ export default function SessionScreen(props){
   const [tellChange, setTellChange] = React.useState()
   const [playing, setPlaying] = React.useState(false)
   const [wasPlaying, setWasPlaying] = React.useState(false)
+  const [playlist, setPlaylist] = React.useState(props.route.params.playlist)
+  const [spotifyError, setSpotifyError] = React.useState()
+  const [listTracks, setListTracks] = React.useState()
+  const [toPlay, setToPlay] = React.useState()
 
   const workSpeechResultsHandler = (results) =>{
+    setVoiceListening(false)
     let options = results.value
+    console.log(results);
     if(options){
       for(var i in options){
         let string = options[i].split(' ')
         for (var j in string) {
           let word = string[j].toLowerCase();
+          let next = string[parseInt(j)+1]?.toLowerCase()
           if(word =='stop'){
-            setVoiceListening(false)
-            let next = string[j+1]?.toLowerCase()
             if(next == 'music' || next == 'spotify'){
               setUpdateSession('pause')
               setWakeListening(true)
@@ -76,19 +81,26 @@ export default function SessionScreen(props){
               setWasPlaying(true)
               setSpotifyCall('pause');
             }
-            setVoiceListening(false)
             setTellChange('recording')
             setStatus('r')
             setIsRecording(true)
             setRecordTime(1)
             return;
           }else if (word=='play'||word=='music'){
-            setVoiceListening(false)
+            if(next == 'next' || next == 'song' || next == 'track'){
+              setUpdateSession('playNext')
+              setWakeListening(true)
+              return;
+            }
+            if(next == 'previous' || next == 'last' ){
+              setUpdateSession('playPrevious')
+              setWakeListening(true)
+              return;
+            }
             setUpdateSession('play')
             setWakeListening(true)
             return;
-          }else if ( word=='pause'){
-            setVoiceListening(false)
+          }else if ( word =='pause'){
             setUpdateSession('pause')
             setWakeListening(true)
             return;
@@ -135,6 +147,9 @@ export default function SessionScreen(props){
       setSpotifyToken(storedToken.access)
     }
   }
+  const handleOnTime = (e)=>{
+    setWorkoutTime(e)
+  }
   //onMount hook
   React.useEffect(()=>{
     let db = firebase.firestore()
@@ -177,6 +192,9 @@ export default function SessionScreen(props){
       that.porcupineReady = null
     }
   },[])
+  //
+  //Session
+  //
   //sessionsReference
   //set session listener
   React.useEffect(() => {
@@ -227,6 +245,22 @@ export default function SessionScreen(props){
   //updates Session based on state param
   React.useEffect(() => {
     switch(updateSession){
+      case 'askLeave':
+        sessionReference.update({
+          leaver : user.uid,
+          status : 'a'
+        })
+        break;
+      case 'finish':
+        sessionReference.update({
+          status : 'f'
+        })
+        break;
+      case 'working':
+        sessionReference.update({
+          status : 's'
+        })
+        break;
       case 'play':
         sessionReference.update({
           playback : {
@@ -247,24 +281,34 @@ export default function SessionScreen(props){
         })
         setUpdateSession('')
         break;
-      case 'askLeave':
+      case 'playNext':
+        let nextStatus = playbackInfo.status == 'n' ? 'nn' : 'n'
         sessionReference.update({
-          leaver : user.uid,
-          status : 'a'
+          playback : {
+            uri : playbackInfo.uri,
+            status : nextStatus,
+            image :playbackInfo.image
+          }
         })
+        setUpdateSession('')
         break;
-      case 'finish':
+      case 'playPrevious':
+        let previousStatus = playbackInfo.status == 'l' ? 'll' : 'l'
         sessionReference.update({
-          status : 'f'
+          playback : {
+            uri : playbackInfo.uri,
+            status : previousStatus,
+            image :playbackInfo.image
+          }
         })
-        break;
-      case 'working':
-        sessionReference.update({
-          status : 's'
-        })
+        setUpdateSession('')
         break;
     }
   },[updateSession])
+
+  //
+  //Voice command listeners
+  //
   //wakeListening
   //sets an interval to activate in case long time passed and voice is not voiceListening
   React.useEffect(()=>{
@@ -279,13 +323,9 @@ export default function SessionScreen(props){
         })
       }else if(wakeListening == false){
         that.porcupineManager?.stop().then((stopped)=> {
-          if(stopped){
-              setVoiceListening(true)
-              console.log('voice listen?');
-          }
+          if(stopped)setVoiceListening(true)
         })
       }else if(wakeListening == 'off'){
-        console.log('vengo?');
         that.porcupineManager?.stop()
       }
     }
@@ -312,7 +352,6 @@ export default function SessionScreen(props){
     let that = this
     if( voiceListening && !wakeListening ){
       that.timer = setInterval(()=>{
-        console.log('a ver?');
         if(!wakeListening && voiceListening){
           setVoiceListening(false)
           setWakeListening(true)
@@ -347,6 +386,10 @@ export default function SessionScreen(props){
         break;
     }
   },[status])
+
+  //
+  //voice message recording
+  //
   //recordTime
   //handle record command for (S) seconds
   React.useEffect(()=>{
@@ -365,7 +408,6 @@ export default function SessionScreen(props){
         })
         await recording.startAsync()
         setRecording(recording)
-        console.log('reacording');
       }catch(e){
         console.log('ERROR recording',e);
       }
@@ -446,8 +488,11 @@ export default function SessionScreen(props){
     }
     if(recordUri)upload()
   },[recordUri])
-  //isSending
-  //creates plaback object with uri and reproduces audio
+  //
+  //voice message reproducing
+  //
+  //message
+  //creates plaback object with uri from message
   React.useEffect(()=>{
     async function playMessage(){
       setIsReproducing(true)
@@ -486,31 +531,26 @@ export default function SessionScreen(props){
       setWakeListening(true)
     }
   },[messageDuration])
-  //spotify tokens
-  //check if spotify is authorized
-  React.useEffect(()=>{
-    if(storedToken){
-      setSpotifyAv(true)
-      setSpotifyCall('getDevices')
-    }
-  },[storedToken])
-  //tokenExpired, Spotifycall
+
+  //
+  //Spotify auth and tasks
+  //
+  //spotifytoken, Spotifycall
   //calls a spotify function if token isnt expired
   React.useEffect(()=>{
     const client = new SpotifyWebApi()
     async function play(){
-      console.log('playback', playbackInfo);
       try {
         await client.play({
-          uris: [playbackInfo.uri],
+          uris: playbackInfo.uri,
           device_id: playbackDevice,
           position_ms: 0
         })
         setPlaying(true)
       } catch (e) {
-        console.log('error playing',e);
         setPlaying(false)
         setSpotifyCall('')
+        setSpotifyError({type : 'play', e : e})
       }
       setSpotifyCall('')
     }
@@ -520,7 +560,7 @@ export default function SessionScreen(props){
         setSpotifyCall('')
         setPlaying(false)
       } catch (e) {
-        console.warn('user not premiun');
+        setSpotifyError({type : 'pause', e : e})
       }
     }
     async function getSaved(){
@@ -533,7 +573,7 @@ export default function SessionScreen(props){
           status : 'x'
         });
       } catch (e) {
-        console.warn('error with saved tracks',e);
+        setSpotifyError({type : 'favTracks', e : e})
       }
       setSpotifyCall('')
     }
@@ -541,25 +581,65 @@ export default function SessionScreen(props){
       const client = new SpotifyWebApi()
       client.setAccessToken(spotifyToken)
       setSpotifyCall('')
+      setPlaybackDevice()
       try {
         const result = await client.getMyDevices()
         if(result){
           let devices = result.devices
-          if(devices?.length == 0) {
-            setPlaybackDevice()
-          }
+          if(devices?.length == 0) setPlaybackDevice()
           devices.forEach((device, i) => {
-            if(device.type == "Smartphone"){
-              setPlaybackDevice(device.id)
-              setSpotifyCall('getSaved')
-            }
+            if(device.type == "Smartphone") setPlaybackDevice(device.id)
           });
         }
       } catch (e) {
-        // console.log('response',e);
+        setSpotifyError({type : 'devices', e : e})
       }
     }
-    if(spotifyToken&&spotifyCall) {
+    async function getListTracks(){
+      try {
+        const tracks = await client.getPlaylistTracks(playlist.split(':')[2])
+        let uris = []
+        tracks?.items?.forEach((item, i) => {
+          uris = [...uris,item.track.uri]
+        });
+        setListTracks(uris)
+        if(uris.length > 0){
+          setPlayInfo({
+            uri : uris,
+            image : tracks.items[0].track.album.images[0].url
+          })
+        }
+        setSpotifyCall('')
+
+      } catch (e) {
+        setSpotifyError({type : 'listTraks', e : e})
+      }
+    }
+    async function skipToNext() {
+      try {
+        await client.skipToNext()
+        setSpotifyCall('')
+      }
+      catch (e) { setSpotifyError({type : 'nextrack', e : e}) }
+    }
+    async function skipToPrevious(){
+      try {
+        await client.skipToPrevious()
+        setSpotifyCall('')
+      }
+      catch (e) { setSpotifyToken({type : 'previous',e : e}) }
+    }
+    async function getPlayLists(){
+      try {
+        const  result = await client.getUserPlaylists()
+        if(result){
+          result.items?.forEach((playlist, i) => {
+            if(playlist.name.toLowerCase() == 'airize') setPlaylist(playlist.uri)
+          });
+        }
+      } catch (e) { setSpotifyToken({type : 'previous',e : e}) }
+    }
+    if(spotifyToken && spotifyCall) {
       client.setAccessToken(spotifyToken)
       switch (spotifyCall) {
         case 'play':
@@ -576,10 +656,30 @@ export default function SessionScreen(props){
         case 'getDevices':
             getDevices()
           break;
+        case 'getTracks':
+            getListTracks()
+          break;
+        case 'playNext':
+            skipToNext()
+          break;
+        case 'previous':
+            skipToPrevious()
+          break;
+        case 'getPlayList':
+            getPlayLists()
+          break;
       }
     }
     if(spotifyCall)checkTokenExpired()
   },[spotifyToken,spotifyCall])
+  //spotify tokens
+  //check if spotify is authorized
+  React.useEffect(()=>{
+    if(storedToken){
+      setSpotifyAv(true)
+      setSpotifyCall('getDevices')
+    }
+  },[storedToken])
   //refreshedTokens
   //set access token when refreshedTokens are set
   React.useEffect(() => {
@@ -596,16 +696,45 @@ export default function SessionScreen(props){
         case 'p':
           if(playbackInfo.uri)setSpotifyCall('play')
           break;
+        case 'n':
+          setSpotifyCall('playNext')
+          break;
+        case 'nn':
+          console.log('??');
+          setSpotifyCall('playNext')
+          break;
+        case 'l':
+          setSpotifyCall('playPrevious')
+          break;
+        case 'll':
+          setSpotifyCall('playPrevious')
+          break;
       }
     }
   },[playbackInfo])
-  //assets
-  //load images url
+  //spotify Error
+  //handles if any spotify error happen
   React.useEffect(() => {
-    if(assets) {
-      setAvatar(assets.avatar)
+    if(spotifyError){
+      let error = spotifyError.e['_response']?.error
+      console.log('SPOTIFY', error);
+      switch (error?.status){
+        case 404:
+          setSpotifyCall('getDevices')
+          break;
+        default:
+      }
     }
-  },[assets])
+  },[spotifyError])
+  //playlistID
+  //get traks from playlsit
+  React.useEffect(() => {
+    if(playlist && playbackDevice)setSpotifyCall('getTracks')
+  },[playlist, playbackDevice])
+
+  //
+  // voice alerts
+  //
   //tellChange
   //set expo speech depending of activity
   React.useEffect(() => {
@@ -636,6 +765,16 @@ export default function SessionScreen(props){
         break;
     }
   },[tellChange])
+  //
+  //utils
+  //
+  //foreground
+  //check if app came from background
+  React.useEffect(() => {
+    if(foreground){
+      setSpotifyCall('getDevices')
+    }
+  },[foreground])
   //leaver
   //check for leaver and set tellChange
   React.useEffect(() => {
@@ -646,17 +785,21 @@ export default function SessionScreen(props){
       setTellChange('askLeave')
     }
   },[leaver])
-  //foreground
-  //check if app came from background
+  //assets
+  //load images url
   React.useEffect(() => {
-    if(foreground){
-      setSpotifyCall('getDevices')
+    if(assets) {
+      setAvatar(assets.avatar)
     }
-  },[foreground])
-
-  handleOnTime = (e)=>{
-    setWorkoutTime(e)
-  }
+  },[assets])
+  //user
+  //get playlist if not here
+  React.useEffect(() => {
+    if(user != 'get'){
+      console.log('confirme?',playlist);
+      if(!playlist) setSpotifyCall('getPlayList')
+    }
+  },[user])
 
   return(
     <View style={styles.container}>
