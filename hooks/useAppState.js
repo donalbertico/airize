@@ -12,7 +12,6 @@ export default function useAppState() {
       setForeground(false)
     }
     appState.current = nextAppState
-    console.log(appState.curent);
   }
 
   useEffect(() => {

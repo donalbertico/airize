@@ -53,6 +53,7 @@ export default function SessionScreen(props){
   const [tellChange, setTellChange] = React.useState()
   const [playing, setPlaying] = React.useState(false)
   const [wasPlaying, setWasPlaying] = React.useState(false)
+  const [premiunSpotify, setPremiun] = React.useState(true)
 
   const workSpeechResultsHandler = (results) =>{
     let options = results.value
@@ -90,7 +91,8 @@ export default function SessionScreen(props){
           }else if ( word=='pause'){
             setVoiceListening(false)
             setUpdateSession('pause')
-            setWakeListening(true)
+            setTimeout(() => setWakeListening(true),100)
+
             return;
           }
         }
@@ -155,6 +157,7 @@ export default function SessionScreen(props){
         that.porcupineManager = await PorcupineManager.fromKeywords(
           ['alexa','ok google','terminator','blueberry']
           ,()=> {
+            setTellChange('yes')
             setWakeListening(false)
           })
         setPorcupineReady(true)
@@ -228,6 +231,7 @@ export default function SessionScreen(props){
   React.useEffect(() => {
     switch(updateSession){
       case 'play':
+      console.log('updating');
         sessionReference.update({
           playback : {
             uri : playbackInfo.uri,
@@ -279,13 +283,9 @@ export default function SessionScreen(props){
         })
       }else if(wakeListening == false){
         that.porcupineManager?.stop().then((stopped)=> {
-          if(stopped){
-              setVoiceListening(true)
-              console.log('voice listen?');
-          }
+          if(stopped)setVoiceListening(true)
         })
       }else if(wakeListening == 'off'){
-        console.log('vengo?');
         that.porcupineManager?.stop()
       }
     }
@@ -312,7 +312,6 @@ export default function SessionScreen(props){
     let that = this
     if( voiceListening && !wakeListening ){
       that.timer = setInterval(()=>{
-        console.log('a ver?');
         if(!wakeListening && voiceListening){
           setVoiceListening(false)
           setWakeListening(true)
@@ -365,7 +364,6 @@ export default function SessionScreen(props){
         })
         await recording.startAsync()
         setRecording(recording)
-        console.log('reacording');
       }catch(e){
         console.log('ERROR recording',e);
       }
@@ -520,7 +518,7 @@ export default function SessionScreen(props){
         setSpotifyCall('')
         setPlaying(false)
       } catch (e) {
-        console.warn('user not premiun');
+        console.warn('user not premiun',e);
       }
     }
     async function getSaved(){
@@ -563,14 +561,14 @@ export default function SessionScreen(props){
       client.setAccessToken(spotifyToken)
       switch (spotifyCall) {
         case 'play':
-            play()
+            if(playbackDevice) play()
             setWakeListening(true)
           break;
         case 'getSaved':
             getSaved()
           break;
         case 'pause':
-            pause()
+            if(playbackDevice) pause()
             setWakeListening(true)
           break;
         case 'getDevices':
@@ -629,6 +627,10 @@ export default function SessionScreen(props){
           Speech.speak('recording')
           setTellChange('')
         break;
+      case 'yes':
+          Speech.speak('yes')
+          setTellChange('')
+        break;
       case 'sent':
           Speech.speak('message sent')
           setWakeListening(true)
@@ -650,7 +652,12 @@ export default function SessionScreen(props){
   //check if app came from background
   React.useEffect(() => {
     if(foreground){
+      setWakeListening('off')
+      console.log('a qiora');
       setSpotifyCall('getDevices')
+      setTimeout(()=>{
+        setWakeListening(true)
+      },100)
     }
   },[foreground])
 
