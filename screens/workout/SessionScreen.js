@@ -34,6 +34,7 @@ export default function SessionScreen(props){
   const [voiceListening,setVoiceListening] = React.useState('started')
   const [porcupineReady,setPorcupineReady] = React.useState(false)
   const [wakeListening,setWakeListening] = React.useState('started')
+  const [speakEnd,setSpeakEnd] = React.useState()
   const [status,setStatus] = React.useState() //[w:work,r:record,s:stopping,p:playing]
   const [recordTime,setRecordTime] = React.useState(0)
   const [askPause,setAskPause] = React.useState(false)
@@ -115,7 +116,6 @@ export default function SessionScreen(props){
           else if ( word =='pause'){
             setUpdateSession('pause')
             setTimeout(() => setWakeListening(true),100)
-
             return;
           }
         }
@@ -148,7 +148,7 @@ export default function SessionScreen(props){
     }
   }
   const speechEndHandler = (error)=> {
-    console.log('STOPD');
+    setSpeakEnd(true)
   }
   const checkTokenExpired = ()=> {
     let yesterday = new Date()
@@ -295,7 +295,7 @@ export default function SessionScreen(props){
         setUpdateSession('')
         break;
       case 'playNext':
-        let nextStatus = playbackInfo.status == 'n' ? 'nn' : 'n'
+        let nextStatus = playbackInfo?.status == 'n' ? 'nn' : 'n'
         sessionReference.update({
           playback : {
             status : nextStatus,
@@ -305,7 +305,7 @@ export default function SessionScreen(props){
         setUpdateSession('')
         break;
       case 'playPrevious':
-        let previousStatus = playbackInfo.status == 'l' ? 'll' : 'l'
+        let previousStatus = playbackInfo?.status == 'l' ? 'll' : 'l'
         sessionReference.update({
           playback : {
             status : previousStatus,
@@ -334,7 +334,10 @@ export default function SessionScreen(props){
         })
       }else if(wakeListening == false){
         that.porcupineManager?.stop().then((stopped)=> {
-          if(stopped)setVoiceListening(true)
+          if(stopped){
+            setSpeakEnd(false)
+            setVoiceListening(true)
+          }
         })
       }else if(wakeListening == 'off'){
         that.porcupineManager?.stop()
@@ -367,14 +370,18 @@ export default function SessionScreen(props){
           setVoiceListening(false)
           setWakeListening(true)
         }
-      },10000)
+      },8000)
     }else if(wakeListening){
       clearInterval(that.timer)
+    }
+    if(speakEnd && voiceListening ){
+      setVoiceListening(false)
+      setWakeListening(true)
     }
     return () => {
       clearInterval(that.timer)
     }
-  },[voiceListening,wakeListening])
+  },[voiceListening,wakeListening,speakEnd])
   //status
   //changes speech handlers
   React.useEffect(()=>{
