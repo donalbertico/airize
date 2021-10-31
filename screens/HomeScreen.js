@@ -35,6 +35,8 @@ export default function HomeScreen(props){
   const [isHost,setIsHost] = React.useState(false)
   const [sessStarting,setSessStarting] = React.useState(false)
   const [latentSession,setLatentSession] = React.useState()
+  const [playlist,setPlaylist] = React.useState()
+  const [listTracks,setListTracks] = React.useState()
 
   const getSessionReady = (session) => {
     setSessStarting(true)
@@ -130,21 +132,16 @@ export default function HomeScreen(props){
   //searchDevices
   //looks for spotify devices and the avalible
   React.useEffect(()=>{
+    const client = new SpotifyWebApi()
     async function getDevices(){
-      const client = new SpotifyWebApi()
-      client.setAccessToken(spotifyToken)
       try {
         const result = await client.getMyDevices()
         if(result){
           let devices = result.devices
-          if(devices?.length == 0) {
-            setDevice()
-          }
+          if(devices?.length == 0) setDevice()
           devices.forEach((device, i) => {
             console.log(device);
-            if(device.type == "Smartphone"){
-              setDevice(device.id)
-            }
+            if(device.type == "Smartphone") setDevice(device.id)
           });
         }
       } catch (e) {
@@ -152,7 +149,23 @@ export default function HomeScreen(props){
         setRefresh(true)
       }
     }
-    if(spotifyToken&&spotifyToken!='refresh')getDevices()
+    async function getPlayLists(){
+      try {
+        const  result = await client.getUserPlaylists()
+        if(result){
+          result.items?.forEach((playlist, i) => {
+            if(playlist.name.toLowerCase() == 'airize') setPlaylist(playlist.uri)
+          });
+        }
+      } catch (e) {
+        console.log('Error with PlayList',e);
+      }
+    }
+    if(spotifyToken&&spotifyToken!='refresh'){
+      client.setAccessToken(spotifyToken)
+      getDevices()
+      getPlayLists()
+    }
   },[spotifyToken])
   //assets
   //check for assets
@@ -192,7 +205,7 @@ export default function HomeScreen(props){
                   return;
                 }
                 if(session.status == 's') {
-                  props.navigation.navigate('session',{ session : session, host: isHost})
+                  setLatentSession(session)
                   setSessStarting(false)
                   return;
                 }
@@ -213,6 +226,14 @@ export default function HomeScreen(props){
       setSpotifyToken('refresh')
     }
   },[foreground])
+  // latentSession
+  // redirect to session if latent status 'started'
+  React.useEffect(() => {
+    if(latentSession?.status == 's'){
+      props.navigation.navigate('session',{ session : latentSession, playlist: playlist})
+    }
+  },[latentSession])
+
 
   return(
     <View style={styles.container}>
