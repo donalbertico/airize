@@ -65,7 +65,6 @@ export default function SessionScreen(props){
   const workSpeechResultsHandler = (results) =>{
     setVoiceListening(false)
     let options = results.value
-    console.log(results);
     if(options){
       for(var i in options){
         let string = options[i].split(' ')
@@ -80,7 +79,8 @@ export default function SessionScreen(props){
             }
             setUpdateSession('askLeave')
             return;
-          }else if (word=='record'||word=='send'||word=='message'){
+          }
+          else if (word=='record'||word=='send'||word=='message'){
             if(playing){
               setWasPlaying(true)
               setSpotifyCall('pause');
@@ -90,7 +90,9 @@ export default function SessionScreen(props){
             setIsRecording(true)
             setRecordTime(1)
             return;
-          }else if (word=='play'||word=='music'){
+          }
+          else if (word=='play'||word=='music'){
+            let third = string[parseInt(j)+2]?.toLowerCase()
             if(next == 'next' || next == 'song' || next == 'track'){
               setUpdateSession('playNext')
               setWakeListening(true)
@@ -101,10 +103,21 @@ export default function SessionScreen(props){
               setWakeListening(true)
               return;
             }
+            if(next == 'mine' || next == 'my'){
+              setUpdateSession('playMyList')
+              setWakeListening(true)
+              return;
+            }
+            if(third == 'list' || third == 'music'){
+              setUpdateSession('playMyList')
+              setWakeListening(true)
+              return;
+            }
             setUpdateSession('play')
             setWakeListening(true)
             return;
-          }else if ( word =='next'){
+          }
+          else if ( word =='next'){
             setUpdateSession('playNext')
             setWakeListening(true)
             return;
@@ -276,42 +289,81 @@ export default function SessionScreen(props){
         })
         break;
       case 'play':
-      console.log('updating');
-        sessionReference.update({
-          playback : {
-            uri : playbackInfo.uri,
-            status : 'p',
+        if(spotifyAv) {
+          console.log(playbackInfo);
+          if(playbackInfo?.status ){
+            sessionReference.update({
+              playback : {
+                uri : listTracks,
+                status : 'r',
+              }
+            })
+          }else{
+            sessionReference.update({
+              playback : {
+                uri : listTracks,
+                status : 'p',
+              }
+            })
           }
-        })
+        }
+        setUpdateSession('')
+        break;
+      case 'playMyList':
+        if(spotifyAv) {
+          sessionReference.update({
+            playback : {
+              uri : listTracks,
+              status : 'p',
+            }
+          })
+        }
+        setUpdateSession('')
+        break;
+      case 'resume':
+        if(spotifyAv) {
+          sessionReference.update({
+            playback : {
+              uri : listTracks,
+              status : 'r',
+            }
+          })
+        }
         setUpdateSession('')
         break;
       case 'pause':
-        sessionReference.update({
-          playback : {
-            uri : playbackInfo.uri,
-            status : 's',
-          }
-        })
+        if(spotifyAv) {
+          sessionReference.update({
+            playback : {
+              uri : playbackInfo.uri,
+              status : 's',
+            }
+          })
+        }
         setUpdateSession('')
         break;
       case 'playNext':
         let nextStatus = playbackInfo?.status == 'n' ? 'nn' : 'n'
-        sessionReference.update({
-          playback : {
-            status : nextStatus,
-            uri : playbackInfo.uri,
-          }
-        })
+        if(spotifyAv) {
+          sessionReference.update({
+            playback : {
+              status : nextStatus,
+              uri : playbackInfo.uri,
+            }
+          })
+        }
         setUpdateSession('')
         break;
       case 'playPrevious':
         let previousStatus = playbackInfo?.status == 'l' ? 'll' : 'l'
-        sessionReference.update({
-          playback : {
-            status : previousStatus,
-            uri : playbackInfo.uri,
-          }
-        })
+        if(spotifyAv) {
+          sessionReference.update({
+            playback : {
+              status : previousStatus,
+              uri : playbackInfo.uri,
+            }
+          })
+        }
         setUpdateSession('')
         break;
     }
@@ -449,8 +501,8 @@ export default function SessionScreen(props){
       setIsRecording(false)
       if(wasPlaying){
         spotifyCall('play')
-        setPlaying('false')
-        setWasPlaying('false')
+        setPlaying(true)
+        setWasPlaying(false)
       }
     }
   },[recordTime])
@@ -560,7 +612,7 @@ export default function SessionScreen(props){
     async function play(){
       try {
         await client.play({
-          uris: playbackInfo.uri,
+          uris: listTracks,
           device_id: playbackDevice,
           position_ms: 0
         })
@@ -581,6 +633,16 @@ export default function SessionScreen(props){
       }
       setSpotifyCall('')
     }
+    async function resume(){
+      try {
+        await client.play()
+        setPlaying(true)
+      } catch (e) {
+        setPlaying(false)
+        setSpotifyError({type : 'resume', e : e})
+      }
+      setSpotifyCall('')
+    }
     async function getDevices(){
       const client = new SpotifyWebApi()
       client.setAccessToken(spotifyToken)
@@ -591,10 +653,9 @@ export default function SessionScreen(props){
           let devices = result.devices
           if(devices?.length == 0) setPlaybackDevice()
           devices.forEach((device, i) => {
-            if(device.type == "Smartphone") {
-              setPlaybackDevice(device.id)
-            }
+            if(device.type == "Smartphone") setPlaybackDevice(device.id)
           });
+          setSpotifyCall('')
         }
       } catch (e) {
         setSpotifyCall('')
@@ -611,9 +672,6 @@ export default function SessionScreen(props){
           images = [...images,item.track.album.images[0].url]
         });
         setListTracks(uris)
-        setPlayInfo({
-          uri : uris,
-        })
         setSpotifyCall('pause')
       } catch (e) {
         setSpotifyCall('')
@@ -672,11 +730,12 @@ export default function SessionScreen(props){
       switch (spotifyCall) {
         case 'play':
             if(playbackDevice) play()
-            setWakeListening(true)
+          break;
+        case 'resume':
+            if(playbackDevice) resume()
           break;
         case 'pause':
             if(playbackDevice) pause()
-            setWakeListening(true)
           break;
         case 'getDevices':
             getDevices()
@@ -723,13 +782,15 @@ export default function SessionScreen(props){
   //show text for set the device
   React.useEffect(() => {
     if(playbackInfo){
-      console.log('otra vez?');
       switch (playbackInfo.status) {
         case 's':
           setSpotifyCall('pause')
           break;
         case 'p':
           if(playbackInfo.uri)setSpotifyCall('play')
+          break;
+        case 'r':
+          setSpotifyCall('resume')
           break;
         case 'n':
           setSpotifyCall('playNext')
@@ -751,10 +812,9 @@ export default function SessionScreen(props){
   React.useEffect(() => {
     if(spotifyError){
       let error = spotifyError.e['_response']?.error
-      console.log('SPOTIFY', error);
       switch (error?.status){
         case 404:
-          setSpotifyCall('getDevices')
+          if(spotify.type != 'pause') setSpotifyCall('getDevices')
           break;
         default:
       }

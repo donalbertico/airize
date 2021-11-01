@@ -37,6 +37,7 @@ export default function HomeScreen(props){
   const [latentSession,setLatentSession] = React.useState()
   const [playlist,setPlaylist] = React.useState()
   const [listTracks,setListTracks] = React.useState()
+  const [audioPermit,setAudioPermit] = React.useState()
 
   const getSessionReady = (session) => {
     setSessStarting(true)
@@ -57,11 +58,15 @@ export default function HomeScreen(props){
     let db = firebase.firestore()
     async function askPermissions(){
       try {
-        console.log('Requesting permissions..');
-        Voice.start()
-        await Audio.requestPermissionsAsync();
-        Voice.stop()
-        Voice.destroy()
+        const audioPermission = await Audio.requestPermissionsAsync();
+        if(audioPermission?.granted){
+          setAudioPermit(true)
+          Voice.start()
+          setTimeout(() => {
+            Voice.stop()
+            Voice.destroy()
+          },200)
+        }
       } catch (err) {
         console.error('Failed to start recording', err);
       }
@@ -140,7 +145,6 @@ export default function HomeScreen(props){
           let devices = result.devices
           if(devices?.length == 0) setDevice()
           devices.forEach((device, i) => {
-            console.log(device);
             if(device.type == "Smartphone") setDevice(device.id)
           });
         }
@@ -224,6 +228,9 @@ export default function HomeScreen(props){
     if(foreground){
       setSearchDevices(true)
       setSpotifyToken('refresh')
+    }
+    return () => {
+
     }
   },[foreground])
   // latentSession
