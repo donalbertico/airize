@@ -34,10 +34,10 @@ export default function SessionScreen(props){
   const [voiceListening,setVoiceListening] = React.useState('started')
   const [porcupineReady,setPorcupineReady] = React.useState(false)
   const [wakeListening,setWakeListening] = React.useState('started')
-  const [speakEnd,setSpeakEnd] = React.useState()
   const [status,setStatus] = React.useState() //[w:work,r:record,s:stopping,p:playing]
   const [recordTime,setRecordTime] = React.useState(0)
   const [askPause,setAskPause] = React.useState(false)
+  const [askLeave,setAskLeave] = React.useState(false)
   const [time,setWorkoutTime] = React.useState()
   const [recording,setRecording] = React.useState()
   const [isReproducing,setIsReproducing] = React.useState(false)
@@ -61,81 +61,106 @@ export default function SessionScreen(props){
   const [spotifyError, setSpotifyError] = React.useState()
   const [listTracks, setListTracks] = React.useState()
   const [toPlay, setToPlay] = React.useState()
+  const [understood, setUnderstood] = React.useState(true)
+  const [speechEnd, setSpeechEnd] = React.useState(false)
 
   const workSpeechResultsHandler = (results) =>{
-    setVoiceListening(false)
+    console.log(results);
     let options = results.value
     if(options){
       for(var i in options){
         let string = options[i].split(' ')
         for (var j in string) {
-          let word = string[j].toLowerCase();
-          let next = string[parseInt(j)+1]?.toLowerCase()
-          if(word =='stop'){
-            if(next == 'music' || next == 'spotify'){
-              setUpdateSession('pause')
+            let word = string[j].toLowerCase();
+            let next = string[parseInt(j)+1]?.toLowerCase()
+            if(word =='stop' || word == 'take' || word == 'break'){
+              setUnderstood(true)
+              setVoiceListening(false)
+              if(next == 'music' || next == 'spotify'){
+                setUpdateSession('pauseSpotify')
+                setWakeListening(true)
+                return;
+              }
+              setUpdateSession('askPause')
+              setStatus('ap')
               setWakeListening(true)
               return;
             }
-            setUpdateSession('askLeave')
-            return;
-          }
-          else if (word=='record'||word=='send'||word=='message'){
-            if(playing){
-              setWasPlaying(true)
-              setSpotifyCall('pause');
-            }
-            setTellChange('recording')
-            setStatus('r')
-            setIsRecording(true)
-            setRecordTime(1)
-            return;
-          }
-          else if (word=='play'||word=='music'){
-            let third = string[parseInt(j)+2]?.toLowerCase()
-            if(next == 'next' || next == 'song' || next == 'track'){
-              setUpdateSession('playNext')
+            else if (word == 'finish'){
+              setUnderstood(true)
+              setVoiceListening(false)
+              setUpdateSession('askLeave')
               setWakeListening(true)
               return;
             }
-            if(next == 'previous' || next == 'last' ){
-              setUpdateSession('playPrevious')
+            else if (word=='record'||word=='send'||word=='message'){
+              setUnderstood(true)
+              setVoiceListening(false)
+              if(playing){
+                setWasPlaying(true)
+                setSpotifyCall('pause');
+              }
+              setTellChange('recording')
+              setStatus('r')
+              setIsRecording(true)
+              setRecordTime(1)
+              return;
+            }
+            else if (word=='play' || word=='music'){
+              setVoiceListening(false)
+              setUnderstood(true)
+              let third = string[parseInt(j)+2]?.toLowerCase()
+              if(next == 'next' || next == 'song' || next == 'track'){
+                setUpdateSession('playNext')
+                setWakeListening(true)
+                return;
+              }
+              if(next == 'previous' || next == 'last' ){
+                setUpdateSession('playPrevious')
+                setWakeListening(true)
+                return;
+              }
+              if(next == 'mine' || next == 'my'){
+                setUpdateSession('playMyList')
+                setWakeListening(true)
+                return;
+              }
+              if(third == 'list' || third == 'music'){
+                setUpdateSession('playMyList')
+                setWakeListening(true)
+                return;
+              }
+              setUpdateSession('play')
               setWakeListening(true)
               return;
             }
-            if(next == 'mine' || next == 'my'){
-              setUpdateSession('playMyList')
-              setWakeListening(true)
-              return;
-            }
-            if(third == 'list' || third == 'music'){
-              setUpdateSession('playMyList')
-              setWakeListening(true)
-              return;
-            }
-            setUpdateSession('play')
-            setWakeListening(true)
-            return;
-          }
           else if ( word =='next'){
+            setUnderstood(true)
+            setVoiceListening(false)
             setUpdateSession('playNext')
             setWakeListening(true)
             return;
           }else if ( word =='previous' || word == 'last'){
+            setUnderstood(true)
+            setVoiceListening(false)
             setUpdateSession('playPrevious')
             setWakeListening(true)
             return;
           }
           else if ( word =='pause'){
-            setUpdateSession('pause')
+            setUnderstood(true)
+            setVoiceListening(false)
+            setUpdateSession('pauseSpotify')
             setTimeout(() => setWakeListening(true),100)
             return;
           }
         }
       }
+      setUnderstood(true)
+      setTimeout(() => setUnderstood(false),100)
     }
   }
-  const confirmationSpeechResultHandler = (results)=> {
+  const leavingSpeechResultHandler = (results)=> {
     let options = results.value
     if(options){
       for(var i in options){
@@ -143,14 +168,54 @@ export default function SessionScreen(props){
         for (var j in string) {
           let word = string[j].toLowerCase();
           if(word=='stop' || word=='finish' ){
+            setUnderstood(true)
+            setVoiceListening(false)
             setUpdateSession('finish')
             return;
           }else if(word=='keep'||word=='continue'){
+            setUnderstood(true)
+            setVoiceListening(false)
             setUpdateSession('working')
+            setWakeListening(true)
             return;
           }else if (word=='record'||word=='send'||word=='message'){
-            setTellChange('recording')
+            setUnderstood(true)
             setVoiceListening(false)
+            setTellChange('recording')
+            setStatus('r')
+            setIsRecording(true)
+            setRecordTime(1)
+            return;
+          }
+        }
+      }
+      setUnderstood(true)
+      setTimeout(() => setUnderstood(false),100)
+    }
+  }
+  const pausingSpeechResultHandler = (results)=> {
+    let options = results.value
+    if(options){
+      for(var i in options){
+        let string = options[i].split(' ')
+        for (var j in string) {
+          let word = string[j].toLowerCase();
+          if(word=='pause' || word=='stop' ){
+            setUnderstood(true)
+            setVoiceListening(false)
+            setUpdateSession('p')
+            setWakeListening(true)
+            return;
+          }else if(word=='keep' || word=='continue'){
+            setUnderstood(true)
+            setVoiceListening(false)
+            setUpdateSession('working')
+            setWakeListening(true)
+            return;
+          }else if (word=='record' || word=='send' || word=='message'){
+            setUnderstood(true)
+            setVoiceListening(false)
+            setTellChange('recording')
             setStatus('r')
             setIsRecording(true)
             setRecordTime(1)
@@ -160,8 +225,31 @@ export default function SessionScreen(props){
       }
     }
   }
-  const speechEndHandler = (error)=> {
-    setSpeakEnd(true)
+  const pausedSpeechResultHandler = (results) => {
+    let options = results.value
+    if(options){
+      for(var i in options){
+        let string = options[i].split(' ')
+        for (var j in string) {
+          let word = string[j].toLowerCase();
+          if(word=='continue' || word=='go' ){
+            setUpdateSession('working')
+            return;
+          }
+          else if (word == 'finish'){
+            setUpdateSession('askLeave')
+            return;
+          }
+        }
+      }
+    }
+    setUnderstood(true)
+    setTimeout(() => setUnderstood(false),100)
+  }
+  const speechEndHandler = (error) => {
+    console.log('speechEnd');
+    setSpeechEnd(false)
+    setTimeout(() => {setSpeechEnd(true)},100)
   }
   const checkTokenExpired = ()=> {
     let yesterday = new Date()
@@ -232,8 +320,13 @@ export default function SessionScreen(props){
           let data = snapshot.data()
           if(data?.playback)setPlayInfo(data.playback)
           switch (data.status) {
-            case 'a':
-              setStatus('a')
+            case 'al':
+              setStatus('ap')
+              setLeaver(data.leaver)
+              setAskLeave(true)
+              break;
+            case 'ap':
+              setStatus('al')
               setLeaver(data.leaver)
               setAskPause(true)
               break;
@@ -246,6 +339,11 @@ export default function SessionScreen(props){
               setAskPause(false)
               setPause(false)
               setStatus('w')
+              break;
+            case 'p':
+              setAskPause(false)
+              setPause(true)
+              setStatus('p')
               break;
           }
       })
@@ -275,7 +373,19 @@ export default function SessionScreen(props){
       case 'askLeave':
         sessionReference.update({
           leaver : user.uid,
-          status : 'a'
+          status : 'al',
+          playback : {
+            status : 's',
+          }
+        })
+        break;
+      case 'askPause':
+        sessionReference.update({
+          leaver : user.uid,
+          status : 'ap',
+          playback : {
+            status : 's',
+          }
         })
         break;
       case 'finish':
@@ -290,7 +400,6 @@ export default function SessionScreen(props){
         break;
       case 'play':
         if(spotifyAv) {
-          console.log(playbackInfo);
           if(playbackInfo?.status ){
             sessionReference.update({
               playback : {
@@ -311,27 +420,18 @@ export default function SessionScreen(props){
         break;
       case 'playMyList':
         if(spotifyAv) {
-          sessionReference.update({
-            playback : {
-              uri : listTracks,
-              status : 'p',
-            }
-          })
+          if(playlist){
+            sessionReference.update({
+              playback : {
+                uri : listTracks,
+                status : 'p',
+              }
+            })
+          }
         }
         setUpdateSession('')
         break;
-      case 'resume':
-        if(spotifyAv) {
-          sessionReference.update({
-            playback : {
-              uri : listTracks,
-              status : 'r',
-            }
-          })
-        }
-        setUpdateSession('')
-        break;
-      case 'pause':
+      case 'pauseSpotify':
         if(spotifyAv) {
           sessionReference.update({
             playback : {
@@ -381,15 +481,13 @@ export default function SessionScreen(props){
       if(wakeListening == true) {
         that.porcupineManager?.start().then((started)=> {
           if(started){
+            setUnderstood(true)
             console.log('sisaaaaa');
           }
         })
       }else if(wakeListening == false){
         that.porcupineManager?.stop().then((stopped)=> {
-          if(stopped){
-            setSpeakEnd(false)
-            setVoiceListening(true)
-          }
+          if(stopped) setTimeout(() => setVoiceListening(true), 500)
         })
       }else if(wakeListening == 'off'){
         that.porcupineManager?.stop()
@@ -412,40 +510,65 @@ export default function SessionScreen(props){
       }
     }
   },[voiceListening])
-  //voiceListening - wakeListening
+  //voiceListening - wakeListening - understood
   //starts an interval in case listening deactives
   React.useEffect(()=>{
     let that = this
-    if( voiceListening && !wakeListening ){
+    if( voiceListening && !wakeListening){
       that.timer = setInterval(()=>{
-        if(!wakeListening && voiceListening){
+        if(!wakeListening && voiceListening && understood){
           setVoiceListening(false)
           setWakeListening(true)
+        }
+        if(!understood && voiceListening && !wakeListening) {
+          setTimeout(() => {
+            setVoiceListening(false)
+            setWakeListening(true)
+          },5000)
         }
       },8000)
     }else if(wakeListening){
       clearInterval(that.timer)
     }
-    if(speakEnd && voiceListening ){
-      setVoiceListening(false)
-      setWakeListening(true)
-    }
     return () => {
       clearInterval(that.timer)
     }
-  },[voiceListening,wakeListening,speakEnd])
+  },[voiceListening,wakeListening])
+  React.useEffect(() => {
+    if(understood == false && !wakeListening){
+      setVoiceListening(false)
+      setTellChange('sayAgain')
+      setTimeout(() => setVoiceListening(true), 1200)
+    }
+  },[understood])
+  React.useEffect(() => {
+    if(speechEnd){
+      setTimeout(() => {
+        if(!understood){
+          setUnderstood(true)
+          setTimeout(() => setUnderstood(false),100)
+        }
+      }, 2000)
+    }
+  }, [speechEnd])
+
   //status
   //changes speech handlers
   React.useEffect(()=>{
+    Voice.onSpeechEnd = speechEndHandler
     switch (status) {
       case 'w':
         Voice.onSpeechResults = workSpeechResultsHandler
-        Voice.onSpeechEnd = speechEndHandler
         setTellChange('working')
         break;
-      case 'a':
-        Voice.onSpeechResults = confirmationSpeechResultHandler
-        Voice.onSpeechEnd = speechEndHandler
+      case 'al':
+        Voice.onSpeechResults = leavingSpeechResultHandler
+        break;
+      case 'ap':
+        Voice.onSpeechResults = pausingSpeechResultHandler
+        break;
+      case 'p':
+        Voice.onSpeechResults = pausedSpeechResultHandler
         break;
       case 'f':
         setVoiceListening(false)
@@ -833,8 +956,18 @@ export default function SessionScreen(props){
           setTellChange('')
           setWakeListening(true)
         break;
+      case 'askPuase':
+          Speech.speak('friend is asking to pause')
+          setTellChange('')
+          setWakeListening(true)
+        break;
       case 'waitLeaveConfirmation':
           Speech.speak('asking friend to stop')
+          setTellChange('')
+          setWakeListening(true)
+        break;
+      case 'waitPauseConfirmation':
+          Speech.speak('asking friend to pause')
           setTellChange('')
           setWakeListening(true)
         break;
@@ -856,6 +989,14 @@ export default function SessionScreen(props){
           setWakeListening(true)
           setTellChange('')
         break;
+      case 'sayAgain':
+          Speech.speak('sorry, say again')
+          setTellChange()
+        break;
+      case 'break':
+          Speech.speak('taking a break')
+          setTellChange('')
+        break;
     }
   },[tellChange])
   //
@@ -873,9 +1014,11 @@ export default function SessionScreen(props){
   React.useEffect(() => {
     if(!leaver)return;
     if(leaver == user.uid){
-      setTellChange('waitLeaveConfirmation')
+      if(status == 'al')setTellChange('waitLeaveConfirmation')
+      else setTellChange('waitPauseConfirmation')
     }else {
-      setTellChange('askLeave')
+      if(status == 'al')setTellChange('askLeave')
+      else setTellChange('askPause')
     }
   },[leaver])
   //assets
@@ -889,7 +1032,7 @@ export default function SessionScreen(props){
 
   return(
     <View style={styles.container}>
-      <Modal transparent={true} visible={askPause}>
+      <Modal transparent={true} visible={askLeave}>
           <View style={styles.alignCentered}>
             <View style={styles.modalView}>
               {leaver==user.uid ? (
@@ -901,6 +1044,28 @@ export default function SessionScreen(props){
                   <Text h4> your partner is asking to leave</Text>
                 </View>
               )}
+            </View>
+          </View>
+      </Modal>
+      <Modal transparent={true} visible={askPause}>
+          <View style={styles.alignCentered}>
+            <View style={styles.modalView}>
+              {leaver==user.uid ? (
+                <View>
+                  <Text h4> asking your partener to pause..</Text>
+                </View>
+              ):(
+                <View>
+                  <Text h4> your partner is asking to pause</Text>
+                </View>
+              )}
+            </View>
+          </View>
+      </Modal>
+      <Modal transparent={true} visible={pause}>
+          <View style={styles.alignCentered}>
+            <View style={styles.modalView}>
+              <Text>PAUSED</Text>
             </View>
           </View>
       </Modal>
