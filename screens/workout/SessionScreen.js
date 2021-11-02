@@ -83,17 +83,15 @@ export default function SessionScreen(props){
                 return;
               }
               setUpdateSession('askPause')
-              setWakeListening(true)
               return;
             }
             else if (word == 'finish'){
               setUnderstood(true)
               setVoiceListening(false)
               setUpdateSession('askLeave')
-              setWakeListening(true)
               return;
             }
-            else if (word=='record'||word=='send'||word=='message'){
+            else if (word=='record' || word=='send' || word=='message'){
               setUnderstood(true)
               setVoiceListening(false)
               if(playing){
@@ -507,7 +505,6 @@ export default function SessionScreen(props){
       if(wakeListening == true) {
         that.porcupineManager?.start().then((started)=> {
           if(started){
-            setUnderstood(true)
             console.log('sisaaaaa');
           }
         })
@@ -581,7 +578,6 @@ export default function SessionScreen(props){
       }, 2000)
     }
   }, [speechEnd])
-
   //status
   //changes speech handlers
   React.useEffect(()=>{
@@ -1027,13 +1023,10 @@ export default function SessionScreen(props){
           Speech.speak('sorry, say again')
           setTellChange('')
         break;
-      case 'break':
+      case 'pause':
           Speech.speak('taking a break')
           setTellChange('')
-        break;
-      case 'pause':
-        Speech.speak('workout paused')
-        setTellChange('')
+          setWakeListening(true)
         break;
     }
   },[tellChange])

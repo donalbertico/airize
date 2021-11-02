@@ -204,14 +204,14 @@ export default function HomeScreen(props){
                 sessDate = sessDate.toDate()
                 session.id = sess.id
                 session.dueDate = `${sessDate.getHours()} : ${sessDate.getMinutes()}`
-                sessArray = [...sessArray,session]
+                setLatentSession(session)
+                if(session.status == 'c') {
+                  sessArray = [...sessArray,session]
+                }
                 if(session.status == 'r') {
                   setSessStarting(true)
-                  setLatentSession(session)
                   return;
-                }
-                if(session.status == 's') {
-                  setLatentSession(session)
+                }else if(session.status != 'f' ){
                   setSessStarting(false)
                   return;
                 }
@@ -238,7 +238,8 @@ export default function HomeScreen(props){
   // latentSession
   // redirect to session if latent status 'started'
   React.useEffect(() => {
-    if(latentSession?.status == 's'){
+    console.log(latentSession);
+    if(latentSession && latentSession.status != 'f' ){
       props.navigation.navigate('session',{ session : latentSession, playlist: playlist})
     }
   },[latentSession])
