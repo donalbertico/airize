@@ -66,7 +66,6 @@ export default function SessionScreen(props){
   const [pauseModal, setPauseModal] = React.useState(false)
 
   const workSpeechResultsHandler = (results) =>{
-    console.log(results);
     let options = results.value
     if(options){
       for(var i in options){
@@ -299,16 +298,30 @@ export default function SessionScreen(props){
         console.log('Error starting porcu',e);
       }
     }
+    async function getVoices() {
+      const voices = await Speech.getAvailableVoicesAsync()
+      if(voices){
+        voices.forEach((item, i) => {
+
+          if(item.language == 'en-GB')
+          console.log(item);
+        });
+
+      }
+    }
     props.navigation.addListener('beforeRemove',(e)=>{
       e.preventDefault()
     })
     setSessionReference(db.collection('sessions').doc(props.route.params.session.id))
     allowRecordIos()
     setPorcupine()
+    getVoices()
+
     return () => {
       Voice.cancel()
       Voice.stop()
       Voice.destroy()
+      Speech.stop()
       that.porcupineManager?.delete()
       that.porcupineReady = null
     }
@@ -368,6 +381,7 @@ export default function SessionScreen(props){
               messageData.id = message.id
               if(messageData.status == 's'){
                   setMessage({...messageData, name :`${messageData.id}.${messageData.fileType}`})
+                  return;
               }
             });
         })
@@ -539,7 +553,6 @@ export default function SessionScreen(props){
     let that = this
     if( voiceListening && !wakeListening){
       that.voiceTimer = setInterval(()=>{
-        console.log('?');
         if(!wakeListening && voiceListening && understood){
           setVoiceListening(false)
           setWakeListening(true)
@@ -653,7 +666,6 @@ export default function SessionScreen(props){
         setWasPlaying(false)
       }
     }
-    console.log(recordTime);
     return () => {
       if (recordTime == 0) clearInterval(that.recordInterval)
     }
