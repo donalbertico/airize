@@ -502,7 +502,7 @@ export default function SessionScreen(props){
     let that = this
     if(!that) return;
     if(porcupineReady && wakeListening != 'started'){
-      if(wakeListening == true) {
+      if(wakeListening == true && !isRecording) {
         that.porcupineManager?.start().then((started)=> {
           if(started){
             console.log('sisaaaaa');
@@ -539,6 +539,7 @@ export default function SessionScreen(props){
     let that = this
     if( voiceListening && !wakeListening){
       that.voiceTimer = setInterval(()=>{
+        console.log('?');
         if(!wakeListening && voiceListening && understood){
           setVoiceListening(false)
           setWakeListening(true)
@@ -551,6 +552,9 @@ export default function SessionScreen(props){
         }
       },8000)
     }else if(wakeListening){
+      clearInterval(that.voiceTimer)
+    }
+    return () => {
       clearInterval(that.voiceTimer)
     }
   },[voiceListening,wakeListening])
@@ -649,6 +653,10 @@ export default function SessionScreen(props){
         setWasPlaying(false)
       }
     }
+    console.log(recordTime);
+    return () => {
+      if (recordTime == 0) clearInterval(that.recordInterval)
+    }
   },[recordTime])
   //recordUri
   //uploads recoreded audio
@@ -745,7 +753,7 @@ export default function SessionScreen(props){
       setWakeListening(true)
     }
     return () => {
-      clearInterval(that.messageInterval)
+      if (messageDuration == 0)clearInterval(that.messageInterval)
     }
   },[messageDuration])
 
