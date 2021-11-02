@@ -8,6 +8,7 @@ export default function Timer(props){
   const [s, setS] = React.useState(0)
   const [m, setM] = React.useState(0)
   const [h, setH] = React.useState(0)
+  const [hidden,setHidden] = React.useState()
 
   React.useEffect(()=>{
     let that = this
@@ -17,7 +18,13 @@ export default function Timer(props){
       },1)
     }else{
       clearInterval(that.timer)
-      props.handleOnTime({ms:ms,s:s,m:m,h:h})
+      let time = 0
+      time = time + (h/60)/60 + m/60 + s
+      props.handleOnTime(time)
+    }
+    setHidden(props.pause)
+    return () => {
+      clearInterval(that.timer)
     }
   },[props.pause])
 
@@ -41,7 +48,7 @@ export default function Timer(props){
 
   return(
     <View style={styles.timer}>
-      <Text h2 style={styles.ligthText}>{h}:{m}:{s}:{ms}</Text>
+      {hidden && (<Text h2 style={styles.ligthText}>{h}:{m}:{s}:{ms}</Text>)}
     </View>
   )
 }

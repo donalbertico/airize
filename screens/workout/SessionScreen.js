@@ -170,7 +170,8 @@ export default function SessionScreen(props){
           if(word=='stop' || word=='finish' ){
             setUnderstood(true)
             setVoiceListening(false)
-            setUpdateSession('finish')
+            setPause(true)
+            setStatus('f')
             return;
           }else if(word=='keep'||word=='continue'){
             setUnderstood(true)
@@ -259,7 +260,7 @@ export default function SessionScreen(props){
     setSpeechEnd(false)
     setTimeout(() => {setSpeechEnd(true)},100)
   }
-  const checkTokenExpired = ()=> {
+  const checkTokenExpired = () => {
     let yesterday = new Date()
     if(!storedToken)return;
     yesterday.setDate(yesterday.getDate()+1)
@@ -269,8 +270,8 @@ export default function SessionScreen(props){
       setSpotifyToken(storedToken.access)
     }
   }
-  const handleOnTime = (e)=>{
-    setWorkoutTime(e)
+  const handleOnTime = (time)=>{
+    setWorkoutTime(time)
   }
   //onMount hook
   React.useEffect(()=>{
@@ -304,7 +305,6 @@ export default function SessionScreen(props){
       e.preventDefault()
     })
     setSessionReference(db.collection('sessions').doc(props.route.params.session.id))
-    setPause(false)
     allowRecordIos()
     setPorcupine()
     return () => {
@@ -340,10 +340,10 @@ export default function SessionScreen(props){
               setAskPause(true)
               break;
             case 'f':
-              setAskPause(false)
-              setStatus('f')
-              setPause(true)
-              setPauseModal(false)
+              props.navigation.addListener('beforeRemove',(e)=>{
+                props.navigation.dispatch(e.data.action)
+              })
+              props.navigation.navigate('home')
               break;
             case 's':
               setAskPause(false)
@@ -412,7 +412,11 @@ export default function SessionScreen(props){
         break;
       case 'finish':
         sessionReference.update({
-          status : 'f'
+          status : 'f',
+          time : time,
+          playback : {
+            status : 's',
+          }
         })
         break;
       case 'working':
@@ -441,7 +445,7 @@ export default function SessionScreen(props){
         setUpdateSession('')
         break;
       case 'playMyList':
-        if(spotifyAv) {
+        if(spotifyAv && playbackDevice) {
           if(playlist){
             sessionReference.update({
               playback : {
@@ -457,7 +461,7 @@ export default function SessionScreen(props){
         if(spotifyAv) {
           sessionReference.update({
             playback : {
-              uri : playbackInfo.uri,
+              uri : listTracks,
               status : 's',
             }
           })
@@ -466,7 +470,7 @@ export default function SessionScreen(props){
         break;
       case 'playNext':
         let nextStatus = playbackInfo?.status == 'n' ? 'nn' : 'n'
-        if(spotifyAv) {
+        if(spotifyAv && playbackDevice) {
           sessionReference.update({
             playback : {
               status : nextStatus,
@@ -478,7 +482,7 @@ export default function SessionScreen(props){
         break;
       case 'playPrevious':
         let previousStatus = playbackInfo?.status == 'l' ? 'll' : 'l'
-        if(spotifyAv) {
+        if(spotifyAv && playbackDevice) {
           sessionReference.update({
             playback : {
               status : previousStatus,
@@ -537,7 +541,7 @@ export default function SessionScreen(props){
   React.useEffect(()=>{
     let that = this
     if( voiceListening && !wakeListening){
-      that.timer = setInterval(()=>{
+      that.voiceTimer = setInterval(()=>{
         if(!wakeListening && voiceListening && understood){
           setVoiceListening(false)
           setWakeListening(true)
@@ -550,10 +554,10 @@ export default function SessionScreen(props){
         }
       },8000)
     }else if(wakeListening){
-      clearInterval(that.timer)
+      clearInterval(that.voiceTimer)
     }
     return () => {
-      clearInterval(that.timer)
+      clearInterval(that.voiceTimer)
     }
   },[voiceListening,wakeListening])
   //uynderstood
@@ -601,13 +605,6 @@ export default function SessionScreen(props){
         setTellChange('pause')
         Voice.onSpeechResults = pausedSpeechResultHandler
         break;
-      case 'f':
-        setVoiceListening(false)
-        props.navigation.addListener('beforeRemove',(e)=>{
-          props.navigation.dispatch(e.data.action)
-        })
-        props.navigation.navigate('home')
-        break;
     }
   },[status])
 
@@ -644,12 +641,12 @@ export default function SessionScreen(props){
     }
     if(recordTime == 1){
       setTimeout(()=>{ record()},100)
-      that.interval = setInterval(()=>{
+      that.recordInterval = setInterval(()=>{
         setRecordTime(recordTime => recordTime+1)
       },1000)
     }
     if(recordTime == messageLimit){
-      clearInterval(that.interval)
+      clearInterval(that.recordInterval)
       stopRecord()
       setRecordTime(recordTime => 0)
       setIsRecording(false)
@@ -658,6 +655,9 @@ export default function SessionScreen(props){
         setPlaying(true)
         setWasPlaying(false)
       }
+    }
+    return () => {
+      clearInterval(that.recordInterval)
     }
   },[recordTime])
   //recordUri
@@ -739,12 +739,12 @@ export default function SessionScreen(props){
     let that = this
     if(messageDuration == 1){
       setIsReproducing(true)
-      that.interval = setInterval(()=>{
+      that.messageInterval = setInterval(()=>{
         setMessageDuration(messageDuration=>messageDuration+1)
       },1000)
     }
     if(messageDuration == messageLimit){
-      clearInterval(that.interval)
+      clearInterval(that.messageInterval)
       setMessageDuration(messageDuration=>0)
       sessionReference.collection('messages')
         .doc(message.id)
@@ -753,6 +753,9 @@ export default function SessionScreen(props){
         })
       setIsReproducing(false)
       setWakeListening(true)
+    }
+    return () => {
+      clearInterval(that.messageInterval)
     }
   },[messageDuration])
 
@@ -1046,18 +1049,6 @@ export default function SessionScreen(props){
       setWakeListening(true)
     }
   },[foreground])
-  //leaver
-  //check for leaver and set tellChange
-  React.useEffect(() => {
-    if(!leaver)return;
-    if(leaver == user.uid){
-      if(status == 'al')setTellChange('waitLeaveConfirmation')
-      else setTellChange('waitPauseConfirmation')
-    }else {
-      if(status == 'al')setTellChange('askLeave')
-      else setTellChange('askPause')
-    }
-  },[leaver])
   //assets
   //load images url
   React.useEffect(() => {
@@ -1066,6 +1057,18 @@ export default function SessionScreen(props){
       setLogo(assets.logo)
     }
   },[assets])
+  //wordouttime - status
+  // check if session if session finish to save sessions'time
+  React.useEffect(() => {
+    if(time && status == 'f'){
+      setAskPause(false)
+      setPause(true)
+      setPauseModal(false)
+      setVoiceListening(false)
+      console.log(time,'??');
+      setUpdateSession('finish')
+    }
+  },[time,status])
 
   return(
     <View style={styles.container}>
@@ -1087,7 +1090,7 @@ export default function SessionScreen(props){
       <Modal transparent={true} visible={askPause}>
           <View style={styles.alignCentered}>
             <View style={styles.modalView}>
-              {leaver==user.uid ? (
+              {leaver == user.uid ? (
                 <View>
                   <Text h4> asking your partener to pause..</Text>
                 </View>
@@ -1111,14 +1114,17 @@ export default function SessionScreen(props){
           <View style={{margin:10}}>
             <Image style={styles.roundImage} source={{uri:avatarUri}}/>
           </View>
-          <View style={{flex:1}}></View>
+          <View style={{flex:1}}>
+            <Timer handleOnTime={handleOnTime} pause={pause}/>
+          </View>
           <View style={{margin:10}}>
             <Image style={styles.roundImage} source={{uri:avatarUri}}/>
           </View>
         </View>
       </View>
       <View style={{flex:10}}>
-        <View style={{flex:1}}></View>
+        <View style={{flex:1}}>
+        </View>
         <View>
           <View style={styles.horizontalView}>
             <View style={{flex:2}}></View>
