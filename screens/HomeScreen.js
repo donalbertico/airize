@@ -238,8 +238,7 @@ export default function HomeScreen(props){
   // latentSession
   // redirect to session if latent status 'started'
   React.useEffect(() => {
-    console.log(latentSession);
-    if(latentSession && latentSession.status != 'f' && latentSession.status != 'c'){
+    if(latentSession && latentSession.status != 'f' && latentSession.status != 'c' && latentSession.status != 'r'){
       props.navigation.navigate('session',{ session : latentSession, playlist: playlist})
     }
   },[latentSession])
