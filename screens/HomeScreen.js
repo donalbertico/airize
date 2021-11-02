@@ -6,6 +6,7 @@ import 'firebase/firestore'
 import { View, TouchableOpacity, Image, Modal } from 'react-native'
 import { Text, Button } from 'react-native-elements'
 import Voice from '@react-native-voice/voice'
+import Toast from 'react-native-toast-message'
 import SpotifyWebApi from 'spotify-web-api-js'
 import useUserRead from '../hooks/useUserRead'
 import useSpotifyAuth from '../hooks/useSpotifyAuth'
@@ -40,13 +41,15 @@ export default function HomeScreen(props){
   const [audioPermit,setAudioPermit] = React.useState()
 
   const getSessionReady = (session) => {
-    setSessStarting(true)
     if(session.host == user.uid){
+      setSessStarting(true)
       setIsHost(true)
       sessionsReference.doc(session.id)
         .update({
           status : 'r'
         })
+    }else {
+      Toast.show({text1:'Not the Host', text2: 'Just Hosts can start the workout' ,type : 'info', position : 'bottom', visibilityTime: 4000})
     }
   }
   const startSession = () => {

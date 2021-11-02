@@ -553,9 +553,6 @@ export default function SessionScreen(props){
     }else if(wakeListening){
       clearInterval(that.voiceTimer)
     }
-    return () => {
-      clearInterval(that.voiceTimer)
-    }
   },[voiceListening,wakeListening])
   //uynderstood
   //activates voiceListening if no option was selected
@@ -651,9 +648,6 @@ export default function SessionScreen(props){
         setPlaying(true)
         setWasPlaying(false)
       }
-    }
-    return () => {
-      clearInterval(that.recordInterval)
     }
   },[recordTime])
   //recordUri

@@ -4,6 +4,7 @@ import { NavigationContainer } from '@react-navigation/native'
 import { createStackNavigator } from '@react-navigation/stack'
 import { ThemeProvider } from 'react-native-elements'
 import {theme} from './screens/styles'
+import Toast from 'react-native-toast-message'
 
 import useCachedResources from './hooks/useCachedResources'
 import LoginScreen from './screens/auth/LoginScreen.js'
@@ -51,6 +52,7 @@ export default function App(props) {
           <Stack.Screen name='password' component={PasswordScreen}/>
         </Stack.Navigator>
       </NavigationContainer>
+      <Toast ref={(ref) => Toast.setRef(ref)}/>
     </ThemeProvider>
   );
 }
