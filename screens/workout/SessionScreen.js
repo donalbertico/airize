@@ -63,6 +63,7 @@ export default function SessionScreen(props){
   const [toPlay, setToPlay] = React.useState()
   const [understood, setUnderstood] = React.useState(true)
   const [speechEnd, setSpeechEnd] = React.useState(false)
+  const [pauseModal, setPauseModal] = React.useState(false)
 
   const workSpeechResultsHandler = (results) =>{
     console.log(results);
@@ -82,7 +83,6 @@ export default function SessionScreen(props){
                 return;
               }
               setUpdateSession('askPause')
-              setStatus('ap')
               setWakeListening(true)
               return;
             }
@@ -203,7 +203,7 @@ export default function SessionScreen(props){
           if(word=='pause' || word=='stop' ){
             setUnderstood(true)
             setVoiceListening(false)
-            setUpdateSession('p')
+            setUpdateSession('pause')
             setWakeListening(true)
             return;
           }else if(word=='keep' || word=='continue'){
@@ -223,6 +223,8 @@ export default function SessionScreen(props){
           }
         }
       }
+      setUnderstood(true)
+      setTimeout(() => setUnderstood(false),100)
     }
   }
   const pausedSpeechResultHandler = (results) => {
@@ -232,12 +234,18 @@ export default function SessionScreen(props){
         let string = options[i].split(' ')
         for (var j in string) {
           let word = string[j].toLowerCase();
-          if(word=='continue' || word=='go' ){
+          if(word=='continue' || word=='go' || word == 'keep'){
+            setUnderstood(true)
+            setVoiceListening(false)
             setUpdateSession('working')
+            setWakeListening(true)
             return;
           }
           else if (word == 'finish'){
+            setUnderstood(true)
+            setVoiceListening(false)
             setUpdateSession('askLeave')
+            setWakeListening(true)
             return;
           }
         }
@@ -321,12 +329,13 @@ export default function SessionScreen(props){
           if(data?.playback)setPlayInfo(data.playback)
           switch (data.status) {
             case 'al':
-              setStatus('ap')
+              setStatus('al')
               setLeaver(data.leaver)
               setAskLeave(true)
+              setPauseModal(false)
               break;
             case 'ap':
-              setStatus('al')
+              setStatus('ap')
               setLeaver(data.leaver)
               setAskPause(true)
               break;
@@ -334,16 +343,20 @@ export default function SessionScreen(props){
               setAskPause(false)
               setStatus('f')
               setPause(true)
+              setPauseModal(false)
               break;
             case 's':
               setAskPause(false)
+              setAskLeave(false)
               setPause(false)
+              setPauseModal(false)
               setStatus('w')
               break;
             case 'p':
               setAskPause(false)
               setPause(true)
               setStatus('p')
+              setPauseModal(true)
               break;
           }
       })
@@ -383,6 +396,15 @@ export default function SessionScreen(props){
         sessionReference.update({
           leaver : user.uid,
           status : 'ap',
+          playback : {
+            status : 's',
+          }
+        })
+        break;
+      case 'pause':
+        sessionReference.update({
+          leaver : user.uid,
+          status : 'p',
           playback : {
             status : 's',
           }
@@ -534,6 +556,8 @@ export default function SessionScreen(props){
       clearInterval(that.timer)
     }
   },[voiceListening,wakeListening])
+  //uynderstood
+  //activates voiceListening if no option was selected
   React.useEffect(() => {
     if(understood == false && !wakeListening){
       setVoiceListening(false)
@@ -541,6 +565,8 @@ export default function SessionScreen(props){
       setTimeout(() => setVoiceListening(true), 1200)
     }
   },[understood])
+  //speechEnd
+  //checks if speech ended to rise listening by setting understood to false
   React.useEffect(() => {
     if(speechEnd){
       setTimeout(() => {
@@ -563,11 +589,16 @@ export default function SessionScreen(props){
         break;
       case 'al':
         Voice.onSpeechResults = leavingSpeechResultHandler
+        if(leaver == user.uid) setTellChange('waitLeaveConfirmation')
+        else setTellChange('askLeave')
         break;
       case 'ap':
         Voice.onSpeechResults = pausingSpeechResultHandler
+        if(leaver == user.uid) setTellChange('waitPauseConfirmation')
+        else setTellChange('askPause')
         break;
       case 'p':
+        setTellChange('pause')
         Voice.onSpeechResults = pausedSpeechResultHandler
         break;
       case 'f':
@@ -991,11 +1022,15 @@ export default function SessionScreen(props){
         break;
       case 'sayAgain':
           Speech.speak('sorry, say again')
-          setTellChange()
+          setTellChange('')
         break;
       case 'break':
           Speech.speak('taking a break')
           setTellChange('')
+        break;
+      case 'pause':
+        Speech.speak('workout paused')
+        setTellChange('')
         break;
     }
   },[tellChange])
@@ -1007,6 +1042,8 @@ export default function SessionScreen(props){
   React.useEffect(() => {
     if(foreground){
       setSpotifyCall('getDevices')
+      setVoiceListening(false)
+      setWakeListening(true)
     }
   },[foreground])
   //leaver
@@ -1062,7 +1099,7 @@ export default function SessionScreen(props){
             </View>
           </View>
       </Modal>
-      <Modal transparent={true} visible={pause}>
+      <Modal transparent={true} visible={pauseModal}>
           <View style={styles.alignCentered}>
             <View style={styles.modalView}>
               <Text>PAUSED</Text>

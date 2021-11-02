@@ -81,6 +81,7 @@ export default function HomeScreen(props){
     }
     checkPermissions()
     setSessionsReference(db.collection('sessions'))
+    setLatentSession('')
   },[])
   //.route
   //lookf for user because it has been updated
@@ -196,6 +197,7 @@ export default function HomeScreen(props){
             .where('dueDate' ,'<', end)
             .onSnapshot((snapshot) => {
               let sessArray = []
+              setLatentSession('')
               snapshot.forEach((sess, i) => {
                 let session = sess.data()
                 let sessDate = new firebase.firestore.Timestamp(session.dueDate.seconds,session.dueDate.nanoseconds)
