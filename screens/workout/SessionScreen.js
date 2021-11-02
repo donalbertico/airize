@@ -64,6 +64,7 @@ export default function SessionScreen(props){
   const [understood, setUnderstood] = React.useState(true)
   const [speechEnd, setSpeechEnd] = React.useState(false)
   const [pauseModal, setPauseModal] = React.useState(false)
+  const [iosVoice, setIosVoice] = React.useState('init')
 
   const workSpeechResultsHandler = (results) =>{
     let options = results.value
@@ -302,11 +303,8 @@ export default function SessionScreen(props){
       const voices = await Speech.getAvailableVoicesAsync()
       if(voices){
         voices.forEach((item, i) => {
-
-          if(item.language == 'en-GB')
-          console.log(item);
+          if(item.identifier == 'com.apple.ttsbundle.siri_female_en-GB_compact') setIosVoice(item.identifier)
         });
-
       }
     }
     props.navigation.addListener('beforeRemove',(e)=>{
@@ -315,8 +313,8 @@ export default function SessionScreen(props){
     setSessionReference(db.collection('sessions').doc(props.route.params.session.id))
     allowRecordIos()
     setPorcupine()
-    getVoices()
-
+    if(Platform.OS == 'ios') getVoices()
+    else setIosVoice(false)
     return () => {
       Voice.cancel()
       Voice.stop()
@@ -994,56 +992,60 @@ export default function SessionScreen(props){
   //tellChange
   //set expo speech depending of activity
   React.useEffect(() => {
-    switch (tellChange) {
-      case 'askLeave':
-          Speech.speak('friend is asking to stop')
-          setTellChange('')
-          setWakeListening(true)
-        break;
-      case 'askPuase':
-          Speech.speak('friend is asking to pause')
-          setTellChange('')
-          setWakeListening(true)
-        break;
-      case 'waitLeaveConfirmation':
-          Speech.speak('asking friend to stop')
-          setTellChange('')
-          setWakeListening(true)
-        break;
-      case 'waitPauseConfirmation':
-          Speech.speak('asking friend to pause')
-          setTellChange('')
-          setWakeListening(true)
-        break;
-      case 'working':
-          Speech.speak('arise')
-          setTellChange('')
-          setWakeListening(true)
-        break;
-      case 'recording':
-          Speech.speak('recording')
-          setTellChange('')
-        break;
-      case 'yes':
-          Speech.speak('yes')
-          setTellChange('')
-        break;
-      case 'sent':
-          Speech.speak('message sent')
-          setWakeListening(true)
-          setTellChange('')
-        break;
-      case 'sayAgain':
-          Speech.speak('sorry, say again')
-          setTellChange('')
-        break;
-      case 'pause':
-          Speech.speak('taking a break')
-          setTellChange('')
-          setWakeListening(true)
-        break;
+    let options = (Platform.OS == 'ios' && iosVoice) ? {voice : iosVoice} : undefined
+    if (iosVoice != 'init'){
+      switch (tellChange) {
+        case 'askLeave':
+            Speech.speak('friend is asking to stop',options)
+            setTellChange('')
+            setWakeListening(true)
+          break;
+        case 'askPuase':
+            Speech.speak('friend is asking to pause',options)
+            setTellChange('')
+            setWakeListening(true)
+          break;
+        case 'waitLeaveConfirmation':
+            Speech.speak('asking friend to stop',options)
+            setTellChange('')
+            setWakeListening(true)
+          break;
+        case 'waitPauseConfirmation':
+            Speech.speak('asking friend to pause',options)
+            setTellChange('')
+            setWakeListening(true)
+          break;
+        case 'working':
+            Speech.speak('arise',options)
+            setTellChange('')
+            setWakeListening(true)
+          break;
+        case 'recording':
+            Speech.speak('recording',options)
+            setTellChange('')
+          break;
+        case 'yes':
+            Speech.speak('yes',options)
+            setTellChange('')
+          break;
+        case 'sent':
+            Speech.speak('message sent',options)
+            setWakeListening(true)
+            setTellChange('')
+          break;
+        case 'sayAgain':
+            Speech.speak('sorry, say again',options)
+            setTellChange('')
+          break;
+        case 'pause':
+            Speech.speak('taking a break',options)
+            setTellChange('')
+            setWakeListening(true)
+          break;
+      }
+      setTimeout(() => Speech.stop(),2000)
     }
-  },[tellChange])
+  },[tellChange, iosVoice])
   //
   //utils
   //
