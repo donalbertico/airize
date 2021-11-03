@@ -302,6 +302,7 @@ export default function SessionScreen(props){
     async function getVoices() {
       const voices = await Speech.getAvailableVoicesAsync()
       if(voices){
+        console.log(voices);
         voices.forEach((item, i) => {
           if(item.identifier == 'com.apple.ttsbundle.siri_female_en-GB_compact') setIosVoice(item.identifier)
         });
@@ -352,7 +353,7 @@ export default function SessionScreen(props){
               props.navigation.addListener('beforeRemove',(e)=>{
                 props.navigation.dispatch(e.data.action)
               })
-              props.navigation.navigate('home')
+              props.navigation.navigate('home',{refresh : true})
               break;
             case 's':
               setAskPause(false)
@@ -436,7 +437,7 @@ export default function SessionScreen(props){
         break;
       case 'play':
         if(spotifyAv) {
-          if(playbackInfo?.status ){
+          if(playbackInfo?.status){
             sessionReference.update({
               playback : {
                 uri : listTracks,
@@ -468,7 +469,7 @@ export default function SessionScreen(props){
         setUpdateSession('')
         break;
       case 'pauseSpotify':
-        if(spotifyAv) {
+        if(spotifyAv && playbackDevice) {
           sessionReference.update({
             playback : {
               uri : listTracks,
@@ -754,11 +755,13 @@ export default function SessionScreen(props){
     if(messageDuration == messageLimit){
       clearInterval(that.messageInterval)
       setMessageDuration(messageDuration=>0)
-      sessionReference.collection('messages')
-        .doc(message.id)
-        .update({ status: 'l' }).then(() => {
-          setMessage()
-        })
+      if(message?.id){
+        sessionReference.collection('messages')
+          .doc(message.id)
+          .update({ status: 'l' }).then(() => {
+            setMessage()
+          })
+      }
       setIsReproducing(false)
       setWakeListening(true)
     }

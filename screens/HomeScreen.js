@@ -56,6 +56,47 @@ export default function HomeScreen(props){
     sessionsReference.doc(latentSession.id)
       .update({status : 's'})
   }
+  const restartReference = () => {
+    // let db = firebase.firestore()
+    // setSessionsReference({sdf:'df'})
+    // console.log('setting?');
+    // setTimeout(() => setSessionsReference(db.collection('sessions')),00)
+  }
+  const setNewReferenceListener = () => {
+    let start = new Date()
+    let end = new Date()
+    start.setUTCHours(0,0,0,0)
+    end.setUTCHours(23,59,59,999)
+    return sessionsReference
+      .where('users', 'array-contains', user.uid)
+      .where('dueDate' ,'>=', start)
+      .where('dueDate' ,'<', end)
+      .onSnapshot((snapshot) => {
+        console.log('confirme? 222');
+        let sessArray = []
+        setLatentSession('')
+        setSessions('')
+        snapshot.forEach((sess, i) => {
+          let session = sess.data()
+          let sessDate = new firebase.firestore.Timestamp(session.dueDate.seconds,session.dueDate.nanoseconds)
+          sessDate = sessDate.toDate()
+          session.id = sess.id
+          session.dueDate = `${sessDate.getHours()} : ${sessDate.getMinutes()}`
+          setLatentSession(session)
+          if(session.status == 'c') {
+            sessArray = [...sessArray,session]
+          }
+          if(session.status == 'r') {
+            setSessStarting(true)
+            return;
+          }else if(session.status != 'f' ){
+            setSessStarting(false)
+            return;
+          }
+        });
+        setSessions(sessArray)
+      })
+  }
   //on mount
   React.useEffect(()=>{
     let db = firebase.firestore()
@@ -83,13 +124,15 @@ export default function HomeScreen(props){
       }
     }
     checkPermissions()
-    setSessionsReference(db.collection('sessions'))
+    restartReference()
     setLatentSession('')
+    setSessionsReference(db.collection('sessions'))
   },[])
   //.route
   //lookf for user because it has been updated
   React.useEffect(()=>{
     if(props.route.params?.userUpdate)setUser('get')
+    if(props.route.params?.refresh) setNewReferenceListener()
   },[props.route.params])
   //user
   //wait for the user until is set because of fresh login
@@ -193,38 +236,14 @@ export default function HomeScreen(props){
     end.setUTCHours(23,59,59,999)
     if(user.uid && sessionsReference) {
       if(!that.sessionListener){
-        that.sessionListener =
-          sessionsReference
-            .where('users', 'array-contains', user.uid)
-            .where('dueDate' ,'>=', start)
-            .where('dueDate' ,'<', end)
-            .onSnapshot((snapshot) => {
-              let sessArray = []
-              setLatentSession('')
-              snapshot.forEach((sess, i) => {
-                let session = sess.data()
-                let sessDate = new firebase.firestore.Timestamp(session.dueDate.seconds,session.dueDate.nanoseconds)
-                sessDate = sessDate.toDate()
-                session.id = sess.id
-                session.dueDate = `${sessDate.getHours()} : ${sessDate.getMinutes()}`
-                setLatentSession(session)
-                if(session.status == 'c') {
-                  sessArray = [...sessArray,session]
-                }
-                if(session.status == 'r') {
-                  setSessStarting(true)
-                  return;
-                }else if(session.status != 'f' ){
-                  setSessStarting(false)
-                  return;
-                }
-              });
-              setSessions(sessArray)
-            })
+        that.sessionListener = setNewReferenceListener()
       }
     }
     return () => {
-      if(that.sessionListener) that.sessionListener()
+      if(that.sessionListener) {
+        that.sessionListener()
+        that.sessionListener = null
+      }
     }
   },[user,sessionsReference])
   // foreground
@@ -233,6 +252,7 @@ export default function HomeScreen(props){
     if(foreground){
       setSearchDevices(true)
       setSpotifyToken('refresh')
+      restartReference()
     }
     return () => {
 
