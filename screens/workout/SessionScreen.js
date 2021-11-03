@@ -301,6 +301,7 @@ export default function SessionScreen(props){
     async function getVoices() {
       const voices = await Speech.getAvailableVoicesAsync()
       if(voices){
+        console.log(voices);
         voices.forEach((item, i) => {
 
           if(item.language == 'en-GB')
@@ -756,11 +757,13 @@ export default function SessionScreen(props){
     if(messageDuration == messageLimit){
       clearInterval(that.messageInterval)
       setMessageDuration(messageDuration=>0)
-      sessionReference.collection('messages')
-        .doc(message.id)
-        .update({ status: 'l' }).then(() => {
-          setMessage()
-        })
+      if(message?.id){
+        sessionReference.collection('messages')
+          .doc(message.id)
+          .update({ status: 'l' }).then(() => {
+            setMessage()
+          })
+      }
       setIsReproducing(false)
       setWakeListening(true)
     }
