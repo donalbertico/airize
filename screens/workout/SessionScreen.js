@@ -353,7 +353,7 @@ export default function SessionScreen(props){
               props.navigation.addListener('beforeRemove',(e)=>{
                 props.navigation.dispatch(e.data.action)
               })
-              props.navigation.navigate('home')
+              props.navigation.navigate('home',{refresh : true})
               break;
             case 's':
               setAskPause(false)
@@ -437,7 +437,7 @@ export default function SessionScreen(props){
         break;
       case 'play':
         if(spotifyAv) {
-          if(playbackInfo?.status ){
+          if(playbackInfo?.status){
             sessionReference.update({
               playback : {
                 uri : listTracks,
@@ -469,7 +469,7 @@ export default function SessionScreen(props){
         setUpdateSession('')
         break;
       case 'pauseSpotify':
-        if(spotifyAv) {
+        if(spotifyAv && playbackDevice) {
           sessionReference.update({
             playback : {
               uri : listTracks,
