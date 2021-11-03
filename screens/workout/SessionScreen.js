@@ -977,6 +977,7 @@ export default function SessionScreen(props){
   React.useEffect(() => {
     if(spotifyError){
       let error = spotifyError.e['_response']?.error
+      console.log(spotifyError);
       switch (error?.status){
         case 404:
           if(spotify.type != 'pause') setSpotifyCall('getDevices')
@@ -1000,7 +1001,7 @@ export default function SessionScreen(props){
             setTellChange('')
             setWakeListening(true)
           break;
-        case 'askPuase':
+        case 'askPause':
             Speech.speak('friend is asking to pause',options)
             setTellChange('')
             setWakeListening(true)
@@ -1052,6 +1053,7 @@ export default function SessionScreen(props){
   //foreground
   //check if app came from background
   React.useEffect(() => {
+    console.log(foreground);
     if(foreground){
       setSpotifyCall('getDevices')
       setVoiceListening(false)
