@@ -68,6 +68,8 @@ export default function SessionScreen(props){
   const [isPremium, setIsPremium] = React.useState(true)
 
   const workSpeechResultsHandler = (results) =>{
+    console.log(options);
+
     let options = results.value
     if(options){
       for(var i in options){
@@ -129,9 +131,7 @@ export default function SessionScreen(props){
                 setWakeListening(true)
                 return;
               }
-              setUpdateSession('playMyList')
-
-              // setUpdateSession('play')
+              setUpdateSession('play')
               setWakeListening(true)
               return;
             }
@@ -487,8 +487,7 @@ export default function SessionScreen(props){
         if(spotifyAv && playbackDevice) {
           sessionReference.update({
             playback : {
-              status : nextStatus,
-              uri : playbackInfo.uri,
+              status : nextStatus
             }
           })
         }
@@ -499,8 +498,7 @@ export default function SessionScreen(props){
         if(spotifyAv && playbackDevice) {
           sessionReference.update({
             playback : {
-              status : previousStatus,
-              uri : playbackInfo.uri,
+              status : previousStatus
             }
           })
         }
@@ -524,7 +522,7 @@ export default function SessionScreen(props){
         })
       }else if(wakeListening == false){
         that.porcupineManager?.stop().then((stopped)=> {
-          if(stopped) setTimeout(() => setVoiceListening(true), 250)
+          if(stopped) setTimeout(() => setVoiceListening(true), Platform.OS == 'ios'? 1 : 200)
         })
       }else if(wakeListening == 'off'){
         that.porcupineManager?.stop()
@@ -1069,7 +1067,7 @@ export default function SessionScreen(props){
             setWakeListening(true)
           break;
       }
-      setTimeout(() => Speech.stop(),2000)
+      setTimeout(() => Speech.stop(),2500)
     }
   },[tellChange, iosVoice])
   //
