@@ -305,7 +305,6 @@ export default function SessionScreen(props){
     async function getVoices() {
       const voices = await Speech.getAvailableVoicesAsync()
       if(voices){
-        console.log(voices);
         voices.forEach((item, i) => {
           if(item.identifier == 'com.apple.ttsbundle.siri_female_en-GB_compact') setIosVoice(item.identifier)
         });
@@ -521,13 +520,11 @@ export default function SessionScreen(props){
     if(porcupineReady && wakeListening != 'started'){
       if(wakeListening == true && !isRecording) {
         that.porcupineManager?.start().then((started)=> {
-          if(started){
-            console.log('sisaaaaa');
-          }
+          if(started)console.log('sisaaaaa');
         })
       }else if(wakeListening == false){
         that.porcupineManager?.stop().then((stopped)=> {
-          if(stopped) setTimeout(() => setVoiceListening(true), 500)
+          if(stopped) setTimeout(() => setVoiceListening(true), 250)
         })
       }else if(wakeListening == 'off'){
         that.porcupineManager?.stop()
@@ -1081,12 +1078,15 @@ export default function SessionScreen(props){
   //nextState
   //check if app came from background
   React.useEffect(() => {
+    console.log('STATEEEE',nextState);
     if(nextState == 'inactive' || nextState == 'background'){
-      console.log('reload?');
-      setSpotifyCall('getDevices')
+      console.log('reload?',playbackDevice);
+      if(!playbackDevice)setSpotifyCall('getDevices')
       setVoiceListening(false)
       setWakeListening('off')
       setTimeout(() => setWakeListening(true),100)
+    }else if (nextState == 'active'){
+      if(!playbackDevice) setSpotifyCall('getDevices')
     }
   },[nextState])
   //assets
