@@ -929,6 +929,7 @@ export default function SessionScreen(props){
           break;
       }
     }
+    console.log(spotifyCall);
     if(spotifyCall)checkTokenExpired()
   },[spotifyToken,spotifyCall])
   //spotify tokens
