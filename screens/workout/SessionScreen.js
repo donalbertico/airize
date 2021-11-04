@@ -68,8 +68,6 @@ export default function SessionScreen(props){
   const [isPremium, setIsPremium] = React.useState(true)
 
   const workSpeechResultsHandler = (results) =>{
-    console.log(options);
-
     let options = results.value
     if(options){
       for(var i in options){
@@ -438,7 +436,7 @@ export default function SessionScreen(props){
         })
         break;
       case 'play':
-        if(spotifyAv) {
+        if(spotifyAv && playbackDevice) {
           if(playbackInfo?.status){
             sessionReference.update({
               playback : {
@@ -447,6 +445,8 @@ export default function SessionScreen(props){
               }
             })
           }else{
+            console.log('confirme',listTracks);
+
             sessionReference.update({
               playback : {
                 uri : listTracks,
@@ -669,7 +669,7 @@ export default function SessionScreen(props){
   },[recordTime])
   //recordUri
   //uploads recoreded audio
-  React.useEffect(()=>{
+  React.useEffect(() => {
     async function upload(){
       setSending(true)
       try {
@@ -815,15 +815,14 @@ export default function SessionScreen(props){
       try {
         const result = await client.getMyDevices()
         if(result){
+          setSpotifyCall('')
           let devices = result.devices
           if(devices?.length == 0) setPlaybackDevice()
           devices.forEach((device, i) => {
             if(device.type == "Smartphone") setPlaybackDevice(device.id)
           });
-          setSpotifyCall('')
         }
       } catch (e) {
-        setSpotifyCall('')
         setSpotifyError({type : 'devices', e : e})
       }
     }
@@ -837,6 +836,7 @@ export default function SessionScreen(props){
           images = [...images,item.track.album.images[0].url]
         });
         setListTracks(uris)
+        setSpotifyCall('')
       } catch (e) {
         setSpotifyCall('')
         setSpotifyError({type : 'listTraks', e : e})
@@ -846,6 +846,7 @@ export default function SessionScreen(props){
       try {
         await client.skipToNext()
         setSpotifyCall('getCurrentTrack')
+        setSpotifyCall('')
       }
       catch (e) {
         setSpotifyError({type : 'nextrack', e : e})
@@ -856,6 +857,7 @@ export default function SessionScreen(props){
       try {
         await client.skipToPrevious()
         setSpotifyCall('getCurrentTrack')
+        setSpotifyCall('')
       }
       catch (e) {
         setSpotifyError({type : 'previous',e : e})
@@ -874,6 +876,7 @@ export default function SessionScreen(props){
             }
           });
         }
+        setSpotifyCall('')
       } catch (e) { setSpotifyToken({type : 'previous',e : e}) }
     }
     async function getCurrentTrack() {
@@ -924,7 +927,6 @@ export default function SessionScreen(props){
           break;
       }
     }
-    console.log(spotifyCall);
     if(spotifyCall)checkTokenExpired()
   },[spotifyToken,spotifyCall])
   //spotify tokens
@@ -935,10 +937,9 @@ export default function SessionScreen(props){
       if(playlist){
         if(playbackDevice){
           setSpotifyCall('getTracks')
-          console.log('device?');
           if (playbackInfo) {
             if (playbackInfo.status == 'p') setSpotifyCall('play')
-          }else { setSpotifyCall('pause') }
+          }else { setTimeout(() => setSpotifyCall('pause'),100) }
         }else {
           setSpotifyCall('getDevices')
         }
@@ -994,7 +995,10 @@ export default function SessionScreen(props){
         console.log(error);
         switch (error?.status){
           case 404:
-            if(spotify.type != 'pause') setSpotifyCall('getDevices')
+            if(spotifyError.type != 'pause') setSpotifyCall('getDevices')
+            break;
+          case 401:
+            setRefresh(true)
             break;
           default:
         }
@@ -1006,7 +1010,12 @@ export default function SessionScreen(props){
             case 403:
               setIsPremium(false)
               break;
-            default:
+            case 404:
+              if(spotifyError.type != 'pause') setSpotifyCall('getDevices')
+              break;
+            case 401:
+              setRefresh(true)
+              break;
           }
         }
       }
