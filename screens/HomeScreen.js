@@ -24,7 +24,7 @@ export default function HomeScreen(props){
   const [newTokens,authErr,askToken] = useSpotifyAuth(false)
   const [storedToken,setStoredToken] = useSpotifyTokenStore()
   const [assets,setAssets] = useAssetStore()
-  const [foreground] = useAppState()
+  const [nextState] = useAppState()
   const [playbackDevice,setDevice] = React.useState()
   const [spotifyAv, setSpotifyAv] = React.useState(false)
   const [audioGranted,setAudioGranted] = React.useState()
@@ -246,10 +246,10 @@ export default function HomeScreen(props){
       }
     }
   },[user,sessionsReference])
-  // foreground
-  // refreshe some states when app in foreground
+  // nextState
+  // refreshe some states when app in nextState
   React.useEffect(() => {
-    if(foreground){
+    if(nextState == 'inactive' || nextState == 'background'){
       setSearchDevices(true)
       setSpotifyToken('refresh')
       restartReference()
@@ -257,7 +257,7 @@ export default function HomeScreen(props){
     return () => {
 
     }
-  },[foreground])
+  },[nextState])
   // latentSession
   // redirect to session if latent status 'started'
   React.useEffect(() => {

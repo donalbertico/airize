@@ -925,6 +925,7 @@ export default function SessionScreen(props){
           break;
       }
     }
+    console.log(spotifyCall);
     if(spotifyCall)checkTokenExpired()
   },[spotifyToken,spotifyCall])
   //spotify tokens
@@ -950,6 +951,7 @@ export default function SessionScreen(props){
   //show text for set the device
   React.useEffect(() => {
     if(playbackInfo){
+      console.log(playbackInfo);
       switch (playbackInfo.status) {
         case 's':
           setSpotifyCall('pause')
