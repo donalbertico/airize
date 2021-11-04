@@ -339,7 +339,6 @@ export default function SessionScreen(props){
       that.sessionListener =
         sessionReference.onSnapshot((snapshot) => {
           let data = snapshot.data()
-          console.log('...?');
           if(data?.playback)setPlayInfo(data.playback)
           switch (data.status) {
             case 'al':
@@ -784,7 +783,7 @@ export default function SessionScreen(props){
     async function play(){
       try {
         await client.play({
-          uris: listTracks,
+          uris: playbackInfo.uri,
           device_id: playbackDevice,
           position_ms: 0
         })
@@ -792,7 +791,6 @@ export default function SessionScreen(props){
         setSpotifyCall('getCurrentTrack')
       } catch (e) {
         setPlaying(false)
-        setSpotifyCall('')
         setSpotifyError({type : 'play', e : e})
       }
     }
@@ -844,7 +842,6 @@ export default function SessionScreen(props){
           images = [...images,item.track.album.images[0].url]
         });
         setListTracks(uris)
-        setSpotifyCall('pause')
       } catch (e) {
         setSpotifyCall('')
         setSpotifyError({type : 'listTraks', e : e})
@@ -902,12 +899,15 @@ export default function SessionScreen(props){
       switch (spotifyCall) {
         case 'play':
             if(playbackDevice) play()
+            else setSpotifyCall('')
           break;
         case 'resume':
             if(playbackDevice) resume()
+            else setSpotifyCall('')
           break;
         case 'pause':
             if(playbackDevice) pause()
+            else setSpotifyCall('')
           break;
         case 'getDevices':
             getDevices()
@@ -937,12 +937,18 @@ export default function SessionScreen(props){
   React.useEffect(()=>{
     if(storedToken){
       setSpotifyAv(true)
-      setSpotifyCall('getPlayList')
       if(playlist){
-        setSpotifyCall('getDevices')
         if(playbackDevice){
           setSpotifyCall('getTracks')
+          console.log('device?');
+          if (playbackInfo) {
+            if (playbackInfo.status == 'p') setSpotifyCall('play')
+          }else { setSpotifyCall('pause') }
+        }else {
+          setSpotifyCall('getDevices')
         }
+      }else {
+        setSpotifyCall('getPlayList')
       }
     }
   },[storedToken, playlist, playbackDevice])
@@ -988,20 +994,19 @@ export default function SessionScreen(props){
       let error = spotifyError.e['_response']?.error
       let stError = spotifyError.e['_response']
       let obj = stError&& JSON.parse(stError)
+
       if(error){
-        console.log('ERROR',error);
+        console.log(error);
         switch (error?.status){
           case 404:
             if(spotify.type != 'pause') setSpotifyCall('getDevices')
             break;
-          case 403:
-            setIsPremium(false)
-            break;
           default:
         }
       }else {
+        console.log(obj);
+
         if(obj?.error){
-          console.log('ERROR',obj);
           switch (obj?.error.status){
             case 403:
               setIsPremium(false)
@@ -1010,8 +1015,6 @@ export default function SessionScreen(props){
           }
         }
       }
-
-
     }
   },[spotifyError])
 
