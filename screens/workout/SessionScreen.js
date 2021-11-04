@@ -23,7 +23,7 @@ export default function SessionScreen(props){
   const [refreshErr,refreshedTokens,setRefresh] = useSpotifyTokenRefresh(false)
   const [storedToken] = useSpotifyTokenStore()
   const [assets,setAssets] = useAssetStore()
-  const [foreground] = useAppState()
+  const [nextState] = useAppState()
   const [avatarUri,setAvatar] = React.useState()
   const [logoUri,setLogo] = React.useState()
   const [playbackInfo,setPlayInfo] = React.useState()
@@ -65,6 +65,7 @@ export default function SessionScreen(props){
   const [speechEnd, setSpeechEnd] = React.useState(false)
   const [pauseModal, setPauseModal] = React.useState(false)
   const [iosVoice, setIosVoice] = React.useState('init')
+  const [isPremium, setIsPremium] = React.useState(true)
 
   const workSpeechResultsHandler = (results) =>{
     let options = results.value
@@ -128,7 +129,9 @@ export default function SessionScreen(props){
                 setWakeListening(true)
                 return;
               }
-              setUpdateSession('play')
+              setUpdateSession('playMyList')
+
+              // setUpdateSession('play')
               setWakeListening(true)
               return;
             }
@@ -336,6 +339,7 @@ export default function SessionScreen(props){
       that.sessionListener =
         sessionReference.onSnapshot((snapshot) => {
           let data = snapshot.data()
+          console.log('...?');
           if(data?.playback)setPlayInfo(data.playback)
           switch (data.status) {
             case 'al':
@@ -950,6 +954,7 @@ export default function SessionScreen(props){
   //show text for set the device
   React.useEffect(() => {
     if(playbackInfo){
+      console.log(playbackInfo);
       switch (playbackInfo.status) {
         case 's':
           setSpotifyCall('pause')
@@ -980,13 +985,32 @@ export default function SessionScreen(props){
   React.useEffect(() => {
     if(spotifyError){
       let error = spotifyError.e['_response']?.error
-      console.log(spotifyError);
-      switch (error?.status){
-        case 404:
-          if(spotify.type != 'pause') setSpotifyCall('getDevices')
-          break;
-        default:
+      let stError = spotifyError.e['_response']
+      let obj = stError&& JSON.parse(stError)
+      if(error){
+        console.log('ERROR',error);
+        switch (error?.status){
+          case 404:
+            if(spotify.type != 'pause') setSpotifyCall('getDevices')
+            break;
+          case 403:
+            setIsPremium(false)
+            break;
+          default:
+        }
+      }else {
+        if(obj?.error){
+          console.log('ERROR',obj);
+          switch (obj?.error.status){
+            case 403:
+              setIsPremium(false)
+              break;
+            default:
+          }
+        }
       }
+
+
     }
   },[spotifyError])
 
@@ -1053,16 +1077,17 @@ export default function SessionScreen(props){
   //
   //utils
   //
-  //foreground
+  //nextState
   //check if app came from background
   React.useEffect(() => {
-    console.log(foreground);
-    if(foreground){
+    if(nextState == 'inactive' || nextState == 'background'){
+      console.log('reload?');
       setSpotifyCall('getDevices')
       setVoiceListening(false)
-      setWakeListening(true)
+      setWakeListening('off')
+      setTimeout(() => setWakeListening(true),100)
     }
-  },[foreground])
+  },[nextState])
   //assets
   //load images url
   React.useEffect(() => {
@@ -1162,6 +1187,9 @@ export default function SessionScreen(props){
           </View>
         </View>
         <View>
+          <View>
+            {!isPremium && (<Text>not premium =()</Text>) }
+          </View>
           <View style={styles.horizontalView}>
             <View style={{flex:1}}></View>
             {spotifyAv? (

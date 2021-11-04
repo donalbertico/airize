@@ -3,15 +3,10 @@ import { AppState } from 'react-native'
 
 export default function useAppState() {
   const appState = useRef(AppState.currentState)
-  const [foreground,setForeground] = useState(false)
+  const [nextState,setNextState] = useState()
 
   const _handleAppStateChange = nextAppState => {
-    if (appState.current.match(/inactive|background/) && nextAppState == 'active') {
-      setForeground(true)
-    }else{
-      setForeground(false)
-    }
-    appState.current = nextAppState
+    setNextState(nextAppState)
   }
 
   useEffect(() => {
@@ -21,5 +16,5 @@ export default function useAppState() {
     }
   },[])
 
-  return [foreground]
+  return [nextState]
 }
