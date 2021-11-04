@@ -1081,12 +1081,14 @@ export default function SessionScreen(props){
   //nextState
   //check if app came from background
   React.useEffect(() => {
-    if(nextState == 'inactive' || nextState == 'background'){
-      console.log('reload?');
-      setSpotifyCall('getDevices')
-      setVoiceListening(false)
-      setWakeListening('off')
-      setTimeout(() => setWakeListening(true),100)
+    if(props.route.name == 'session'){
+      if(nextState == 'active'){
+        console.log('reload?');
+        setSpotifyCall('getDevices')
+        setVoiceListening(false)
+        setWakeListening('off')
+        setTimeout(() => setWakeListening(true),100)
+      }
     }
   },[nextState])
   //assets

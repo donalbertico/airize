@@ -249,13 +249,12 @@ export default function HomeScreen(props){
   // nextState
   // refreshe some states when app in nextState
   React.useEffect(() => {
-    if(nextState == 'inactive' || nextState == 'background'){
-      setSearchDevices(true)
-      setSpotifyToken('refresh')
-      restartReference()
-    }
-    return () => {
-
+    if(props.route.name == 'home'){
+      if(nextState == 'active'){
+        setSearchDevices(true)
+        setSpotifyToken('refresh')
+        restartReference()
+      }
     }
   },[nextState])
   // latentSession
