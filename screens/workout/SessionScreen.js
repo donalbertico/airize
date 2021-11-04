@@ -71,8 +71,6 @@ export default function SessionScreen(props){
   const [ios, setIos] = React.useState(Platform.OS == 'ios' ? true : false)
 
   const workSpeechResultsHandler = (results) =>{
-    console.log(results);
-
     let options = results.value
     if(options){
       for(var i in options){
@@ -345,7 +343,6 @@ export default function SessionScreen(props){
       that.sessionListener =
         sessionReference.onSnapshot((snapshot) => {
           let data = snapshot.data()
-          console.log('...?');
           if(data?.playback)setPlayInfo(data.playback)
           switch (data.status) {
             case 'al':
@@ -446,7 +443,7 @@ export default function SessionScreen(props){
         })
         break;
       case 'play':
-        if(spotifyAv) {
+        if(spotifyAv && playbackDevice) {
           if(playbackInfo?.status){
             sessionReference.update({
               playback : {
@@ -455,6 +452,8 @@ export default function SessionScreen(props){
               }
             })
           }else{
+            console.log('confirme',listTracks);
+
             sessionReference.update({
               playback : {
                 uri : listTracks,
@@ -709,7 +708,7 @@ export default function SessionScreen(props){
   },[recordTime])
   //recordUri
   //uploads recoreded audio
-  React.useEffect(()=>{
+  React.useEffect(() => {
     async function upload(){
       setSending(true)
       try {
@@ -818,7 +817,7 @@ export default function SessionScreen(props){
     async function play(){
       try {
         await client.play({
-          uris: listTracks,
+          uris: playbackInfo.uri,
           device_id: playbackDevice,
           position_ms: 0
         })
@@ -826,7 +825,6 @@ export default function SessionScreen(props){
         setSpotifyCall('getCurrentTrack')
       } catch (e) {
         setPlaying(false)
-        setSpotifyCall('')
         setSpotifyError({type : 'play', e : e})
       }
     }
@@ -856,15 +854,14 @@ export default function SessionScreen(props){
       try {
         const result = await client.getMyDevices()
         if(result){
+          setSpotifyCall('')
           let devices = result.devices
           if(devices?.length == 0) setPlaybackDevice()
           devices.forEach((device, i) => {
             if(device.type == "Smartphone") setPlaybackDevice(device.id)
           });
-          setSpotifyCall('')
         }
       } catch (e) {
-        setSpotifyCall('')
         setSpotifyError({type : 'devices', e : e})
       }
     }
@@ -878,7 +875,7 @@ export default function SessionScreen(props){
           images = [...images,item.track.album.images[0].url]
         });
         setListTracks(uris)
-        setSpotifyCall('pause')
+        setSpotifyCall('')
       } catch (e) {
         setSpotifyCall('')
         setSpotifyError({type : 'listTraks', e : e})
@@ -888,6 +885,7 @@ export default function SessionScreen(props){
       try {
         await client.skipToNext()
         setSpotifyCall('getCurrentTrack')
+        setSpotifyCall('')
       }
       catch (e) {
         setSpotifyError({type : 'nextrack', e : e})
@@ -898,6 +896,7 @@ export default function SessionScreen(props){
       try {
         await client.skipToPrevious()
         setSpotifyCall('getCurrentTrack')
+        setSpotifyCall('')
       }
       catch (e) {
         setSpotifyError({type : 'previous',e : e})
@@ -916,6 +915,7 @@ export default function SessionScreen(props){
             }
           });
         }
+        setSpotifyCall('')
       } catch (e) { setSpotifyToken({type : 'previous',e : e}) }
     }
     async function getCurrentTrack() {
@@ -936,12 +936,15 @@ export default function SessionScreen(props){
       switch (spotifyCall) {
         case 'play':
             if(playbackDevice) play()
+            else setSpotifyCall('')
           break;
         case 'resume':
             if(playbackDevice) resume()
+            else setSpotifyCall('')
           break;
         case 'pause':
             if(playbackDevice) pause()
+            else setSpotifyCall('')
           break;
         case 'getDevices':
             getDevices()
@@ -963,7 +966,6 @@ export default function SessionScreen(props){
           break;
       }
     }
-    console.log(spotifyCall);
     if(spotifyCall)checkTokenExpired()
   },[spotifyToken,spotifyCall])
   //spotify tokens
@@ -971,12 +973,17 @@ export default function SessionScreen(props){
   React.useEffect(()=>{
     if(storedToken){
       setSpotifyAv(true)
-      setSpotifyCall('getPlayList')
       if(playlist){
-        setSpotifyCall('getDevices')
         if(playbackDevice){
           setSpotifyCall('getTracks')
+          if (playbackInfo) {
+            if (playbackInfo.status == 'p') setSpotifyCall('play')
+          }else { setTimeout(() => setSpotifyCall('pause'),100) }
+        }else {
+          setSpotifyCall('getDevices')
         }
+      }else {
+        setSpotifyCall('getPlayList')
       }
     }
   },[storedToken, playlist, playbackDevice])
@@ -1022,30 +1029,35 @@ export default function SessionScreen(props){
       let error = spotifyError.e['_response']?.error
       let stError = spotifyError.e['_response']
       let obj = stError&& JSON.parse(stError)
+
       if(error){
-        console.log('ERROR',error);
+        console.log(error);
         switch (error?.status){
           case 404:
-            if(spotify.type != 'pause') setSpotifyCall('getDevices')
+            if(spotifyError.type != 'pause') setSpotifyCall('getDevices')
             break;
-          case 403:
-            setIsPremium(false)
+          case 401:
+            setRefresh(true)
             break;
           default:
         }
       }else {
+        console.log(obj);
+
         if(obj?.error){
-          console.log('ERROR',obj);
           switch (obj?.error.status){
             case 403:
               setIsPremium(false)
               break;
-            default:
+            case 404:
+              if(spotifyError.type != 'pause') setSpotifyCall('getDevices')
+              break;
+            case 401:
+              setRefresh(true)
+              break;
           }
         }
       }
-
-
     }
   },[spotifyError])
 
