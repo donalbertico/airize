@@ -66,12 +66,19 @@ export default function SessionScreen(props){
   const [pauseModal, setPauseModal] = React.useState(false)
   const [iosVoice, setIosVoice] = React.useState('init')
   const [isPremium, setIsPremium] = React.useState(true)
+  const [iosVoiceCalls, setIosVoiceCalls] = React.useState(0)
+  const [iosVoiceControl, setIosVoiceControl] = React.useState(0)
+  const [ios, setIos] = React.useState(Platform.OS == 'ios' ? true : false)
 
   const workSpeechResultsHandler = (results) =>{
     let options = results.value
+    console.log(options[0]?.split(' ').length);
+    if(ios && options[0]?.split(' ').length < 2)return;
     if(options){
+
       for(var i in options){
         let string = options[i].split(' ')
+        console.log(string);
         for (var j in string) {
             let word = string[j].toLowerCase();
             let next = string[parseInt(j)+1]?.toLowerCase()
@@ -120,6 +127,7 @@ export default function SessionScreen(props){
                 return;
               }
               if(next == 'mine' || next == 'my'){
+                console.log('?');
                 setUpdateSession('playMyList')
                 setWakeListening(true)
                 return;
@@ -156,7 +164,8 @@ export default function SessionScreen(props){
         }
       }
       setUnderstood(true)
-      setTimeout(() => setUnderstood(false),100)
+      if(ios) setIosVoiceCalls ( iosVoiceCalls => iosVoiceCalls+1)
+      else setTimeout(() => setUnderstood(false),100)
     }
   }
   const leavingSpeechResultHandler = (results)=> {
@@ -190,7 +199,8 @@ export default function SessionScreen(props){
         }
       }
       setUnderstood(true)
-      setTimeout(() => setUnderstood(false),100)
+      if(ios) setIosVoiceCalls ( iosVoiceCalls => iosVoiceCalls+1)
+      else setTimeout(() => setUnderstood(false),100)
     }
   }
   const pausingSpeechResultHandler = (results)=> {
@@ -224,7 +234,8 @@ export default function SessionScreen(props){
         }
       }
       setUnderstood(true)
-      setTimeout(() => setUnderstood(false),100)
+      if(ios) setIosVoiceCalls ( iosVoiceCalls => iosVoiceCalls+1)
+      else setTimeout(() => setUnderstood(false),100)
     }
   }
   const pausedSpeechResultHandler = (results) => {
@@ -252,7 +263,8 @@ export default function SessionScreen(props){
       }
     }
     setUnderstood(true)
-    setTimeout(() => setUnderstood(false),100)
+    if(ios) setIosVoiceCalls ( iosVoiceCalls => iosVoiceCalls+1)
+    else setTimeout(() => setUnderstood(false),100)
   }
   const speechEndHandler = (error) => {
     console.log('speechEnd');
@@ -314,7 +326,7 @@ export default function SessionScreen(props){
     setSessionReference(db.collection('sessions').doc(props.route.params.session.id))
     allowRecordIos()
     setPorcupine()
-    if(Platform.OS == 'ios') getVoices()
+    if(ios) getVoices()
     else setIosVoice(false)
     return () => {
       Voice.cancel()
@@ -459,6 +471,7 @@ export default function SessionScreen(props){
         break;
       case 'playMyList':
         if(spotifyAv && playbackDevice) {
+          console.log(listTracks,'av?');
           if(playlist){
             sessionReference.update({
               playback : {
@@ -521,7 +534,7 @@ export default function SessionScreen(props){
         })
       }else if(wakeListening == false){
         that.porcupineManager?.stop().then((stopped)=> {
-          if(stopped) setTimeout(() => setVoiceListening(true), Platform.OS == 'ios'? 1 : 200)
+          if(stopped) setTimeout(() => setVoiceListening(true), ios? 1 : 200)
         })
       }else if(wakeListening == 'off'){
         that.porcupineManager?.stop()
@@ -544,51 +557,83 @@ export default function SessionScreen(props){
       }
     }
   },[voiceListening])
-  //voiceListening - wakeListening - understood
-  //starts an interval in case listening deactives
-  React.useEffect(()=>{
-    let that = this
-    if( voiceListening && !wakeListening){
-      that.voiceTimer = setInterval(()=>{
-        if(!wakeListening && voiceListening && understood){
-          setVoiceListening(false)
-          setWakeListening(true)
-        }
-        if(!understood && voiceListening && !wakeListening) {
-          setTimeout(() => {
+  if (ios){
+    //iosVoiceCalls
+    //check how many times on speech has been called to rise voice listener again
+    React.useEffect(() => {
+      if(iosVoiceCalls >= 12){
+        setVoiceListening(false)
+        setTellChange('sayAgain')
+        setTimeout(() => setVoiceListening(true), 1500)
+        setIosVoiceCalls(0)
+      }
+    },[iosVoiceCalls])
+    //voiceListening - wakeListening - understood
+    //starts an interval in case no interactions
+    React.useEffect(()=>{
+      let that = this
+      if( voiceListening && !wakeListening){
+        that.voiceTimer = setInterval(()=>{
+          if(!wakeListening && voiceListening && understood){
             setVoiceListening(false)
             setWakeListening(true)
-          },5000)
-        }
-      },8000)
-    }else if(wakeListening){
-      clearInterval(that.voiceTimer)
-    }
-    return () => {
-      clearInterval(that.voiceTimer)
-    }
-  },[voiceListening,wakeListening])
-  //uynderstood
-  //activates voiceListening if no option was selected
-  React.useEffect(() => {
-    if(understood == false && !wakeListening){
-      setVoiceListening(false)
-      setTellChange('sayAgain')
-      setTimeout(() => setVoiceListening(true), 1200)
-    }
-  },[understood])
-  //speechEnd
-  //checks if speech ended to rise listening by setting understood to false
-  React.useEffect(() => {
-    if(speechEnd){
-      setTimeout(() => {
-        if(!understood){
-          setUnderstood(true)
-          setTimeout(() => setUnderstood(false),100)
-        }
-      }, 2000)
-    }
-  }, [speechEnd])
+          }
+        },22000)
+      }else if(wakeListening){
+        clearInterval(that.voiceTimer)
+      }
+      return () => {
+        clearInterval(that.voiceTimer)
+      }
+    },[voiceListening,wakeListening])
+  }else{
+    //voiceListening - wakeListening - understood
+    //starts an interval in case listening deactives
+    React.useEffect(()=>{
+      let that = this
+      if( voiceListening && !wakeListening){
+        that.voiceTimer = setInterval(()=>{
+          if(!wakeListening && voiceListening && understood){
+            setVoiceListening(false)
+            setWakeListening(true)
+          }
+          if(!understood && voiceListening && !wakeListening) {
+            setTimeout(() => {
+              setVoiceListening(false)
+              setWakeListening(true)
+            },5000)
+          }
+        },8000)
+      }else if(wakeListening){
+        clearInterval(that.voiceTimer)
+      }
+      return () => {
+        clearInterval(that.voiceTimer)
+      }
+    },[voiceListening,wakeListening])
+    //understood
+    //activates voiceListening if no option was selected
+    React.useEffect(() => {
+      if(understood == false && !wakeListening){
+        setVoiceListening(false)
+        setTellChange('sayAgain')
+        setTimeout(() => setVoiceListening(true), 1500)
+      }
+    },[understood])
+    //speechEnd
+    //checks if speech ended to rise listening by setting understood to false
+    React.useEffect(() => {
+      if(speechEnd){
+        setTimeout(() => {
+          if(!understood){
+            setUnderstood(true)
+            setTimeout(() => setUnderstood(false),100)
+          }
+        }, 2000)
+      }
+    }, [speechEnd])
+  }
+
   //status
   //changes speech handlers
   React.useEffect(()=>{
@@ -747,7 +792,7 @@ export default function SessionScreen(props){
     if(messageDuration == 1){
       setIsReproducing(true)
       that.messageInterval = setInterval(()=>{
-        setMessageDuration(messageDuration=>messageDuration+1)
+        setMessageDuration(messageDuration => messageDuration+1)
       },1000)
     }
     if(messageDuration == messageLimit){
@@ -927,6 +972,7 @@ export default function SessionScreen(props){
           break;
       }
     }
+    console.log(spotifyCall);
     if(spotifyCall)checkTokenExpired()
   },[spotifyToken,spotifyCall])
   //spotify tokens
@@ -936,9 +982,10 @@ export default function SessionScreen(props){
       setSpotifyAv(true)
       if(playlist){
         if(playbackDevice){
+          console.log('llamada');
           setSpotifyCall('getTracks')
           if (playbackInfo) {
-            if (playbackInfo.status == 'p') setSpotifyCall('play')
+            if (playbackInfo.status == 'p') setTimeout(() => setSpotifyCall('play'),100)
           }else { setTimeout(() => setSpotifyCall('pause'),100) }
         }else {
           setSpotifyCall('getDevices')
@@ -1028,7 +1075,7 @@ export default function SessionScreen(props){
   //tellChange
   //set expo speech depending of activity
   React.useEffect(() => {
-    let options = (Platform.OS == 'ios' && iosVoice) ? {voice : iosVoice} : undefined
+    let options = (ios && iosVoice) ? {voice : iosVoice} : undefined
     if (iosVoice != 'init'){
       switch (tellChange) {
         case 'askLeave':
