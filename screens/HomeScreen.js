@@ -56,12 +56,6 @@ export default function HomeScreen(props){
     sessionsReference.doc(latentSession.id)
       .update({status : 's'})
   }
-  const restartReference = () => {
-    // let db = firebase.firestore()
-    // setSessionsReference({sdf:'df'})
-    // console.log('setting?');
-    // setTimeout(() => setSessionsReference(db.collection('sessions')),00)
-  }
   const setNewReferenceListener = () => {
     let start = new Date()
     let end = new Date()
@@ -83,9 +77,7 @@ export default function HomeScreen(props){
           session.id = sess.id
           session.dueDate = `${sessDate.getHours()} : ${sessDate.getMinutes()}`
           setLatentSession(session)
-          if(session.status == 'c') {
-            sessArray = [...sessArray,session]
-          }
+          if(session.status == 'a') sessArray = [...sessArray,session]
           if(session.status == 'r') {
             setSessStarting(true)
             return;
@@ -124,7 +116,6 @@ export default function HomeScreen(props){
       }
     }
     checkPermissions()
-    restartReference()
     setLatentSession('')
     setSessionsReference(db.collection('sessions'))
   },[])
@@ -253,7 +244,7 @@ export default function HomeScreen(props){
       if(nextState == 'active'){
         setSearchDevices(true)
         setSpotifyToken('refresh')
-        restartReference()
+        setSessionsReference()
       }
     }
   },[nextState])
@@ -264,7 +255,6 @@ export default function HomeScreen(props){
       props.navigation.navigate('session',{ session : latentSession, playlist: playlist})
     }
   },[latentSession])
-
 
   return(
     <View style={styles.container}>

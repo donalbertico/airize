@@ -19,7 +19,7 @@ export default function NavBar(props){
           <Image style={styles.menuOption} source={{uri:menuUris.home}}/>
         </TouchableOpacity>
         <View style={{flex:1}}></View>
-        <TouchableOpacity>
+        <TouchableOpacity onPress={()=> props.navigation.navigate('invitations')}>
           <Image style={styles.menuOption} source={{uri:menuUris.search}}/>
         </TouchableOpacity>
         <View style={{flex:1}}></View>
