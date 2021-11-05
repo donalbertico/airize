@@ -852,7 +852,7 @@ export default function SessionScreen(props){
     }
     async function pause(){
       try {
-        await client.pause({})
+        await client.pause()
         setPlaying(false)
       } catch (e) {
         setSpotifyError({type : 'pause', e : e})
@@ -988,7 +988,6 @@ export default function SessionScreen(props){
           break;
       }
     }
-    console.log(spotifyCall);
     if(spotifyCall)checkTokenExpired()
   },[spotifyToken,spotifyCall])
   //spotify tokens
@@ -998,7 +997,6 @@ export default function SessionScreen(props){
       setSpotifyAv(true)
       if(playlist){
         if(playbackDevice){
-          console.log('llamada');
           setSpotifyCall('getTracks')
           if (playbackInfo) {
             if (playbackInfo.status == 'p') setTimeout(() => setSpotifyCall('play'),100)
@@ -1051,11 +1049,10 @@ export default function SessionScreen(props){
   React.useEffect(() => {
     if(spotifyError){
       let error = spotifyError.e['_response']?.error
-      let stError = spotifyError.e['_response']
-      let obj = stError&& JSON.parse(stError)
-
+      let stringError = spotifyError.e['_response']
+      let obj = stringError&& JSON.parse(stringError)
       if(error){
-        console.log(error);
+        console.log('1',error);
         switch (error?.status){
           case 404:
             if(spotifyError.type != 'pause') setSpotifyCall('getDevices')
@@ -1066,12 +1063,13 @@ export default function SessionScreen(props){
           default:
         }
       }else {
-        console.log(obj);
-
+        console.log('st',obj);
         if(obj?.error){
           switch (obj?.error.status){
             case 403:
-              setIsPremium(false)
+              if (obj.error.message?.split('violated').length < 2) {
+                setIsPremium(false)
+              }
               break;
             case 404:
               if(spotifyError.type != 'pause') setSpotifyCall('getDevices')
@@ -1141,6 +1139,10 @@ export default function SessionScreen(props){
             setTellChange('')
             setWakeListening(true)
           break;
+        case 'noDevice':
+            Speech.speak('go to spotify and comeback to share music',options)
+            setTellChange('')
+          break;
       }
       setTimeout(() => Speech.stop(),2500)
     }
@@ -1188,7 +1190,15 @@ export default function SessionScreen(props){
       setUpdateSession('finish')
     }
   },[time,status])
-
+  // playbackDevice - playbackInfo
+  //tell message if device not active
+  React.useEffect(() => {
+    if (spotifyAv) {
+      if (playbackInfo?.status && (playbackInfo?.status == 'p' || playbackInfo?.status == 'r')){
+        if(!playbackDevice) setTellChange('noDevice')
+      }
+    }
+  },[playbackDevice,playbackInfo])
   return(
     <View style={styles.container}>
       <Modal transparent={true} visible={askLeave}>
