@@ -791,7 +791,7 @@ export default function SessionScreen(props){
     }
     async function pause(){
       try {
-        await client.pause({})
+        await client.pause()
         setPlaying(false)
       } catch (e) {
         setSpotifyError({type : 'pause', e : e})
