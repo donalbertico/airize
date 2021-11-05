@@ -68,6 +68,7 @@ export default function SessionScreen(props){
   const [isPremium, setIsPremium] = React.useState(true)
   const [iosVoiceCalls, setIosVoiceCalls] = React.useState(0)
   const [iosVoiceControl, setIosVoiceControl] = React.useState(0)
+  const [inactive, setInactive] = React.useState(false)
   const [ios, setIos] = React.useState(Platform.OS == 'ios' ? true : false)
 
   const workSpeechResultsHandler = (results) =>{
@@ -75,7 +76,6 @@ export default function SessionScreen(props){
     console.log(options[0]?.split(' ').length);
     if(ios && options[0]?.split(' ').length < 2)return;
     if(options){
-
       for(var i in options){
         let string = options[i].split(' ')
         console.log(string);
@@ -127,7 +127,6 @@ export default function SessionScreen(props){
                 return;
               }
               if(next == 'mine' || next == 'my'){
-                console.log('?');
                 setUpdateSession('playMyList')
                 setWakeListening(true)
                 return;
@@ -170,6 +169,7 @@ export default function SessionScreen(props){
   }
   const leavingSpeechResultHandler = (results)=> {
     let options = results.value
+    if(ios && options[0]?.split(' ').length < 2)return;
     if(options){
       for(var i in options){
         let string = options[i].split(' ')
@@ -205,6 +205,7 @@ export default function SessionScreen(props){
   }
   const pausingSpeechResultHandler = (results)=> {
     let options = results.value
+    if(ios && options[0]?.split(' ').length < 2)return;
     if(options){
       for(var i in options){
         let string = options[i].split(' ')
@@ -240,6 +241,7 @@ export default function SessionScreen(props){
   }
   const pausedSpeechResultHandler = (results) => {
     let options = results.value
+    if(ios && options[0]?.split(' ').length < 2)return;
     if(options){
       for(var i in options){
         let string = options[i].split(' ')
@@ -267,7 +269,6 @@ export default function SessionScreen(props){
     else setTimeout(() => setUnderstood(false),100)
   }
   const speechEndHandler = (error) => {
-    console.log('speechEnd');
     setSpeechEnd(false)
     setTimeout(() => {setSpeechEnd(true)},100)
   }
@@ -396,10 +397,25 @@ export default function SessionScreen(props){
               }
             });
         })
+    } else if (!sessionReference){
+      if(that?.sessionListener){
+        that.sessionListener()
+        that.sessionListener = null
+      }
+      if(that?.messagesListener){
+        that.messagesListener()
+        that.messagesListener = null
+      }
     }
     return () => {
-      if(that.sessionListener)that.sessionListener()
-      if(that.messagesListener)that.messagesListener()
+      if(that.sessionListener){
+        that.sessionListener()
+        that.sessionListener = null
+       }
+      if(that.messagesListener){
+        that.messagesListener()
+        that.messagesListener = null
+      }
     }
   },[sessionReference,user])
   //updateSession
@@ -457,8 +473,6 @@ export default function SessionScreen(props){
               }
             })
           }else{
-            console.log('confirme',listTracks);
-
             sessionReference.update({
               playback : {
                 uri : listTracks,
@@ -471,7 +485,6 @@ export default function SessionScreen(props){
         break;
       case 'playMyList':
         if(spotifyAv && playbackDevice) {
-          console.log(listTracks,'av?');
           if(playlist){
             sessionReference.update({
               playback : {
@@ -534,7 +547,7 @@ export default function SessionScreen(props){
         })
       }else if(wakeListening == false){
         that.porcupineManager?.stop().then((stopped)=> {
-          if(stopped) setTimeout(() => setVoiceListening(true), ios? 1 : 200)
+          if(stopped) setTimeout(() => setVoiceListening(true), ios? 100 : 200)
         })
       }else if(wakeListening == 'off'){
         that.porcupineManager?.stop()
@@ -557,6 +570,9 @@ export default function SessionScreen(props){
       }
     }
   },[voiceListening])
+  //
+  //Voice listeners handlers depending on IOS
+  //
   if (ios){
     //iosVoiceCalls
     //check how many times on speech has been called to rise voice listener again
@@ -1137,12 +1153,20 @@ export default function SessionScreen(props){
   React.useEffect(() => {
     if(props.route.name == 'session'){
       if(nextState == 'active'){
-        console.log('reload?');
+        let db = firebase.firestore()
+        setSessionReference(db.collection('sessions').doc(props.route.params.session.id))
         setSpotifyCall('getDevices')
+        setWakeListening(true)
+        setInactive(false)
+      }else if(nextState){
         setVoiceListening(false)
-        setWakeListening('off')
-        setTimeout(() => setWakeListening(true),100)
+        setWakeListening(false)
+        setSessionReference()
+        setInactive(true)
       }
+    }
+    return () => {
+
     }
   },[nextState])
   //assets
@@ -1161,7 +1185,6 @@ export default function SessionScreen(props){
       setPause(true)
       setPauseModal(false)
       setVoiceListening(false)
-      console.log(time,'??');
       setUpdateSession('finish')
     }
   },[time,status])
@@ -1219,53 +1242,61 @@ export default function SessionScreen(props){
         </View>
       </View>
       <View style={{flex:10}}>
-        <View style={{flex:1}}>
-        </View>
-        <View>
-          <View style={styles.horizontalView}>
-            <View style={{flex:2}}></View>
-            <View>
-              {isRecording?(
-                <View>
-                  <Ionicons name="mic" size={70} color='black'/>
-                </View>
-              ):(isReproducing?(
-                <View>
-                  <Ionicons name="play-outline" size={70} color='black'/>
-                </View>
-              ):(isSending &&(
-                  <View>
-                    <ActivityIndicator style={{flex:2}}/>
-                  </View>
-                ))
-              )}
-            </View>
-            <View style={{flex:2}}></View>
-          </View>
-        </View>
-        <View>
+        <View style={{flex:1}}></View>
+        { inactive? (
           <View>
-            {!isPremium && (<Text>not premium =()</Text>) }
+            <View style={styles.horizontalView}>
+              <View style={{flex:2}}></View>
+              <ActivityIndicator style={{flex:2}}/>
+              <View style={{flex:2}}></View>
+            </View>
           </View>
-          <View style={styles.horizontalView}>
-            <View style={{flex:1}}></View>
-            {spotifyAv? (
-              playbackDevice? (
+        ) : (
+          <View>
+            <View style={styles.horizontalView}>
+              <View style={{flex:2}}></View>
+              <View>
+                {isRecording?(
                   <View>
-                    <Image style={{height:200, width:200}} source={{ uri:playbackImage?playbackImage:logoUri }}/>
+                    <Ionicons name="mic" size={70} color='black'/>
                   </View>
-                ) : (
+                ):(isReproducing?(
                   <View>
-                    <Text>{playbackDevice}</Text>
-                    <Text>Spotify app is not open, please open it and come back</Text>
+                    <Ionicons name="play-outline" size={70} color='black'/>
                   </View>
-                )
-            ):(
-              <View><Text>authroize spotify to share your music</Text></View>
-            )}
-            <View style={{flex:1}}></View>
+                ):(isSending &&(
+                    <View>
+                      <ActivityIndicator style={{flex:2}}/>
+                    </View>
+                  ))
+                )}
+                {!isPremium && (<Text>not premium =()</Text>) }
+
+              </View>
+              <View style={{flex:2}}></View>
+            </View>
+            <View>
+            </View>
+            <View style={styles.horizontalView}>
+              <View style={{flex:1}}></View>
+              {spotifyAv? (
+                playbackDevice? (
+                    <View>
+                      <Image style={{height:200, width:200}} source={{ uri:playbackImage? playbackImage: logoUri }}/>
+                    </View>
+                  ) : (
+                    <View>
+                      <Text>{playbackDevice}</Text>
+                      <Text>Spotify app is not open, please open it and come back</Text>
+                    </View>
+                  )
+              ):(
+                <View><Text>authroize spotify to share your music</Text></View>
+              )}
+              <View style={{flex:1}}></View>
+            </View>
           </View>
-        </View>
+        )}
         <View style={{flex:2}}></View>
       </View>
       <View style={{flex:1}}></View>
