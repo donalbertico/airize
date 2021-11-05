@@ -72,9 +72,13 @@ export default function SessionScreen(props){
 
   const workSpeechResultsHandler = (results) =>{
     let options = results.value
+    console.log(options[0]?.split(' ').length);
+    if(ios && options[0]?.split(' ').length < 2)return;
     if(options){
+
       for(var i in options){
         let string = options[i].split(' ')
+        console.log(string);
         for (var j in string) {
             let word = string[j].toLowerCase();
             let next = string[parseInt(j)+1]?.toLowerCase()
@@ -123,6 +127,7 @@ export default function SessionScreen(props){
                 return;
               }
               if(next == 'mine' || next == 'my'){
+                console.log('?');
                 setUpdateSession('playMyList')
                 setWakeListening(true)
                 return;
@@ -466,6 +471,7 @@ export default function SessionScreen(props){
         break;
       case 'playMyList':
         if(spotifyAv && playbackDevice) {
+          console.log(listTracks,'av?');
           if(playlist){
             sessionReference.update({
               playback : {
@@ -966,6 +972,7 @@ export default function SessionScreen(props){
           break;
       }
     }
+    console.log(spotifyCall);
     if(spotifyCall)checkTokenExpired()
   },[spotifyToken,spotifyCall])
   //spotify tokens
@@ -975,9 +982,10 @@ export default function SessionScreen(props){
       setSpotifyAv(true)
       if(playlist){
         if(playbackDevice){
+          console.log('llamada');
           setSpotifyCall('getTracks')
           if (playbackInfo) {
-            if (playbackInfo.status == 'p') setSpotifyCall('play')
+            if (playbackInfo.status == 'p') setTimeout(() => setSpotifyCall('play'),100)
           }else { setTimeout(() => setSpotifyCall('pause'),100) }
         }else {
           setSpotifyCall('getDevices')
