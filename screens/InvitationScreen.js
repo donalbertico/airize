@@ -1,19 +1,22 @@
 import * as React from 'react'
 import { View, Modal } from 'react-native'
-import { Button } from 'react-native-elements'
+import { Button, Text } from 'react-native-elements'
 import {styles} from './styles'
 import * as firebase from 'firebase'
 import 'firebase/firestore'
 import useUserRead from '../hooks/useUserRead'
 import SessionList from './components/sessionListComponent'
 
+import NavBar from './components/bottomNavComponent'
+
 export default function InvitationScreen(props) {
   const [user,setUser] = useUserRead('get')
-  const [sessions, setSessions] = React.useState()
+  const [sessions, setSessions] = React.useState([])
   const [showDialog, setShowDialog] = React.useState(false)
   const [candidate, setCandidate] = React.useState(false)
   const [updateSess, setUpdateSess] = React.useState()
   const [sessionsReference,setSessionsReference] = React.useState()
+  const [usersReference,setUsersReference] = React.useState()
 
   const handleSessionSelected = (session) => {
     setCandidate(session)
@@ -23,6 +26,7 @@ export default function InvitationScreen(props) {
   React.useEffect(() => {
     let db = firebase.firestore()
     setSessionsReference(db.collection('sessions'))
+    setUsersReference(db.collection('users'))
   },[])
   React.useEffect(() => {
     let that = this
@@ -31,28 +35,41 @@ export default function InvitationScreen(props) {
           .where('users', 'array-contains', user.uid)
           .where('status', '==', 'c')
           .onSnapshot((snapshot) => {
-            let invitations = []
-            setSessions()
+            setSessions([])
             snapshot.forEach((sess, i) => {
               let session = sess.data()
-              let sessDate = new firebase.firestore.Timestamp(session.dueDate.seconds,session.dueDate.nanosecond)
+              let sessDate = new firebase.firestore.Timestamp(session.dueDate.seconds,session.dueDate.nanoseconds)
               sessDate = sessDate.toDate()
               session.id = sess.id
-              session.dueDate = `${sessDate.getHours()} : ${sessDate.getMinutes()}`
-              invitations = [...invitations,sess]
+              session.dueTime = `${sessDate.getHours()} : ${sessDate.getMinutes()}`
+              let formated = sessDate.toLocaleString('default', {month: 'long'}).split(' ')
+              if (formated[1]){
+                session.dueDate = `${formated[0]} ${formated[1]} ${formated[2]}`
+              }else {
+                session.dueDate = `${formated[0]} ${date.getDate()}`
+              }
+              usersReference.doc(session.host)
+                .get()
+                .then((doc) => {
+                  session.host = doc.data()
+                  setSessions( sessions => [...sessions,session])
+                })
             });
-            setSessions(invitations)
           })
-    }
-    return () => {
-      if(sessionsReference){
-        // setSessionsReference()
-      }
     }
   }, [user,sessionsReference])
   React.useEffect(() => {
+    if(sessions){
+      let newSessions = []
+      sessions.forEach((item, i) => {
+
+      });
+    }
+  },[sessions])
+  React.useEffect(() => {
     switch (updateSess) {
       case 'accept':
+        setSessions([])
         sessionsReference.doc(candidate.id)
             .update({status : 'a'})
             .then(() => {
@@ -62,6 +79,7 @@ export default function InvitationScreen(props) {
             })
         break;
       case 'decline':
+        setSessions([])
         sessionsReference.doc(candidate.id)
             .update({status : 'd'})
             .then(() => {
@@ -74,7 +92,7 @@ export default function InvitationScreen(props) {
   },[updateSess])
 
   return (
-    <View>
+    <View style={styles.container}>
       <Modal transparent={true} visible={showDialog}>
         <View style = {styles.alignCentered}>
           <View style={styles.modalView}>
@@ -86,7 +104,15 @@ export default function InvitationScreen(props) {
           </View>
         </View>
       </Modal>
-      <SessionList sessions={sessions} handleSessionSelected={handleSessionSelected} />
+      <View style={{flex:1}}>
+        <Text h3>Invitations</Text>
+      </View>
+      <View style={{flex:5}}>
+        <SessionList sessions={sessions} handleSessionSelected={handleSessionSelected} />
+      </View>
+      <View style={{flex:1}}>
+        <NavBar navigation={props.navigation}/>
+      </View>
     </View>
   )
 }

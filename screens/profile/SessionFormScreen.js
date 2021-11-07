@@ -54,7 +54,6 @@ export default function SessionFormScreen(props) {
     if(props.route.params.guests) setGuests(props.route.params.guests)
   },[props.route.params])
   React.useEffect(() => {
-    console.log(date.toLocaleString('default', {month: 'long'}).split(' ').slice(0,3))
     let formated = date.toLocaleString('default', {month: 'long'}).split(' ')
     if (formated[1]){
       setFormated(`${formated[0]} ${formated[1]} ${formated[2]}`)

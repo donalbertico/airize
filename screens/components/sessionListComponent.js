@@ -23,17 +23,37 @@ export default function SessionList(props){
       <FlatList data={sessions} renderItem= {
           ({item}) =>
           <View style={styles.sessionItem}>
-            <TouchableOpacity onPress={() => props.handleSessionSelected(item)}>
-              <View style={styles.horizontalView}>
-                  <View style={{margin: 5}}>
-                    <Image style={{height:50,width:50,borderRadius: 100}} source={{uri:avatarUri}}/>
-                  </View>
-                  <View style={{flex:1}}></View>
-                  <View style={styles.alignCentered}>
-                    <Text h4>{item.dueDate}</Text>
-                  </View>
-              </View>
-            </TouchableOpacity>
+            {item.host?.firstName ? (
+              <TouchableOpacity onPress={() => props.handleSessionSelected(item)}>
+                <View style={styles.horizontalView}>
+                    <View style={{margin: 5}}>
+                      <Image style={{height:50,width:50,borderRadius: 100}} source={{uri:avatarUri}}/>
+                    </View>
+                    <View style={styles.alignCentered}>
+                      <Text h4>{item.host.firstName} {item.host.lastName}</Text>
+                    </View>
+                    <View style={{flex:1}}></View>
+                    <View style={styles.alignCentered}>
+                      <View>
+                          <Text>{item.dueDate}</Text>                        
+                      </View>
+                      <Text h4>{item.dueTime}</Text>
+                    </View>
+                </View>
+              </TouchableOpacity>
+            ) : (
+              <TouchableOpacity onPress={() => props.handleSessionSelected(item)}>
+                <View style={styles.horizontalView}>
+                    <View style={{margin: 5}}>
+                      <Image style={{height:50,width:50,borderRadius: 100}} source={{uri:avatarUri}}/>
+                    </View>
+                    <View style={{flex:1}}></View>
+                    <View style={styles.alignCentered}>
+                      <Text h4>{item.dueDate}</Text>
+                    </View>
+                </View>
+              </TouchableOpacity>
+            )}
           </View>
         }/>
     </View>
