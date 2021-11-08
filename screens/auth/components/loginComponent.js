@@ -1,6 +1,7 @@
 import React from 'react'
 import * as firebase from 'firebase'
 import {styles} from '../../styles'
+import * as Facebook from 'expo-facebook'
 import useAssetStore from '../../../hooks/useAssetStore'
 import {Input,Text,Button,Image} from 'react-native-elements'
 import {View, TouchableOpacity,ActivityIndicator,ImageBackground} from 'react-native'
@@ -13,8 +14,9 @@ export default function Login({handleToRegister,handleRecoverPassword}) {
   const [assets, setAssets] = useAssetStore()
   const [googleUri, setGoogleUri] = React.useState()
   const [fbUri, setFbUri] = React.useState()
+  const [reload,setReload] = React.useState(false)
 
-  handleLogin = () => {
+  const handleLogin = () => {
     setLoading(true)
     firebase
         .auth()
@@ -28,13 +30,49 @@ export default function Login({handleToRegister,handleRecoverPassword}) {
           setLoading(false)
         })
   }
+  const handleFbLogin = () => {
+    async function fbLogin() {
+      // try {
+        await Facebook.initializeAsync({
+          appId: '447773566952295'
+        })
+        const {type, token} = await Facebook.logInWithReadPermissionsAsync({
+          permissions: ['email']
+        })
+        if(type == 'success'){
+          // const credential = firebase.auth.FacebookAuthProvider.credential(token)
+          if (credential) {
+            console.log(credential);
+            // firebase.auth().signInWithCredential(credential).catch((e) => {
+            //   console.log(e);
+            //   if(e) throw e
+            // })
+          }
+        }
+      // } catch (e) {
+      //   console.warn(e);
+      // }
+    }
+    fbLogin()
+  }
+  const handleGoogle = () => {
+
+  }
   React.useEffect(() => {
     if(assets){
       setFbUri(assets.facebook)
       setGoogleUri(assets.google)
+      setReload(false)
+    }else{
+      setReload(true)
+      setAssets(true)
     }
   },[assets])
-
+  React.useEffect(() => {
+    if(reload){
+      setTimeout(()=>setAssets('get'),200)
+    }
+  },[reload])
   return (
     <View>
         {loading?(
@@ -58,9 +96,13 @@ export default function Login({handleToRegister,handleRecoverPassword}) {
               <View style={{marginTop :10}}>
                 <View style={styles.horizontalView}>
                   <View style={{flex:3}}></View>
-                  <Image style={styles.authProviders} source={{uri:googleUri}}/>
+                  <TouchableOpacity onPress={handleGoogle}>
+                    <Image style={styles.authProviders} source={{uri:googleUri}}/>
+                  </TouchableOpacity>
                   <View style={{flex:1}}></View>
-                  <Image style={styles.authProviders} source={{uri:fbUri}}/>
+                  <TouchableOpacity onPress={handleFbLogin}>
+                    <Image style={styles.authProviders} source={{uri:fbUri}}/>
+                  </TouchableOpacity>
                   <View style={{flex:3}}></View>
                 </View>
               </View>

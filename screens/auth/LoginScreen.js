@@ -24,7 +24,7 @@ export default function LoginScreen(props){
   },[assets])
   React.useEffect(() => {
     if(reload){
-      setTimeout(()=>setAssets('get'),100)
+      setTimeout(()=>setAssets('get'),200)
     }
   },[reload])
 

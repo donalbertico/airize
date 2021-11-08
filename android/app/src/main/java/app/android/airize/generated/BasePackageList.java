@@ -13,6 +13,7 @@ public class BasePackageList {
         new expo.modules.contacts.ContactsPackage(),
         new expo.modules.crypto.CryptoPackage(),
         new expo.modules.errorrecovery.ErrorRecoveryPackage(),
+        new expo.modules.facebook.FacebookPackage(),
         new expo.modules.filesystem.FileSystemPackage(),
         new expo.modules.font.FontLoaderPackage(),
         new expo.modules.imageloader.ImageLoaderPackage(),

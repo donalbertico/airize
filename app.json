@@ -5,6 +5,9 @@
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
+    "facebookScheme" : "fbapi20130214",
+    "facebookAppId" : "447773566952295",
+    "facebookDisplayName" : "airize",
     "scheme": "airize",
     "splash": {
       "image": "./assets/splash.png",
