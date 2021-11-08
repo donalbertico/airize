@@ -1,6 +1,7 @@
 import React from 'react'
 import * as firebase from 'firebase'
 import {styles} from '../../styles'
+import useAssetStore from '../../../hooks/useAssetStore'
 import {Input,Text,Button,Image} from 'react-native-elements'
 import {View, TouchableOpacity,ActivityIndicator,ImageBackground} from 'react-native'
 
@@ -9,6 +10,9 @@ export default function Login({handleToRegister,handleRecoverPassword}) {
   const [password, setPass] = React.useState('')
   const [loading, setLoading] = React.useState(false)
   const [error,setError] = React.useState('')
+  const [assets, setAssets] = useAssetStore()
+  const [googleUri, setGoogleUri] = React.useState()
+  const [fbUri, setFbUri] = React.useState()
 
   handleLogin = () => {
     setLoading(true)
@@ -24,6 +28,12 @@ export default function Login({handleToRegister,handleRecoverPassword}) {
           setLoading(false)
         })
   }
+  React.useEffect(() => {
+    if(assets){
+      setFbUri(assets.facebook)
+      setGoogleUri(assets.google)
+    }
+  },[assets])
 
   return (
     <View>
@@ -44,6 +54,15 @@ export default function Login({handleToRegister,handleRecoverPassword}) {
                 <TouchableOpacity onPress={()=>handleRecoverPassword()}>
                   <Text style={styles.ligthText}>forgot my password</Text>
                 </TouchableOpacity>
+              </View>
+              <View style={{marginTop :10}}>
+                <View style={styles.horizontalView}>
+                  <View style={{flex:3}}></View>
+                  <Image style={styles.authProviders} source={{uri:googleUri}}/>
+                  <View style={{flex:1}}></View>
+                  <Image style={styles.authProviders} source={{uri:fbUri}}/>
+                  <View style={{flex:3}}></View>
+                </View>
               </View>
             </View>
           </>

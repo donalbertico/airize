@@ -24,7 +24,9 @@ export default function useCachedResources(){
     require('../assets/searchUnselected.png'),
     require('../assets/friendsUnselected.png'),
     require('../assets/linkUnselected.png'),
-    require('../assets/propertiesUnselected.png')
+    require('../assets/propertiesUnselected.png'),
+    require('../assets/googleLogo.png'),
+    require('../assets/facebookLogo.png')
   ])
   const [storedAssets,storeAssets] = useAssetStore()
   const [assetsLoaded,setLoaded] = React.useState(false)
@@ -117,6 +119,8 @@ export default function useCachedResources(){
         link: assets[6].localUri,
         set: assets[7].localUri
       }
+      assetsOb.google= assets[8].localUri
+      assetsOb.facebook= assets[9].localUri
       storeAssets(assetsOb)
       setLoaded(true)
     }

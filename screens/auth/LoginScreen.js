@@ -36,7 +36,8 @@ export default function LoginScreen(props){
             <View style={{flex:1}}></View>
             <View style={{flex:6}}>
               <View style={styles.percentageFull}>
-                <Image style={{width:'95%', height:'99%',justifyContent:'center'}}source={{uri:logoUrl}}/>
+                <Image style={{width:'95%', height:'99%',justifyContent:'center'}}
+                   source={{uri:logoUrl}}/>
               </View>
             </View>
             <View style={{flex:1}}></View>

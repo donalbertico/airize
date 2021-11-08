@@ -110,6 +110,10 @@ const styles = StyleSheet.create({
   },
   verticalSpace:{
     height: '20%'
+  },
+  authProviders:{
+    height:30,
+    width:30,
   }
 })
 

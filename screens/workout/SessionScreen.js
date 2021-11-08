@@ -1281,7 +1281,6 @@ export default function SessionScreen(props){
                   ))
                 )}
                 {!isPremium && (<Text>not premium =()</Text>) }
-
               </View>
               <View style={{flex:2}}></View>
             </View>

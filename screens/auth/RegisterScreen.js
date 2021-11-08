@@ -66,6 +66,22 @@ export default function RegisterScreen(props){
               })
   }
 
+  const handleFbLogin = () => {
+    var provider = new firebase.auth.FacebookAuthProvider();
+    firebase.auth().signInWithPopup(provider).then(function(result) {
+      var token = result.credential.accessToken;
+      var user = result.user;
+      db.collection('users')
+        .doc(user.uid)
+        .set({
+          email : user.email
+        })
+        .then(() => {
+          console.log('updated');
+        })
+    });
+  }
+
   React.useEffect(()=>{
     if(assets){
       setSplash(assets.splash)
