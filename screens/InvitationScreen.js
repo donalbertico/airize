@@ -35,7 +35,7 @@ export default function InvitationScreen(props) {
           .where('users', 'array-contains', user.uid)
           .where('status', '==', 'c')
           .onSnapshot((snapshot) => {
-            setSessions([])
+            setSessions(sessions => [])
             snapshot.forEach((sess, i) => {
               let session = sess.data()
               let sessDate = new firebase.firestore.Timestamp(session.dueDate.seconds,session.dueDate.nanoseconds)
@@ -46,14 +46,16 @@ export default function InvitationScreen(props) {
               if (formated[1]){
                 session.dueDate = `${formated[0]} ${formated[1]} ${formated[2]}`
               }else {
-                session.dueDate = `${formated[0]} ${date.getDate()}`
+                session.dueDate = `${formated[0]} ${sessDate.getDate()}`
               }
-              usersReference.doc(session.host)
-                .get()
-                .then((doc) => {
-                  session.host = doc.data()
-                  setSessions( sessions => [...sessions,session])
-                })
+              if(session.host != user.uid) {
+                usersReference.doc(session.host)
+                  .get()
+                  .then((doc) => {
+                    session.host = doc.data()
+                    setSessions( sessions => [...sessions,session])
+                  })
+              }
             });
           })
     }

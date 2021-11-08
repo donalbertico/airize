@@ -80,9 +80,7 @@ export default function HomeScreen(props){
           if(session.status == 'a') sessArray = [...sessArray,session]
           if(session.status == 'r') {
             setSessStarting(true)
-            return;
-          }else if(session.status != 'f' ){
-            setSessStarting(false)
+            console.log(session.status);
             return;
           }
         });
@@ -251,7 +249,7 @@ export default function HomeScreen(props){
   // latentSession
   // redirect to session if latent status 'started'
   React.useEffect(() => {
-    if(latentSession && latentSession.status != 'f' && latentSession.status != 'c' && latentSession.status != 'r'){
+    if(latentSession && latentSession.status == 's'){
       props.navigation.navigate('session',{ session : latentSession, playlist: playlist})
     }
   },[latentSession])
