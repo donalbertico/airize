@@ -46,7 +46,7 @@ export default function InvitationScreen(props) {
               if (formated[1]){
                 session.dueDate = `${formated[0]} ${formated[1]} ${formated[2]}`
               }else {
-                session.dueDate = `${formated[0]} ${date.getDate()}`
+                session.dueDate = `${formated[0]} ${sessDate.getDate()}`
               }
               usersReference.doc(session.host)
                 .get()
