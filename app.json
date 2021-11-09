@@ -29,12 +29,6 @@
         ]
       },
       "bundleIdentifier": "app.ios.airize",
-      "config": {
-        "googleSignIn":{
-          "reservedClientId": "com.googleusercontent.apps.420079497855-bf5jcve6ej31visegaibn6qh7k0h03qr"
-        }
-      },
-      "googleServicesFile": "./GoogleService-Info.plist"
     },
     "android": {
       "adaptiveIcon": {
@@ -42,7 +36,6 @@
         "backgroundColor": "#FFFFFF"
       },
       "package": "app.android.airize",
-      "googleServicesFile": "./google-services.json"
     },
     "web": {
       "favicon": "./assets/favicon.png"

@@ -7,7 +7,13 @@ import * as Google from 'expo-auth-session/providers/google'
 import useAssetStore from '../../../hooks/useAssetStore'
 import useUserStore from '../../../hooks/useUserStore'
 import {Input,Text,Button,Image} from 'react-native-elements'
-import {View, TouchableOpacity,ActivityIndicator,ImageBackground} from 'react-native'
+import {
+  useWindowDimensions,
+  View,
+  TouchableOpacity,
+  ActivityIndicator,
+  ImageBackground,
+  SafeAreaView} from 'react-native'
 
 export default function Login({handleToRegister,handleRecoverPassword}) {
   const [email, setEmail] = React.useState('')
@@ -19,8 +25,10 @@ export default function Login({handleToRegister,handleRecoverPassword}) {
   const [fbUri, setFbUri] = React.useState()
   const [reload,setReload] = React.useState(false)
   const [setUser] = useUserStore()
+  const window = useWindowDimensions()
   const [request, googleResponse, promptAsync] = Google.useAuthRequest({
-    androidClientId : "420079497855-u10gcttur504uconei9b163mn3pvnast.apps.googleusercontent.com"
+    androidClientId : "420079497855-u10gcttur504uconei9b163mn3pvnast.apps.googleusercontent.com",
+    iosClientId : "420079497855-bf5jcve6ej31visegaibn6qh7k0h03qr.apps.googleusercontent.com"
   })
 
   const handleLogin = () => {
@@ -121,8 +129,12 @@ export default function Login({handleToRegister,handleRecoverPassword}) {
               setLoading(false)
             })
       }
+    }else {
+      setLoading(false)
     }
   },[googleResponse])
+
+
 
   return (
     <View>
@@ -131,6 +143,21 @@ export default function Login({handleToRegister,handleRecoverPassword}) {
         ):(
           <>
             <Text style={styles.ligthText}>{error}</Text>
+            {(window.height < 570) && (
+              <View style={{marginBottom :10}}>
+                <View style={styles.horizontalView}>
+                  <View style={{flex:3}}></View>
+                  <TouchableOpacity onPress={handleGoogle}>
+                    <Image style={styles.authProviders} source={{uri:googleUri}}/>
+                  </TouchableOpacity>
+                  <View style={{flex:1}}></View>
+                  <TouchableOpacity onPress={handleFbLogin}>
+                    <Image style={styles.authProviders} source={{uri:fbUri}}/>
+                  </TouchableOpacity>
+                  <View style={{flex:3}}></View>
+                </View>
+              </View>
+            )}
             <Input style={styles.ligthText} inputContainerStyle={styles.inputContainer} placeholder='Email' value={email} onChangeText={email => setEmail(email)}/>
             <Input style={styles.ligthText} inputContainerStyle={styles.inputContainer} placeholder='Password' value={password} secureTextEntry={true} onChangeText={password => setPass(password)}/>
             <Button title='Sign In' onPress={handleLogin}/>
@@ -144,19 +171,21 @@ export default function Login({handleToRegister,handleRecoverPassword}) {
                   <Text style={styles.ligthText}>forgot my password</Text>
                 </TouchableOpacity>
               </View>
-              <View style={{marginTop :10}}>
-                <View style={styles.horizontalView}>
-                  <View style={{flex:3}}></View>
-                  <TouchableOpacity onPress={handleGoogle}>
-                    <Image style={styles.authProviders} source={{uri:googleUri}}/>
-                  </TouchableOpacity>
-                  <View style={{flex:1}}></View>
-                  <TouchableOpacity onPress={handleFbLogin}>
-                    <Image style={styles.authProviders} source={{uri:fbUri}}/>
-                  </TouchableOpacity>
-                  <View style={{flex:3}}></View>
+              {!(window.height < 570) && (
+                <View style={{marginTop :10}}>
+                  <View style={styles.horizontalView}>
+                    <View style={{flex:3}}></View>
+                    <TouchableOpacity onPress={handleGoogle}>
+                      <Image style={styles.authProviders} source={{uri:googleUri}}/>
+                    </TouchableOpacity>
+                    <View style={{flex:1}}></View>
+                    <TouchableOpacity onPress={handleFbLogin}>
+                      <Image style={styles.authProviders} source={{uri:fbUri}}/>
+                    </TouchableOpacity>
+                    <View style={{flex:3}}></View>
+                  </View>
                 </View>
-              </View>
+              )}
             </View>
           </>
         )}
