@@ -62,6 +62,7 @@ export default function Login({handleToRegister,handleRecoverPassword}) {
             console.log(credential);
             firebase.auth().signInWithCredential(credential)
             .then((doc) => {
+              doc.user.provider = 'fb'
               saveUser(doc.user)
             })
             .catch((e) => {
@@ -121,6 +122,7 @@ export default function Login({handleToRegister,handleRecoverPassword}) {
       if(credential) {
         let auth = firebase.auth().signInWithCredential(credential)
             .then((doc) => {
+              doc.user.provider = 'google'
               saveUser(doc.user)
             })
             .catch((e) => {

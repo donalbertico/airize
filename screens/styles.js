@@ -55,6 +55,12 @@ const styles = StyleSheet.create({
     borderRadius : 10,
     borderWidth : 10
   },
+  greyContainer:{
+    backgroundColor:theme.colors.ligth,
+    borderColor : theme.colors.ligth,
+    borderRadius : 10,
+    borderWidth : 10
+  },
   inputContainer:{
     borderBottomWidth:3,
     borderWidth:3,
