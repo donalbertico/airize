@@ -1,6 +1,7 @@
 {
   "project_info": {
     "project_number": "420079497855",
+    "firebase_url": "https://airize-development-default-rtdb.europe-west1.firebasedatabase.app",
     "project_id": "airize-development",
     "storage_bucket": "airize-development.appspot.com"
   },
@@ -13,6 +14,14 @@
         }
       },
       "oauth_client": [
+        {
+          "client_id": "420079497855-u10gcttur504uconei9b163mn3pvnast.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "app.android.airize",
+            "certificate_hash": "76b9e16d96ea4b18ba91ffcd75508097dd228dd6"
+          }
+        },
         {
           "client_id": "420079497855-ho0s410mf8n70rk7upst0r8384l76iq3.apps.googleusercontent.com",
           "client_type": 3

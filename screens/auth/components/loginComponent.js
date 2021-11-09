@@ -1,8 +1,11 @@
 import React from 'react'
 import * as firebase from 'firebase'
+import 'firebase/firestore'
 import {styles} from '../../styles'
-import * as Facebook from 'expo-facebook'
+import * as fb from 'expo-facebook'
+import * as Google from 'expo-auth-session/providers/google'
 import useAssetStore from '../../../hooks/useAssetStore'
+import useUserStore from '../../../hooks/useUserStore'
 import {Input,Text,Button,Image} from 'react-native-elements'
 import {View, TouchableOpacity,ActivityIndicator,ImageBackground} from 'react-native'
 
@@ -15,6 +18,10 @@ export default function Login({handleToRegister,handleRecoverPassword}) {
   const [googleUri, setGoogleUri] = React.useState()
   const [fbUri, setFbUri] = React.useState()
   const [reload,setReload] = React.useState(false)
+  const [setUser] = useUserStore()
+  const [request, googleResponse, promptAsync] = Google.useAuthRequest({
+    androidClientId : "420079497855-u10gcttur504uconei9b163mn3pvnast.apps.googleusercontent.com"
+  })
 
   const handleLogin = () => {
     setLoading(true)
@@ -30,33 +37,57 @@ export default function Login({handleToRegister,handleRecoverPassword}) {
           setLoading(false)
         })
   }
+  const handleGoogle = () => {
+    setLoading(true)
+    promptAsync()
+  }
   const handleFbLogin = () => {
-    async function fbLogin() {
-      // try {
-        await Facebook.initializeAsync({
-          appId: '447773566952295'
-        })
-        const {type, token} = await Facebook.logInWithReadPermissionsAsync({
-          permissions: ['email']
+    async function fblog(){
+      try {
+        await fb.initializeAsync({ appId: '447773566952295'})
+        const {type, token} = await fb.logInWithReadPermissionsAsync({
+          permissions: ['public_profile']
         })
         if(type == 'success'){
-          // const credential = firebase.auth.FacebookAuthProvider.credential(token)
+          const credential = firebase.auth.FacebookAuthProvider.credential(token)
           if (credential) {
             console.log(credential);
-            // firebase.auth().signInWithCredential(credential).catch((e) => {
-            //   console.log(e);
-            //   if(e) throw e
-            // })
+            firebase.auth().signInWithCredential(credential)
+            .then((doc) => {
+              saveUser(doc.user)
+            })
+            .catch((e) => {
+              console.log(e);
+              setError(e.message)
+              setLoading(false)
+            })
           }
+        }else {
+          setLoading(false)
         }
-      // } catch (e) {
-      //   console.warn(e);
-      // }
+      } catch (e) {
+        console.log(e);
+        setLoading(false)
+      }
     }
-    fbLogin()
+    fblog()
+    setLoading(true)
   }
-  const handleGoogle = () => {
-
+  const saveUser = (newUser) => {
+    let db = firebase.firestore();
+    let displayName = newUser.displayName.split(' ')
+    let user = {
+      uid : newUser.uid,
+      firstName : displayName[0],
+      email : newUser.email
+    }
+    if(displayName[1]) user.lastName = displayName[1]
+    if(newUser.photoURL) user.picture = newUser.photoURL
+    setUser(user)
+    let ref = db.collection('users').doc(newUser.uid)
+    ref.get().then((doc) => {
+      if (!doc.exists) ref.set(user).catch((e) => {console.log(e)})
+    })
   }
   React.useEffect(() => {
     if(assets){
@@ -73,13 +104,33 @@ export default function Login({handleToRegister,handleRecoverPassword}) {
       setTimeout(()=>setAssets('get'),200)
     }
   },[reload])
+  React.useEffect(() => {
+    if(googleResponse?.params?.access_token){
+      const credential = firebase.auth.GoogleAuthProvider.credential(
+        googleResponse.params.id_token,
+        googleResponse.params.access_token
+      )
+      if(credential) {
+        let auth = firebase.auth().signInWithCredential(credential)
+            .then((doc) => {
+              saveUser(doc.user)
+            })
+            .catch((e) => {
+              console.log(e);
+              setError(e.message)
+              setLoading(false)
+            })
+      }
+    }
+  },[googleResponse])
+
   return (
     <View>
         {loading?(
-          <ActivityIndicator/>
+          <ActivityIndicator size='large' color='#EA6132'/>
         ):(
           <>
-            <Text>{error}</Text>
+            <Text style={styles.ligthText}>{error}</Text>
             <Input style={styles.ligthText} inputContainerStyle={styles.inputContainer} placeholder='Email' value={email} onChangeText={email => setEmail(email)}/>
             <Input style={styles.ligthText} inputContainerStyle={styles.inputContainer} placeholder='Password' value={password} secureTextEntry={true} onChangeText={password => setPass(password)}/>
             <Button title='Sign In' onPress={handleLogin}/>

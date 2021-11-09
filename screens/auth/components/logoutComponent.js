@@ -1,20 +1,18 @@
 import React, {Component} from 'react'
-import * as firebase from 'firebase' 
+import * as firebase from 'firebase'
 import {View, TouchableOpacity} from 'react-native'
-import {Text} from 'react-native-elements'
+import {Button} from 'react-native-elements'
 
 export default class Logout extends Component {
 
   render(){
-    _logout = () =>{
+    const _logout = () =>{
       firebase.auth().signOut()
     }
 
     return(
       <View>
-        <TouchableOpacity onPress={()=> _logout()}>
-          <Text>bye</Text>
-        </TouchableOpacity>
+        <Button title='Logout' type='clear' onPress={_logout}/>
       </View>
     )
   }

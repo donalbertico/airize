@@ -15,6 +15,7 @@
 		92F5804858F8418C8A0B459F /* noop-file.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8AF5D192ABBF4B139A72545D /* noop-file.swift */; };
 		96905EF65AED1B983A6B3ABC /* libPods-airize.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 58EEBF8E8E6FB1BC6CAF49B5 /* libPods-airize.a */; };
 		BB2F792D24A3F905000567C9 /* Expo.plist in Resources */ = {isa = PBXBuildFile; fileRef = BB2F792C24A3F905000567C9 /* Expo.plist */; };
+		7A1FE4988AE444F0A755924E /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 9EC169D5AECB4B75A69C8F4A /* GoogleService-Info.plist */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -35,6 +36,7 @@
 		BB2F792C24A3F905000567C9 /* Expo.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Expo.plist; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
 		ED2971642150620600B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = Platforms/AppleTVOS.platform/Developer/SDKs/AppleTVOS12.0.sdk/System/Library/Frameworks/JavaScriptCore.framework; sourceTree = DEVELOPER_DIR; };
+		9EC169D5AECB4B75A69C8F4A /* GoogleService-Info.plist */ = {isa = PBXFileReference; name = "GoogleService-Info.plist"; path = "airize/GoogleService-Info.plist"; sourceTree = "<group>"; fileEncoding = 4; lastKnownFileType = text.plist.xml; explicitFileType = undefined; includeInIndex = 0; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -63,6 +65,7 @@
 				AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */,
 				8AF5D192ABBF4B139A72545D /* noop-file.swift */,
 				998190CFFCB34901AAE2FB55 /* airize-Bridging-Header.h */,
+				9EC169D5AECB4B75A69C8F4A /* GoogleService-Info.plist */,
 			);
 			name = airize;
 			sourceTree = "<group>";
@@ -190,6 +193,7 @@
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
 				13B07FBD1A68108700A75B9A /* LaunchScreen.xib in Resources */,
 				3E461D99554A48A4959DE609 /* SplashScreen.storyboard in Resources */,
+				7A1FE4988AE444F0A755924E /* GoogleService-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
