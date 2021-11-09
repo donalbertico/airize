@@ -32,7 +32,13 @@
       <dict>
         <key>CFBundleURLSchemes</key>
         <array>
-          <string>fbapi20130214</string>
+          <string>com.googleusercontent.apps.420079497855-bf5jcve6ej31visegaibn6qh7k0h03qr</string>
+        </array>
+      </dict>
+      <dict>
+        <key>CFBundleURLSchemes</key>
+        <array>
+          <string>fb447773566952295</string>
         </array>
       </dict>
     </array>

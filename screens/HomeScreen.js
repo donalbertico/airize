@@ -285,7 +285,7 @@ export default function HomeScreen(props){
         <View style={styles.horizontalView}>
           <View stlye={{flex:2}}>
             <View style={{margin:10}}>
-              <Image style={styles.roundImage} source={{uri:avatarUri}}/>
+              <Image style={styles.roundImage} source={{uri: user.picture? user.picture : avatarUri}}/>
             </View>
           </View>
           <View style={{flex:5}}>
@@ -325,8 +325,7 @@ export default function HomeScreen(props){
                       <Text>Please make sure spotify app is open to listen</Text>
                       <Text>Touch here if it is =)</Text>
                     </TouchableOpacity>)
-                  )
-                  :(
+                  ):(
                   <TouchableOpacity onPress={()=>askToken(true)}>
                     <Text>Connect with Spotify to share music while working out</Text>
                   </TouchableOpacity>

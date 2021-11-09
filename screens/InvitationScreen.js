@@ -43,7 +43,6 @@ export default function InvitationScreen(props) {
               session.id = sess.id
               session.dueTime = `${sessDate.getHours()} : ${sessDate.getMinutes()}`
               let formated = sessDate.toLocaleString('default', {month: 'long'}).split(' ')
-              console.log(formated);
               if (formated[1]) session.dueDate = `${formated[3]} ${formated[0]} ${formated[1]}`
               else session.dueDate = `${formated[0]} ${sessDate.getDate()}`
               if(session.host != user.uid) {
@@ -58,14 +57,6 @@ export default function InvitationScreen(props) {
           })
     }
   }, [user,sessionsReference])
-  React.useEffect(() => {
-    if(sessions){
-      let newSessions = []
-      sessions.forEach((item, i) => {
-
-      });
-    }
-  },[sessions])
   React.useEffect(() => {
     switch (updateSess) {
       case 'accept':

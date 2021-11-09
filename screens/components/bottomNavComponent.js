@@ -31,9 +31,9 @@ export default function NavBar(props){
           <Image style={styles.menuOption} source={{uri:menuUris.link}}/>
         </TouchableOpacity>
         <View style={{flex:1}}></View>
-        <TouchableOpacity>
+        <TouchableOpacity onPress={() => props.navigation.navigate('edit')}>
           <Image style={styles.menuOption} source={{uri:menuUris.set}}/>
-      </TouchableOpacity>
+        </TouchableOpacity>
         <View style={{flex:1}}></View>
       </View>
     </View>

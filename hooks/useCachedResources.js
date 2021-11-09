@@ -92,11 +92,14 @@ export default function useCachedResources(){
         userRef.doc(userInfo.uid).get()
             .then((doc)=>{
               let newInfo = userInfo;
-              newInfo.description = doc.data().description
-              newInfo.firstName = doc.data().firstName
-              newInfo.lastName = doc.data().lastName
-              setUserInfo(newInfo)
-              setUser(userInfo)
+              let docData = doc.data()
+              newInfo.description = docData.description
+              newInfo.firstName = docData.firstName
+              newInfo.lastName = docData.lastName
+              newInfo.email = docData.email
+              newInfo.picture = docData.picture
+              console.log(newInfo);
+              setUser(newInfo)
               setReady(true)
             })
             .catch((e)=>{
