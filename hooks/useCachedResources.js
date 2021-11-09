@@ -98,7 +98,7 @@ export default function useCachedResources(){
               newInfo.lastName = docData.lastName
               newInfo.email = docData.email
               newInfo.picture = docData.picture
-              console.log(newInfo);
+              newInfo.provider = docData.provider
               setUser(newInfo)
               setReady(true)
             })
