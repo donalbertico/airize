@@ -51,8 +51,14 @@
       [
         "@react-native-voice/voice",
         {
-          "microphonePermision": "CUSTOM: Allow microphone use for voice command",
-          "speechRecognitionPermission": "CUSTOM: Allow speech recognition "
+          "microphonePermision": "The app access your microphone to recognize your voice and send voice messages",
+          "speechRecognitionPermission": "The app uses voice recognition to allow hands free commanding"
+        }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "The app accesses your photos to set a profile picture"
         }
       ]
     ]
