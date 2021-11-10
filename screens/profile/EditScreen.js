@@ -90,7 +90,6 @@ export default function EditScreen(props){
       setUserRef(db.collection('users').doc(user.uid))
     }
     if(user.picture){
-      console.log('cambia?');
       setUrl(user.picture)
     }
   },[user])

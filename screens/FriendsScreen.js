@@ -72,6 +72,7 @@ export default function FriendsScreen(props){
   React.useEffect(() => {
     if(contacts && users){
       let friends = []
+      setFriends(friends)
       contacts.forEach((contact, i) => {
         contact.emails.forEach((email, i) => {
           users.forEach((user, i) => {

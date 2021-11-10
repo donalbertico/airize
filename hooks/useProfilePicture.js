@@ -6,14 +6,12 @@ export default function useProfilePicture(){
   const [resolved, setResolved] = React.useState()
 
   React.useEffect(() => {
-    console.log(url);
     if(!url) setResolved(false)
     if(url?.split('-profile')[1]){
       firebase.storage().ref(url)
       .getDownloadURL()
       .then( fsUrl => {
         setResolved(fsUrl)
-        console.log(fsUrl);
       })
       .catch(e => {console.log('error',e)})
     }else {
