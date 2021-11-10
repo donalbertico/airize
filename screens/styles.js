@@ -62,10 +62,10 @@ const styles = StyleSheet.create({
     borderWidth : 10
   },
   inputContainer:{
-    borderBottomWidth:3,
-    borderWidth:3,
-    borderRadius:10,
-    marginBottom: -10
+    borderBottomWidth: 3,
+    borderWidth: 3,
+    borderRadius: 10,
+    marginBottom: -15
   },
   percentageFull:{
     height:'100%',
@@ -79,6 +79,9 @@ const styles = StyleSheet.create({
   },
   ligthText:{
     color : theme.colors.ligth
+  },
+  greyText: {
+    color: '#999999'
   },
   menuOption:{
     height : 70,
