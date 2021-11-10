@@ -61,11 +61,8 @@ export default function SessionFormScreen(props) {
   },[props.route.params])
   React.useEffect(() => {
     let formated = date.toLocaleString('default', {month: 'long'}).split(' ')
-    if (formated[1]){
-      setFormated(`${formated[0]} ${formated[1]} ${formated[2]}`)
-    }else {
-      setFormated(`${formated[0]} ${date.getDate()}`)
-    }
+    if (formated[1]) setFormated(`${formated[0]} ${formated[1]} ${formated[2]}`)
+    else setFormated(`${formated[0]} ${date.getDate()}`)
   },[date])
 
   return (
@@ -102,7 +99,7 @@ export default function SessionFormScreen(props) {
                 )}
               </>
             )}
-            <Button buttonStyle={styles.buttonStyle} title='submit' onPress={()=>createSession()}></Button>
+            <Button buttonStyle={styles.buttonStyle} title='submit' onPress={() => createSession()}></Button>
           </View>
           <View style={{flex:1}}></View>
         </View>
