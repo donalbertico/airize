@@ -3,6 +3,7 @@ import { Audio } from 'expo-av'
 import {styles} from './styles'
 import * as firebase from 'firebase'
 import 'firebase/firestore'
+import * as Analytics from 'expo-firebase-analytics';
 import { View, TouchableOpacity, Image, Modal } from 'react-native'
 import { Text, Button } from 'react-native-elements'
 import Voice from '@react-native-voice/voice'
@@ -113,6 +114,7 @@ export default function HomeScreen(props){
     checkPermissions()
     setLatentSession('')
     setSessionsReference(db.collection('sessions'))
+    Analytics.setCurrentScreen('home');
   },[])
   //.route
   //lookf for user because it has been updated
@@ -142,6 +144,11 @@ export default function HomeScreen(props){
     if(newTokens){
       setStoredToken(newTokens)
       setSearchDevices(true)
+      Analytics.logEvent('spotify_auth', {
+        user: user.uid,
+        screen: 'home',
+        purpose: 'authorizing spotify',
+      });
     }
   },[newTokens])
   //StoredToken

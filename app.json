@@ -34,7 +34,6 @@
           "reservedClientId": "com.googleusercontent.apps.420079497855-bf5jcve6ej31visegaibn6qh7k0h03qr"
         }
       },
-      "googleServicesFile": "./GoogleService-Info.plist"
     },
     "android": {
       "adaptiveIcon": {
@@ -42,10 +41,18 @@
         "backgroundColor": "#FFFFFF"
       },
       "package": "app.android.airize",
-      "googleServicesFile": "./google-services.json"
     },
     "web": {
-      "favicon": "./assets/favicon.png"
+      "favicon": "./assets/favicon.png",
+      "config": {
+        "apiKey": "AIzaSyDU-AvUc5z3SgMabD0dgTXIjSdjy7sTkrk",
+        "authDomain": "airize-development.firebaseapp.com",
+        "projectId": "airize-development",
+        "storageBucket": "airize-development.appspot.com",
+        "messagingSenderId": "420079497855",
+        "appId": "1:420079497855:web:6ab07042945c415a14454a",
+        "measurementId": "G-JRQ8TDGJ2N"
+      }
     },
     "plugins": [
       [
