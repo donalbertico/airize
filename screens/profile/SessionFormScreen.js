@@ -1,11 +1,13 @@
 import * as React from 'react'
 import * as firebase from 'firebase'
 import DateTimePicker from '@react-native-community/datetimepicker'
+import Toast from 'react-native-toast-message'
 import {View, TouchableOpacity,Platform } from 'react-native'
 import {Text, Button} from 'react-native-elements'
 import { Ionicons } from '@expo/vector-icons'
 import {styles} from '../styles'
 import useUserRead from '../../hooks/useUserRead'
+import useProfilePicture from '../../hooks/useProfilePicture'
 
 import NavBar from '../components/bottomNavComponent'
 
@@ -45,7 +47,11 @@ export default function SessionFormScreen(props) {
         host : host.uid
       })
       .then((doc)=>{
-        props.navigation.navigate('home')
+        Toast.show({text1:'Invitation sent',
+          type : 'success',
+          position : 'bottom',
+          visibilityTime: 4000})
+        props.navigation.navigate('home',{refresh : true})
       })
       .catch((e)=>{console.log(e);})
   }
@@ -61,7 +67,6 @@ export default function SessionFormScreen(props) {
       setFormated(`${formated[0]} ${date.getDate()}`)
     }
   },[date])
-
 
   return (
     <View style={styles.container}>
@@ -97,7 +102,6 @@ export default function SessionFormScreen(props) {
                 )}
               </>
             )}
-
             <Button buttonStyle={styles.buttonStyle} title='submit' onPress={()=>createSession()}></Button>
           </View>
           <View style={{flex:1}}></View>

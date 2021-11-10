@@ -16,6 +16,7 @@ import useUserRead from '../../hooks/useUserRead'
 import useSpotifyTokenRefresh from '../../hooks/useSpotifyTokenRefresh'
 import useSpotifyTokenStore from '../../hooks/useSpotifyTokenStore'
 import useAppState from '../../hooks/useAppState'
+import useProfilePicture from '../../hooks/useProfilePicture'
 
 export default function SessionScreen(props){
   const [user] = useUserRead('get')
@@ -24,6 +25,8 @@ export default function SessionScreen(props){
   const [storedToken] = useSpotifyTokenStore()
   const [assets,setAssets] = useAssetStore()
   const [nextState] = useAppState()
+  const [hostPic, setHostPic] = useProfilePicture()
+  const [guestPic, setGuestPic] = useProfilePicture()
   const [avatarUri,setAvatar] = React.useState()
   const [logoUri,setLogo] = React.useState()
   const [playbackInfo,setPlayInfo] = React.useState()
@@ -70,15 +73,14 @@ export default function SessionScreen(props){
   const [iosVoiceControl, setIosVoiceControl] = React.useState(0)
   const [inactive, setInactive] = React.useState(false)
   const [ios, setIos] = React.useState(Platform.OS == 'ios' ? true : false)
+  const [guestUser, setGuestUSer] = React.useState()
 
   const workSpeechResultsHandler = (results) =>{
     let options = results.value
-    console.log(options[0]?.split(' ').length);
     if(ios && options[0]?.split(' ').length < 2)return;
     if(options){
       for(var i in options){
         let string = options[i].split(' ')
-        console.log(string);
         for (var j in string) {
             let word = string[j].toLowerCase();
             let next = string[parseInt(j)+1]?.toLowerCase()
@@ -324,7 +326,18 @@ export default function SessionScreen(props){
     props.navigation.addListener('beforeRemove',(e)=>{
       e.preventDefault()
     })
-    setSessionReference(db.collection('sessions').doc(props.route.params.session.id))
+    let sessionInfo = props.route.params.session
+    sessionInfo.users.forEach((item, i) => {
+      if(item != sessionInfo.host){
+        db.collection('users').doc(item).get()
+            .then((doc) => {
+              console.log(doc.data,'?');
+              setGuestUSer({...doc.data(), id : doc.uid})
+            })
+      }
+    });
+
+    setSessionReference(db.collection('sessions').doc(sessionInfo.id))
     allowRecordIos()
     setPorcupine()
     if(ios) getVoices()
@@ -1199,6 +1212,12 @@ export default function SessionScreen(props){
       }
     }
   },[playbackDevice,playbackInfo])
+  //user - guest user
+  //set pictures of users
+  React.useEffect(() => {
+    if(user?.picture)setHostPic(user.picture)
+    if(guestUser?.picture)setGuestPic(guestUser.picture)
+  },[user,guestUser])
   return(
     <View style={styles.container}>
       <Modal transparent={true} visible={askLeave}>
@@ -1241,13 +1260,13 @@ export default function SessionScreen(props){
       <View style={styles.header}>
         <View style={styles.horizontalView}>
           <View style={{margin:10}}>
-            <Image style={styles.roundImage} source={{uri:avatarUri}}/>
+            <Image style={styles.roundImage} source={{uri: hostPic? hostPic : avatarUri}}/>
           </View>
           <View style={{flex:1}}>
             <Timer handleOnTime={handleOnTime} pause={pause}/>
           </View>
           <View style={{margin:10}}>
-            <Image style={styles.roundImage} source={{uri:avatarUri}}/>
+            <Image style={styles.roundImage} source={{uri: guestPic? guestPic : avatarUri}}/>
           </View>
         </View>
       </View>

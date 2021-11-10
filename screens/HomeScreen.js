@@ -10,6 +10,7 @@ import Toast from 'react-native-toast-message'
 import SpotifyWebApi from 'spotify-web-api-js'
 import useUserRead from '../hooks/useUserRead'
 import useSpotifyAuth from '../hooks/useSpotifyAuth'
+import useProfilePicture from '../hooks/useProfilePicture'
 import useSpotifyTokenStore from '../hooks/useSpotifyTokenStore'
 import useSpotifyTokenRefresh from '../hooks/useSpotifyTokenRefresh'
 import useAssetStore from '../hooks/useAssetStore'
@@ -25,6 +26,7 @@ export default function HomeScreen(props){
   const [storedToken,setStoredToken] = useSpotifyTokenStore()
   const [assets,setAssets] = useAssetStore()
   const [nextState] = useAppState()
+  const [profilePicture,setPictureUrl] = useProfilePicture()
   const [playbackDevice,setDevice] = React.useState()
   const [spotifyAv, setSpotifyAv] = React.useState(false)
   const [audioGranted,setAudioGranted] = React.useState()
@@ -66,7 +68,6 @@ export default function HomeScreen(props){
       .where('dueDate' ,'>=', start)
       .where('dueDate' ,'<', end)
       .onSnapshot((snapshot) => {
-        console.log('confirme? 222');
         let sessArray = []
         setLatentSession('')
         setSessions('')
@@ -78,11 +79,7 @@ export default function HomeScreen(props){
           session.dueDate = `${sessDate.getHours()} : ${sessDate.getMinutes()}`
           setLatentSession(session)
           if(session.status == 'a') sessArray = [...sessArray,session]
-          if(session.status == 'r') {
-            setSessStarting(true)
-            console.log(session.status);
-            return;
-          }
+          if(session.status == 'r') setSessStarting(true)
         });
         setSessions(sessArray)
       })
@@ -120,9 +117,20 @@ export default function HomeScreen(props){
   //.route
   //lookf for user because it has been updated
   React.useEffect(()=>{
+    let that = this;
     if(props.route.params?.userUpdate)setUser('get')
-    if(props.route.params?.refresh) setNewReferenceListener()
-  },[props.route.params])
+    if(props.route.params?.refresh) {
+      if(!that.sessionListener){
+        that.sessionListener = setNewReferenceListener()
+      }
+    }
+    return () => {
+      if(that?.sessionListener) {
+        that.sessionListener()
+        that.sessionListener = null
+      }
+    }
+  },[props.route.params,sessionsReference])
   //user
   //wait for the user until is set because of fresh login
   React.useEffect(()=>{
@@ -228,6 +236,7 @@ export default function HomeScreen(props){
         that.sessionListener = setNewReferenceListener()
       }
     }
+    if(user.picture)setPictureUrl(user.picture)
     return () => {
       if(that.sessionListener) {
         that.sessionListener()
@@ -238,22 +247,36 @@ export default function HomeScreen(props){
   // nextState
   // refreshe some states when app in nextState
   React.useEffect(() => {
+    let that = this;
     if(props.route.name == 'home'){
       if(nextState == 'active'){
         setSearchDevices(true)
         setSpotifyToken('refresh')
-        setSessionsReference()
+        if(!that.sessionListener){
+          that.sessionListener = setNewReferenceListener()
+        }
+      }
+    }
+    return () => {
+      if(that.sessionListener) {
+        that.sessionListener()
+        that.sessionListener = null
       }
     }
   },[nextState])
   // latentSession
   // redirect to session if latent status 'started'
   React.useEffect(() => {
-    if(latentSession && latentSession.status == 's'){
-      setSessStarting(false)
-      props.navigation.navigate('session',{ session : latentSession, playlist: playlist})
+    if(latentSession){
+      if(latentSession.status != 'f' && latentSession.status != 'r'
+          && latentSession.status != 'a' &&  latentSession.status != 'c'
+          &&  latentSession.status != 'd'){
+        props.navigation.navigate('session',{ session : latentSession, playlist: playlist})
+        setSessStarting(false)
+      }
     }
   },[latentSession])
+
 
   return(
     <View style={styles.container}>
@@ -286,7 +309,7 @@ export default function HomeScreen(props){
         <View style={styles.horizontalView}>
           <View stlye={{flex:2}}>
             <View style={{margin:10}}>
-              <Image style={styles.roundImage} source={{uri: user.picture? user.picture : avatarUri}}/>
+              <Image style={styles.roundImage} source={{uri: profilePicture? profilePicture : avatarUri}}/>
             </View>
           </View>
           <View style={{flex:5}}>
