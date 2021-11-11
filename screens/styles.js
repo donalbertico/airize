@@ -13,6 +13,10 @@ const styles = StyleSheet.create({
   container :{
     flex : 1
   },
+  coloredContainer : {
+    flex : 1,
+    backgroundColor :theme.colors.primary
+  },
   centered : {
     flex : 5
   },
@@ -56,7 +60,7 @@ const styles = StyleSheet.create({
     borderWidth : 10
   },
   greyContainer:{
-    backgroundColor:theme.colors.ligth,
+    backgroundColor: theme.colors.ligth,
     borderColor : theme.colors.ligth,
     borderRadius : 10,
     borderWidth : 10

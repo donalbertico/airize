@@ -455,7 +455,7 @@ export default function SessionScreen(props){
         })
         break;
       case 'pause':
-        Analytics.logEvent('SessionPaused', {
+        Analytics.logEvent('session_paused', {
           user: user.uid,
           screen: 'session',
           purpose: 'session paused',
@@ -733,7 +733,7 @@ export default function SessionScreen(props){
     }
     if(recordTime == 1){
       setTimeout(()=>{ record()},200)
-      Analytics.logEvent('MessageRecorded', {
+      Analytics.logEvent('message_recorded', {
         user: user.uid,
         screen: 'session',
         purpose: 'message recorded',

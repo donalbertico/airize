@@ -2,7 +2,7 @@ import * as React from 'react'
 import {View} from 'react-native'
 import {styles} from '../styles'
 import {Text,Image} from 'react-native-elements'
-import {ImageBackground} from 'react-native'
+import { ImageBackground, SafeAreaView } from 'react-native'
 import Login from "./components/loginComponent"
 import useAssetStore from '../../hooks/useAssetStore'
 
@@ -29,36 +29,34 @@ export default function LoginScreen(props){
   },[reload])
 
   return(
-    <View style={styles.container}>
-      <ImageBackground style={styles.image} source={{uri:splashUrl}}>
-        <View style={{flex:2}}>
-          <View style={styles.horizontalView}>
-            <View style={{flex:1}}></View>
-            <View style={{flex:6}}>
-              <View style={styles.percentageFull}>
-                <Image style={{width:'95%', height:'99%',justifyContent:'center'}}
-                   source={{uri:logoUrl}}/>
+    <SafeAreaView style={styles.coloredContainer}>
+      <View style={{flex:2}}>
+        <View style={styles.horizontalView}>
+          <View style={{flex:1}}></View>
+          <View style={{flex:6}}>
+            <View style={styles.percentageFull}>
+              <Image style={{width:'85%', height:'88%',justifyContent:'center'}}
+                 source={{uri:logoUrl}}/>
+            </View>
+          </View>
+          <View style={{flex:1}}></View>
+        </View>
+      </View>
+      <View style={{flex:3}}>
+        <View style={styles.horizontalView}>
+          <View style={{flex:1}}></View>
+          <View style={{flex:8}}>
+            <View style={styles.blackContainer}>
+              <View style={{margin:10}}>
+                <Login handleToRegister={()=>props.navigation.navigate('register')}
+                    handleRecoverPassword={()=>props.navigation.navigate('password')}/>
               </View>
             </View>
-            <View style={{flex:1}}></View>
           </View>
+          <View style={{flex:1}}></View>
         </View>
-        <View style={{flex:2}}>
-          <View style={styles.horizontalView}>
-            <View style={{flex:1}}></View>
-            <View style={{flex:8}}>
-              <View style={styles.blackContainer}>
-                <View style={{margin:10}}>
-                  <Login handleToRegister={()=>props.navigation.navigate('register')}
-                      handleRecoverPassword={()=>props.navigation.navigate('password')}/>
-                </View>
-              </View>
-            </View>
-            <View style={{flex:1}}></View>
-          </View>
-        </View>
-        <View style={{flex:1}}></View>
-      </ImageBackground>
-    </View>
+      </View>
+      <View style={{flex:1}}></View>
+    </SafeAreaView>
   )
 }
