@@ -1,6 +1,7 @@
 import * as React from 'react'
 import * as firebase from 'firebase'
 import * as Speech from 'expo-speech'
+import * as Analytics from 'expo-firebase-analytics';
 import { Audio } from 'expo-av'
 import 'firebase/firestore'
 import Voice from '@react-native-voice/voice'
@@ -336,7 +337,7 @@ export default function SessionScreen(props){
             })
       }
     });
-
+    Analytics.setCurrentScreen('session');
     setSessionReference(db.collection('sessions').doc(sessionInfo.id))
     allowRecordIos()
     setPorcupine()
@@ -454,6 +455,11 @@ export default function SessionScreen(props){
         })
         break;
       case 'pause':
+        Analytics.logEvent('SessionPaused', {
+          user: user.uid,
+          screen: 'session',
+          purpose: 'session paused',
+        });
         sessionReference.update({
           leaver : user.uid,
           status : 'p',
@@ -486,6 +492,11 @@ export default function SessionScreen(props){
               }
             })
           }else{
+            Analytics.logEvent('SpotifyPlay', {
+              user: user.uid,
+              screen: 'session',
+              purpose: 'play spotify',
+            });
             sessionReference.update({
               playback : {
                 uri : listTracks,
@@ -721,7 +732,12 @@ export default function SessionScreen(props){
         setRecordUri(uri)
     }
     if(recordTime == 1){
-      setTimeout(()=>{ record()},100)
+      setTimeout(()=>{ record()},200)
+      Analytics.logEvent('MessageRecorded', {
+        user: user.uid,
+        screen: 'session',
+        purpose: 'message recorded',
+      });
       that.recordInterval = setInterval(()=>{
         setRecordTime(recordTime => recordTime+1)
       },1000)
