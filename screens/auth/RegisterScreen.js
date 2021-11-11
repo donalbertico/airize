@@ -3,7 +3,7 @@ import * as firebase from 'firebase'
 import * as Linking from 'expo-linking'
 import Toast from 'react-native-toast-message'
 import 'firebase/firestore'
-import {View,ImageBackground, SafeAreaView, TouchableOpacity} from 'react-native'
+import {View,ImageBackground, SafeAreaView, TouchableOpacity, useWindowDimensions} from 'react-native'
 import { Input, Text , Button, Image} from 'react-native-elements'
 import CheckBox from '@react-native-community/checkbox'
 import {styles} from '../styles'
@@ -23,6 +23,7 @@ export default function RegisterScreen(props){
   const [splashUrl,setSplash] = React.useState()
   const [logoUrl,setLogo] = React.useState()
   const [termsConditions,setTermsConditions] = React.useState()
+  const window = useWindowDimensions()
 
   const handleRegister = ()=> {
     if(password != repeat) return Toast.show({
@@ -99,11 +100,19 @@ export default function RegisterScreen(props){
   return(
     <SafeAreaView style={styles.container}>
       <ImageBackground style={styles.image} source={{uri:splashUrl}}>
-        <View style={{flex:2}}>
-          <View style={styles.alignCentered}>
-            <Image style={{width:170, height:175}} source={{uri:logoUrl}}/>
-          </View>
-        </View>
+          {window.height > 570 ? (
+            <View style={{flex:2}}>
+              <View style={styles.alignCentered}>
+                <Image style={{width:170, height:175}} source={{uri:logoUrl}}/>
+              </View>
+            </View>
+          ) : (
+            <View style={{flex:1}}>
+              <View style={styles.alignCentered}>
+                <Image style={{width:87, height:90}} source={{uri:logoUrl}}/>
+              </View>
+            </View>
+          )}
         <View style={{flex:4}}>
           <View style={{flex:5}}>
               <View style={styles.horizontalView}>
@@ -125,7 +134,7 @@ export default function RegisterScreen(props){
                         <View style={styles.horizontalView}>
                           <View >
                             <CheckBox tintColors={{true:'#EA6132',false:'#D9D9D9'}}
-                              tintColor='#D9D9D9' onCheckColor='#EA6132' style={{marginTop : -5}} 
+                              tintColor='#D9D9D9' onCheckColor='#EA6132' style={{marginTop : -5}}
                               value={termsConditions} onValueChange={(val) => setTermsConditions(val)}/>
                           </View>
                           <Text style={{marginBottom:20,...styles.greyText}}>I accept </Text>
@@ -141,7 +150,13 @@ export default function RegisterScreen(props){
               </View>
           </View>
         </View>
-        <View style={{flex:1}}></View>
+        {window.height > 570 ? (
+          <View style={{flex:1}}></View>
+
+        ) : (
+          <View style={styles.verticalJump}>
+          </View>
+        )}
       </ImageBackground>
     </SafeAreaView>
   )

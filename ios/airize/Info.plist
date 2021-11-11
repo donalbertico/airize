@@ -64,12 +64,16 @@
         </dict>
       </dict>
     </dict>
+    <key>NSCameraUsageDescription</key>
+    <string>Allow $(PRODUCT_NAME) to access your camera</string>
     <key>NSContactsUsageDescription</key>
     <string>Allow $(PRODUCT_NAME) to access your contacts</string>
     <key>NSMicrophoneUsageDescription</key>
     <string>This app uses the microphone to listen for commands and record messages</string>
+    <key>NSPhotoLibraryUsageDescription</key>
+    <string>The app accesses your photos to set a profile picture</string>
     <key>NSSpeechRecognitionUsageDescription</key>
-    <string>CUSTOM: Allow speech recognition </string>
+    <string>The app uses voice recognition to allow hands free commanding</string>
     <key>NSUserTrackingUsageDescription</key>
     <string>This identifier will be used to deliver personalized ads to you.</string>
     <key>SKAdNetworkItems</key>

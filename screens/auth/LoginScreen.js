@@ -1,7 +1,7 @@
 import * as React from 'react'
-import {View} from 'react-native'
+import { View} from 'react-native'
 import {styles} from '../styles'
-import {Text,Image} from 'react-native-elements'
+import {Text, Image} from 'react-native-elements'
 import {ImageBackground} from 'react-native'
 import Login from "./components/loginComponent"
 import useAssetStore from '../../hooks/useAssetStore'
@@ -31,7 +31,7 @@ export default function LoginScreen(props){
   return(
     <View style={styles.container}>
       <ImageBackground style={styles.image} source={{uri:splashUrl}}>
-        <View style={{flex:2}}>
+        <View style={{flex:3}}>
           <View style={styles.horizontalView}>
             <View style={{flex:1}}></View>
             <View style={{flex:6}}>
@@ -43,7 +43,7 @@ export default function LoginScreen(props){
             <View style={{flex:1}}></View>
           </View>
         </View>
-        <View style={{flex:2}}>
+        <View style={{flex:3}}>
           <View style={styles.horizontalView}>
             <View style={{flex:1}}></View>
             <View style={{flex:8}}>
