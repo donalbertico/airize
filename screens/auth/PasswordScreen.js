@@ -2,7 +2,12 @@ import * as React from 'react'
 import {styles} from '../styles'
 import {Asset} from 'expo-asset'
 import {Text, Input, Button, Image} from 'react-native-elements'
-import {View,ActivityIndicator,TouchableOpacity,ImageBackground} from 'react-native'
+import { View,
+  ActivityIndicator,
+  TouchableOpacity,
+  ImageBackground,
+  SafeAreaView
+} from 'react-native'
 import useAssetStore from '../../hooks/useAssetStore'
 
 export default function PasswordScreen(props){
@@ -15,6 +20,7 @@ export default function PasswordScreen(props){
   const [msg,setMsg] = React.useState('')
   const [splashUrl,setSplash] = React.useState()
   const [logoUrl,setLogo] = React.useState()
+  const [icons,setIcons] = React.useState()
   const [assets,setAssets] = useAssetStore()
 
   handleSendMail = () => {
@@ -64,63 +70,59 @@ export default function PasswordScreen(props){
     if(assets){
       setSplash(assets.splash)
       setLogo(assets.logo)
+      setIcons(assets.login)
     }
   },[assets])
 
   return(
-    <View style={styles.container}>
-      <ImageBackground style={styles.image} source={{uri:splashUrl}}>
-        <View style={{flex:2}}>
-          <View style={styles.horizontalView}>
-            <View style={{flex:1}}></View>
-            <View style={{flex:6}}>
-              <View style={styles.percentageFull}>
-                  <Image style={{width:'95%', height:'99%',justifyContent:'center'}}source={{uri:logoUrl}}></Image>
-              </View>
-            </View>
-            <View style={{flex:1}}></View>
-          </View>
+    <SafeAreaView style={change? (styles.container) : (styles.coloredContainer)}>
+      <View style={{flex:2}}>
+        <View style={styles.alignCentered}>
+                <Image
+                  style={{width:170, height:175,justifyContent:'center'}}
+                  source={{uri:logoUrl}}/>
         </View>
-        <View style={{flex:2}}>
-          <View style={styles.horizontalView}>
-            <View style={{flex:1}}></View>
-            <View style={{flex:8}}>
-              <View style={styles.blackContainer}>
-                <Text>{msg}</Text>
-                <View style={styles.horizontalView}>
-                  <View style={{flex:1}}></View>
-                  <View style={{flex:8}}>
-                    {loading?(
-                      <ActivityIndicator/>
-                      ):(change? (
-                        <View>
-                          <Input style={styles.ligthText} inputContainerStyle={styles.inputContainer} placeholder='current' value={current} onChangeText={(current)=>setCurrent(current)}></Input>
-                          <Input style={styles.ligthText} inputContainerStyle={styles.inputContainer} placeholder='password' value={password} secureTextEntry={true} onChangeText={(password)=>setPass(password)}></Input>
-                          <Input style={styles.ligthText} inputContainerStyle={styles.inputContainer} placeholder='repeat password' value={repeat} secureTextEntry={true} onChangeText={(repeat)=>setRepeat(repeat)}></Input>
-                          <Button title='change password' onPress={handleReset}/>
-                        </View>
-                      ):(
-                        <View>
-                          <Input style={styles.ligthText} inputContainerStyle={styles.inputContainer} placeholder='Email' value={email} onChangeText={(email)=>setEmail(email)}/>
-                          <Button title='send ecovery link' onPress={handleSendMail}/>
-                          <View style={styles.horizontalView}>
-                            <View style={{flex:1}}></View>
-                            <TouchableOpacity onPress={()=>{props.navigation.navigate('login')}}>
-                              <Text style={{marginTop:20}}>Login</Text>
-                            </TouchableOpacity>
-                          </View>
-                        </View>
-                      ))}
-                  </View>
-                  <View style={{flex:1}}></View>
+      </View>
+      <View style={{flex:2}}>
+        <View style={styles.horizontalView}>
+          <View style={{flex:1}}></View>
+          <View style={{flex:12}}>
+            <View style={styles.blackContainer}>
+              <Text>{msg}</Text>
+              <View style={styles.horizontalView}>
+                <View style={{flex:1}}></View>
+                <View style={{flex:12}}>
+                  {loading?(
+                    <ActivityIndicator size='large' color='#EA6132'/>
+                    ):(change? (
+                      <View>
+                        <Input style={styles.ligthText} inputContainerStyle={styles.inputContainer} placeholder='current' value={current} onChangeText={(current)=>setCurrent(current)}></Input>
+                        <Input style={styles.ligthText} inputContainerStyle={styles.inputContainer} placeholder='password' value={password} secureTextEntry={true} onChangeText={(password)=>setPass(password)}></Input>
+                        <Input style={styles.ligthText} inputContainerStyle={styles.inputContainer} placeholder='repeat password' value={repeat} secureTextEntry={true} onChangeText={(repeat)=>setRepeat(repeat)}></Input>
+                        <Button title='change password' onPress={handleReset}/>
+                      </View>
+                    ):(
+                      <View>
+                        <Input style={styles.ligthText}
+                          inputContainerStyle={styles.inputContainer}
+                          placeholder='Email' value={email}
+                          rightIcon = {
+                            <Image style={styles.inputIcon} source={{uri: icons?.email}} />
+                          }
+                          onChangeText={(email)=>setEmail(email)}/>
+                        <Button title='Reset Password' buttonStyle= {styles.buttonStyle} onPress={handleSendMail}/>
+                      </View>
+                    ))}
+                    <View style={styles.verticalDiv}></View>
                 </View>
+                <View style={{flex:1}}></View>
               </View>
             </View>
-            <View style={{flex:1}}></View>
           </View>
+          <View style={{flex:1}}></View>
         </View>
-        <View style={{flex:1}}></View>
-      </ImageBackground>
-    </View>
+      </View>
+      <View style={{flex:1}}></View>
+    </SafeAreaView>
   )
 }

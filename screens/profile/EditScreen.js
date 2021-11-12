@@ -58,6 +58,8 @@ export default function EditScreen(props){
                       visibilityTime: 4000})
                   })
               })
+        }else{
+          setLoading(false)
         }
       }
     }

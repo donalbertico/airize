@@ -4,7 +4,7 @@ import {styles} from './styles'
 import * as firebase from 'firebase'
 import 'firebase/firestore'
 import * as Analytics from 'expo-firebase-analytics';
-import { View, TouchableOpacity, Image, Modal } from 'react-native'
+import { View, TouchableOpacity, Image, Modal, SafeAreaView } from 'react-native'
 import { Text, Button } from 'react-native-elements'
 import Voice from '@react-native-voice/voice'
 import Toast from 'react-native-toast-message'
@@ -40,6 +40,7 @@ export default function HomeScreen(props){
   const [sessStarting,setSessStarting] = React.useState(false)
   const [latentSession,setLatentSession] = React.useState()
   const [playlist,setPlaylist] = React.useState()
+  const [icons,setIcons] = React.useState()
   const [listTracks,setListTracks] = React.useState()
   const [audioPermit,setAudioPermit] = React.useState()
 
@@ -122,7 +123,7 @@ export default function HomeScreen(props){
     let that = this;
     if(props.route.params?.userUpdate)setUser('get')
     if(props.route.params?.refresh) {
-      if(!that.sessionListener){
+      if(!that?.sessionListener){
         that.sessionListener = setNewReferenceListener()
       }
     }
@@ -227,6 +228,7 @@ export default function HomeScreen(props){
   React.useEffect(()=>{
     if(assets){
       setAvatar(assets.avatar)
+      setIcons(assets.login)
     }
   },[assets])
   //useruid and sessions reference
@@ -239,13 +241,13 @@ export default function HomeScreen(props){
     start.setUTCHours(0,0,0,0)
     end.setUTCHours(23,59,59,999)
     if(user.uid && sessionsReference) {
-      if(!that.sessionListener){
+      if(!that?.sessionListener){
         that.sessionListener = setNewReferenceListener()
       }
     }
     if(user.picture)setPictureUrl(user.picture)
     return () => {
-      if(that.sessionListener) {
+      if(that?.sessionListener) {
         that.sessionListener()
         that.sessionListener = null
       }
@@ -259,13 +261,13 @@ export default function HomeScreen(props){
       if(nextState == 'active'){
         setSearchDevices(true)
         setSpotifyToken('refresh')
-        if(!that.sessionListener){
+        if(!that?.sessionListener){
           that.sessionListener = setNewReferenceListener()
         }
       }
     }
     return () => {
-      if(that.sessionListener) {
+      if(that?.sessionListener) {
         that.sessionListener()
         that.sessionListener = null
       }
@@ -286,7 +288,7 @@ export default function HomeScreen(props){
 
 
   return(
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <Modal transparent={true} visible={sessStarting}>
         <View style={styles.alignCentered}>
           <View style={styles.modalView}>
@@ -312,7 +314,7 @@ export default function HomeScreen(props){
           </View>
         </View>
       </Modal>
-      <View style={styles.header}>
+      <View style={styles.mainHeader}>
         <View style={styles.horizontalView}>
           <View stlye={{flex:2}}>
             <View style={{margin:10}}>
@@ -321,30 +323,64 @@ export default function HomeScreen(props){
           </View>
           <View style={{flex:5}}>
             <View style={{flex:1}}></View>
-            <View style={{flex:1}}>
+            <View >
               <View style={styles.homeLigthBox}>
-                {user? (
-                  <Text h3>{user.firstName} {user.lastName}</Text>
-                ):(
-                  <Text></Text>
-                )}
+                  <Text style={styles.h2}>{user?.firstName} {user?.lastName}</Text>
               </View>
             </View>
           </View>
         </View>
       </View>
-      <View style={{flex:12}}>
-        <View style={styles.horizontalView}>
-          <View style={{flex:1}}></View>
-          <View style={{flex:5}}>
-            <View style={{margin: 20}}>
-              <Text>Today's Sessions :</Text>
-            </View>
-            <SessionList sessions={sessions} handleSessionSelected={getSessionReady}/>
-          </View>
-          <View style={{flex:1}}></View>
+      <View style={{flex:8}}>
+        <View >
+          <TouchableOpacity style={styles.listItemContainer}
+            onPress={() => {props.navigation.navigate('friends')}}>
+              <View>
+                <Image style={styles.largeInputIcon} source={{uri: icons?.username}}/>
+              </View>
+              <View style={{flex:1}}></View>
+              <View style={{flex:4}}>
+                <Text>Invite a friend</Text>
+              </View>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.listItemContainer}
+              onPress={() => {props.navigation.navigate('invitations')}}>
+              <View>
+                <Image style={styles.largeInputIcon} source={{uri: icons?.username}}/>
+              </View>
+              <View style={{flex:1}}></View>
+              <View style={{flex:4}}>
+                <Text>Plan a workout</Text>
+              </View>
+          </TouchableOpacity>
+          {spotifyAv?
+            (playbackDevice? (<View></View>)
+              :(
+                <TouchableOpacity style={styles.listItemContainer}
+                  onPress={() => {setSearchDevices(true); setSpotifyToken('refresh')}}>
+                    <View>
+                      <Image style={styles.largeInputIcon} source={{uri: icons?.username}}/>
+                    </View>
+                    <View style={{flex:1}}></View>
+                    <View style={{flex:4}}>
+                      <Text>Make sure spotify app is open</Text>
+                    </View>
+                </TouchableOpacity>
+              )):(
+                <TouchableOpacity onPress={()=>askToken(true)} style={styles.listItemContainer}>
+                    <View>
+                      <Image style={styles.largeInputIcon} source={{uri: icons?.username}}/>
+                    </View>
+                    <View style={{flex:1}}></View>
+                    <View style={{flex:4}}>
+                      <Text>Share music/podcast</Text>
+                    </View>
+                </TouchableOpacity>
+            )}
         </View>
-        <View style={{flex:1}}></View>
+        <View style={styles.separator}>
+          <Text style={styles.subtext}>Voice commands</Text>
+        </View>
         <View style={{flex:1}}>
           <View style={styles.horizontalView}>
             <View style={{flex:1}}></View>
@@ -365,9 +401,9 @@ export default function HomeScreen(props){
           </View>
         </View>
       </View>
-      <View style={{flex:2}}>
-        <NavBar navigation={props.navigation}/>
+      <View>
+        <NavBar navigation={props.navigation} route={0}/>
       </View>
-    </View>
+    </SafeAreaView>
   )
 }

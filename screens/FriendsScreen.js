@@ -2,9 +2,10 @@ import * as React from 'react'
 import * as Contacts from 'expo-contacts';
 import * as SMS from 'expo-sms'
 import { View, FlatList, Text, TouchableOpacity, Modal} from 'react-native'
+import { Ionicons } from '@expo/vector-icons';
 import { SearchBar } from 'react-native-elements'
 import * as firebase from 'firebase'
-import {styles} from './styles'
+import { styles} from './styles'
 import 'firebase/firestore'
 import useUserRead from '../hooks/useUserRead'
 
@@ -117,8 +118,25 @@ export default function FriendsScreen(props){
 
   return (
     <View style={styles.container}>
+      <View style={styles.header}>
+        <View style={{flex:1}}>
+          <View style={styles.alignCentered}>
+            <TouchableOpacity onPress={() => props.navigation.goBack()}>
+              <Ionicons size={30} name="arrow-back-outline" color='#E8E8E8'/>
+            </TouchableOpacity>
+          </View>
+        </View>
+        <View style={{justifyContent : 'center'}}>
+          <Text style={styles.h2_ligth}>Invite</Text>
+        </View>
+        <View style={{flex:3}}></View>
+      </View>
       <View style={{flex:4}}>
-        <SearchBar placeholder="contact name or mail" value={searchVal} onChangeText={(val) => setSearchVal(val)}/>
+        <SearchBar lightTheme containerStyle={styles.searchBar}
+          inputContainerStyle={styles.searchBar}
+          placeholder="Search for contacts"
+          value={searchVal}
+          onChangeText={(val) => setSearchVal(val)}/>
         <View style={styles.verticalJump}></View>
         <FlatList data={searchResult} renderItem={
               ({item}) =>
@@ -143,9 +161,7 @@ export default function FriendsScreen(props){
             </View>
           }/>
       </View>
-      <View style={{flex:1}}>
-        <NavBar navigation={props.navigation}/>
-      </View>
+      <NavBar navigation={props.navigation} route={1}/>
     </View>
   )
 }

@@ -2,13 +2,13 @@ import * as React from 'react';
 import * as SplashScreen from 'expo-splash-screen'
 import * as firebase from 'firebase'
 import * as Asset from 'expo-asset'
+import * as Font from 'expo-font'
 import 'firebase/firestore'
 import apiKeys from '../constants/apiKeys'
 import useUserRead from './useUserRead'
 import useUserStore from './useUserStore'
 import useAssetStore from './useAssetStore'
 import useKeyStore from './useKeyStore'
-import AsyncStorage from '@react-native-async-storage/async-storage'
 
 export default function useCachedResources(){
   const [auth, setAuth] = React.useState('toLoad')
@@ -26,7 +26,14 @@ export default function useCachedResources(){
     require('../assets/linkUnselected.png'),
     require('../assets/propertiesUnselected.png'),
     require('../assets/googleLogo.png'),
-    require('../assets/facebookLogo.png')
+    require('../assets/facebookLogo.png'),
+    require('../assets/email.png'),
+    require('../assets/password.png'),
+    require('../assets/username.png'),
+    require('../assets/friendsSelected.png'),
+    require('../assets/linkSelected.png'),
+    require('../assets/propertiesSelected.png'),
+    require('../assets/searchSelected.png')
   ])
   const [storedAssets,storeAssets] = useAssetStore()
   const [assetsLoaded,setLoaded] = React.useState(false)
@@ -35,6 +42,9 @@ export default function useCachedResources(){
 
   React.useEffect(()=>{
     async function loadResourcesAndDataAsync(){
+      await Font.loadAsync({
+        'ubuntu' : require('../assets/Ubuntu-R.ttf')
+      })
       SplashScreen.preventAutoHideAsync();
       try {
         firebase.initializeApp(apiKeys.firebase)
@@ -68,16 +78,6 @@ export default function useCachedResources(){
       let json = await rs.json()
       storeKeys({spotify:json.id})
     }
-
-    async function removeSt(){
-      try {
-        await AsyncStorage.removeItem('spotifyToken')
-      } catch (e) {
-
-      }
-    }
-    // removeSt()
-
     loadResourcesAndDataAsync();
   }, []);
   React.useEffect(() => {
@@ -120,10 +120,20 @@ export default function useCachedResources(){
         search: assets[4].localUri,
         friends: assets[5].localUri,
         link: assets[6].localUri,
-        set: assets[7].localUri
+        set: assets[7].localUri,
+        homeSe : assets[3].localUri,
+        friendSe: assets[13].localUri,
+        searchSe: assets[16].localUri,
+        linkSe: assets[14].localUri,
+        setSe: assets[15].localUri
       }
       assetsOb.google= assets[8].localUri
       assetsOb.facebook= assets[9].localUri
+      assetsOb.login = {
+        email : assets[10].localUri,
+        password: assets[11].localUri,
+        username: assets[12].localUri
+      }
       storeAssets(assetsOb)
       setLoaded(true)
     }

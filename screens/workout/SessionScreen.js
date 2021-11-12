@@ -7,7 +7,12 @@ import 'firebase/firestore'
 import Voice from '@react-native-voice/voice'
 import {PorcupineManager} from '@picovoice/porcupine-react-native'
 import SpotifyWebApi from 'spotify-web-api-js'
-import { View, TouchableOpacity, Modal, ActivityIndicator, Platform, Image} from 'react-native'
+import { View,
+  TouchableOpacity,
+  Modal,
+  ActivityIndicator,
+  Platform,
+  Image} from 'react-native'
 import {Text} from 'react-native-elements'
 import { Ionicons } from '@expo/vector-icons';
 import {styles} from '../styles'
@@ -1316,7 +1321,6 @@ export default function SessionScreen(props){
                   ))
                 )}
                 {!isPremium && (<Text>not premium =()</Text>) }
-
               </View>
               <View style={{flex:2}}></View>
             </View>

@@ -99,11 +99,11 @@ export default function InvitationScreen(props) {
       <View style={{flex:1}}>
         <Text h3>Invitations</Text>
       </View>
-      <View style={{flex:5}}>
+      <View style={{flex:8}}>
         <SessionList sessions={sessions} handleSessionSelected={handleSessionSelected} />
       </View>
       <View style={{flex:1}}>
-        <NavBar navigation={props.navigation}/>
+        <NavBar navigation={props.navigation} route={1}/>
       </View>
     </View>
   )
