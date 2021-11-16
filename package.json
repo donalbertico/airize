@@ -16,6 +16,7 @@
     "@react-navigation/native": "^6.0.2",
     "@react-navigation/stack": "^6.0.7",
     "base-64": "^1.0.0",
+    "eas-cli": "^0.36.1",
     "expo": "~42.0.1",
     "expo-asset": "~8.3.3",
     "expo-auth-session": "~3.3.1",
@@ -26,6 +27,7 @@
     "expo-font": "~9.2.1",
     "expo-image-picker": "~10.2.2",
     "expo-linking": "~2.3.1",
+    "expo-notifications": "~0.12.3",
     "expo-random": "~11.2.0",
     "expo-sms": "~9.2.3",
     "expo-speech": "~9.2.0",
@@ -45,8 +47,7 @@
     "react-native-toast-message": "^1.6.0",
     "react-native-unimodules": "0.14.10",
     "react-native-web": "~0.13.12",
-    "spotify-web-api-js": "^1.5.2",
-    "expo-notifications": "~0.12.3"
+    "spotify-web-api-js": "^1.5.2"
   },
   "devDependencies": {
     "@babel/core": "^7.9.0"

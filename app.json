@@ -35,7 +35,6 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#FFFFFF"
       },
-      "package": "app.android.airize",
       "googleServicesFile": "./google-services.json"
     },
     "web": {
