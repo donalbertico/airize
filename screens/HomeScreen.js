@@ -4,7 +4,8 @@ import {styles} from './styles'
 import * as firebase from 'firebase'
 import 'firebase/firestore'
 import * as Analytics from 'expo-firebase-analytics';
-import { View, TouchableOpacity, Image, Modal, SafeAreaView } from 'react-native'
+import * as Notifications from 'expo-notifications';
+import { View, TouchableOpacity, Image, Modal, SafeAreaView, ScrollView} from 'react-native'
 import { Text, Button } from 'react-native-elements'
 import Voice from '@react-native-voice/voice'
 import Toast from 'react-native-toast-message'
@@ -16,6 +17,7 @@ import useSpotifyTokenStore from '../hooks/useSpotifyTokenStore'
 import useSpotifyTokenRefresh from '../hooks/useSpotifyTokenRefresh'
 import useAssetStore from '../hooks/useAssetStore'
 import useAppState from '../hooks/useAppState'
+import useNotifications from '../hooks/useNotifications'
 import Logout from './auth/components/logoutComponent'
 import NavBar from './components/bottomNavComponent'
 import SessionList from './components/sessionListComponent'
@@ -27,6 +29,7 @@ export default function HomeScreen(props){
   const [storedToken,setStoredToken] = useSpotifyTokenStore()
   const [assets,setAssets] = useAssetStore()
   const [nextState] = useAppState()
+  const [notification, setNotification, setNotificationService] = useNotifications()
   const [profilePicture,setPictureUrl] = useProfilePicture()
   const [playbackDevice,setDevice] = React.useState()
   const [spotifyAv, setSpotifyAv] = React.useState(false)
@@ -43,6 +46,13 @@ export default function HomeScreen(props){
   const [icons,setIcons] = React.useState()
   const [listTracks,setLreactistTracks] = React.useState()
   const [audioPermit,setAudioPermit] = React.useState()
+  const [notified, setNotified] = React.useState(false)
+  const [news, setNews] = React.useState(0)
+  const [lastNews, setLastNews] = React.useState()
+  const [fromNotification, setFromNotification] = React.useState(false)
+  const [firstLoad, setFirstLoad] = React.useState(true)
+  const responseListener = React.useRef()
+
 
   const getSessionReady = (session) => {
     if(session.host == user.uid){
@@ -67,26 +77,31 @@ export default function HomeScreen(props){
     let end = new Date()
     start.setUTCHours(0,0,0,0)
     end.setUTCHours(23,59,59,999)
-    return sessionsReference
-      .where('users', 'array-contains', user.uid)
-      .where('dueDate' ,'>=', start)
-      .where('dueDate' ,'<', end)
-      .onSnapshot((snapshot) => {
-        let sessArray = []
-        setLatentSession('')
-        setSessions('')
-        snapshot.forEach((sess, i) => {
-          setSessStarting(false)
-          let session = sess.data()
-          let sessDate = new firebase.firestore.Timestamp(session.dueDate.seconds,session.dueDate.nanoseconds)
-          sessDate = sessDate.toDate()
-          session.id = sess.id
-          session.dueDate = `${sessDate.getHours()} : ${sessDate.getMinutes()}`
-          setLatentSession(session)
-          if(session.status == 'a') sessArray = [...sessArray,session]
-          if(session.status == 'r') setSessStarting(true)
-        });
-      })
+    // .where('dueDate' ,'>=', start)
+    // .where('dueDate' ,'<', end)
+    // console.log('listening?',sessionsReference?.where);
+    if(sessionsReference?.where)
+      return sessionsReference
+        .where('users', 'array-contains', user.uid)
+        .where('status', 'in', ['c','r','s','p','ap','al'])
+        .onSnapshot((snapshot) => {
+          let sessArray = []
+          setLatentSession('')
+          snapshot.forEach((sess, i) => {
+            let session = sess.data()
+            let sessDate = new firebase.firestore.Timestamp(session.dueDate.seconds,session.dueDate.nanoseconds)
+            sessDate = sessDate.toDate()
+            session.id = sess.id
+            session.dueDate = `${sessDate.getHours()} : ${sessDate.getMinutes()}`
+            if(session.status == 'c') sessArray = [...sessArray,session]
+            if(session.status == 'r')  {
+              setSessStarting(true)
+              setNotified(false)
+            }
+            setLatentSession(session)
+          });
+          setSessions(sessArray)
+        })
   }
   //on mount
   React.useEffect(()=>{
@@ -118,6 +133,9 @@ export default function HomeScreen(props){
     setLatentSession('')
     setSessionsReference(db.collection('sessions'))
     Analytics.setCurrentScreen('home');
+    responseListener.current = Notifications.addNotificationResponseReceivedListener(response => {
+      setFromNotification(true)
+    })
   },[])
   //.route
   //lookf for user because it has been updated
@@ -140,6 +158,7 @@ export default function HomeScreen(props){
   //wait for the user until is set because of fresh login
   React.useEffect(()=>{
     if(user == 'get' || user.destroyed){setUser('get')}
+    if(user.uid) setNotificationService(true)
   },[user])
   //spotify authorization
   //check if auth is true
@@ -203,20 +222,22 @@ export default function HomeScreen(props){
           });
         }
       } catch (e) {
-        console.log('EEROR spotify devices',e);
+        Toast.show({text1:'Not able to connect to Spotify',
+          type : 'error', position : 'bottom', visibilityTime: 4000})
         setRefresh(true)
       }
     }
     async function getPlayLists(){
       try {
-        const  result = await client.getUserPlaylists()
+        const result = await client.getUserPlaylists()
         if(result){
           result.items?.forEach((playlist, i) => {
             if(playlist.name.toLowerCase() == 'airize') setPlaylist(playlist.uri)
           });
         }
       } catch (e) {
-        console.log('Error with PlayList',e);
+        Toast.show({text1:'Not able to connect to Spotify',
+          type : 'error', position : 'bottom', visibilityTime: 4000})
       }
     }
     if(spotifyToken&&spotifyToken!='refresh'){
@@ -248,12 +269,6 @@ export default function HomeScreen(props){
       }
     }
     if(user.picture)setPictureUrl(user.picture)
-    return () => {
-      if(that?.sessionListener) {
-        // that.sessionListener()
-        // that.sessionListener = null
-      }
-    }
   },[user,sessionsReference])
   // nextState
   // refreshe some states when app in nextState
@@ -266,12 +281,12 @@ export default function HomeScreen(props){
         if(!that?.sessionListener){
           that.sessionListener = setNewReferenceListener()
         }
-      }
-    }
-    return () => {
-      if(that?.sessionListener) {
-        that.sessionListener()
-        that.sessionListener = null
+      }else if(nextState == 'background'){
+        if(that?.sessionListener){
+          setNotified(false)
+          that.sessionListener = null
+          that.sessionListener = setNewReferenceListener()
+        }
       }
     }
   },[nextState])
@@ -282,12 +297,32 @@ export default function HomeScreen(props){
       if(latentSession.status != 'f' && latentSession.status != 'r'
           && latentSession.status != 'a' &&  latentSession.status != 'c'
           &&  latentSession.status != 'd'){
-        props.navigation.navigate('session',{ session : latentSession, playlist: playlist})
+        setFromNotification(false)
         setSessStarting(false)
+        props.navigation.navigate('session',{ session : latentSession, playlist: playlist})
+      }
+      if(news != lastNews){
+        if(latentSession.status == 'c' && latentSession.host != user.uid) {
+          setNotification({title : 'invited'})
+        }
+        if(news > 0) setLastNews(news)
+      }
+      if(!fromNotification){
+        if(latentSession.status == 'r') setNotification({title : 'starting'})
       }
     }
   },[latentSession])
-
+  //sessions
+  //set news for notification control
+  React.useEffect(() => {
+    if(sessions) {
+      setNews(sessions.length)
+      if(firstLoad)  {
+        setLastNews(sessions.length)
+        setFirstLoad(false)
+      }
+    }
+  },[sessions])
 
   return(
     <SafeAreaView style={styles.container}>
@@ -326,9 +361,9 @@ export default function HomeScreen(props){
           </View>
           <View style={{flex:5}}>
             <View style={{flex:1}}></View>
-            <View >
+            <View style={{flex:1}}>
               <View style={styles.homeLigthBox}>
-                  <Text style={styles.h2}>{user?.firstName} {user?.lastName}</Text>
+                <Text style={styles.h2}>{user?.firstName} {user?.lastName}</Text>
               </View>
             </View>
           </View>
@@ -395,23 +430,9 @@ export default function HomeScreen(props){
           <Text style={styles.subtext}>Voice commands</Text>
         </View>
         <View style={{flex:1}}>
-          <View style={styles.horizontalView}>
-            <View style={{flex:1}}></View>
-            <View style={{flex:2}}>
-              {spotifyAv?
-                (playbackDevice? (<View></View>)
-                  :(
-                    <TouchableOpacity onPress={() => {setSearchDevices(true); setSpotifyToken('refresh')}}>
-                      <Text>Please make sure spotify app is open to listen</Text>
-                      <Text>Touch here if it is =)</Text>
-                    </TouchableOpacity>)
-                  ):(
-                  <TouchableOpacity onPress={()=>askToken(true)}>
-                    <Text>Connect with Spotify to share music while working out</Text>
-                  </TouchableOpacity>
-                )}
-            </View>
-          </View>
+          <ScrollView >
+            <Image style={{height: 650 , width : '100%'}} source={{uri: icons?.infogram}}/>
+          </ScrollView>
         </View>
       </View>
       <View>

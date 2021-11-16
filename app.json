@@ -36,6 +36,7 @@
         "backgroundColor": "#FFFFFF"
       },
       "package": "app.android.airize",
+      "googleServicesFile": "./google-services.json"
     },
     "web": {
       "favicon": "./assets/favicon.png",
@@ -61,6 +62,14 @@
         "expo-image-picker",
         {
           "photosPermission": "The app accesses your photos to set a profile picture"
+        }
+      ],
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/icon.png",
+          "color": "#EA6132",
+          "mode": "production"
         }
       ]
     ]

@@ -18,7 +18,7 @@ export default function useCachedResources(){
   const [isNew,setIsNew] = React.useState(false)
   const [assets,err] = Asset.useAssets([
     require('../assets/splash.png'),
-    require('../assets/adaptive-icon.png'),
+    require('../assets/logo.png'),
     require('../assets/avatar.png'),
     require('../assets/homeSelected.png'),
     require('../assets/searchUnselected.png'),
@@ -45,6 +45,7 @@ export default function useCachedResources(){
     require('../assets/play.png'),
     require('../assets/forwards.png'),
     require('../assets/pause.png'),
+    require('../assets/infogram.png'),
   ])
   const [storedAssets,storeAssets] = useAssetStore()
   const [assetsLoaded,setLoaded] = React.useState(false)
@@ -153,7 +154,8 @@ export default function useCachedResources(){
       assetsOb.home = {
         search : assets[20].localUri,
         friends : assets[21].localUri,
-        spotify : assets[22].localUri
+        spotify : assets[22].localUri,
+        infogram : assets[28].localUri
       }
       assetsOb.music = {
         previous : assets[24].localUri,

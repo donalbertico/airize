@@ -49,8 +49,8 @@ export default function EventsScreen(props) {
               })
           }else {
             let sessUsers = session.users
-            let partner = sessUsers.splice(sessUsers.indexOf(user.uid))[0]
-            usersReference.doc(partner)
+            sessUsers.splice(sessUsers.indexOf(user.uid))
+            usersReference.doc(sessUsers[0])
               .get()
               .then((doc) => {
                 session.partner = doc.data()

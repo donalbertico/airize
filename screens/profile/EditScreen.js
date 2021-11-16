@@ -38,7 +38,7 @@ export default function EditScreen(props){
       </View>
       <View style={{flex:7}}>
         <TouchableOpacity style={styles.listItemContainer}
-          onPress={() => {props.navigation.navigate('friends')}}>
+          onPress={() => {props.navigation.navigate('feedback')}}>
             <View>
               <Image style={{height : 24, width : 40}} source={{uri: icons?.feedback}}/>
             </View>

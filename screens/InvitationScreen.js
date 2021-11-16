@@ -29,7 +29,8 @@ export default function InvitationScreen(props) {
     return sessionsReference
         .where('users', 'array-contains', user.uid)
         .where('status', '==', 'c')
-        .onSnapshot((snapshot) => {
+        .get()
+        .then((snapshot) => {
           setSessions(sessions => [])
           setSent(sent => [])
           let sameMonth = true
@@ -57,15 +58,16 @@ export default function InvitationScreen(props) {
                 })
             }else {
               let sessUsers = session.users
-              let partner = sessUsers.splice(sessUsers.indexOf(user.uid))[0]
+              sessUsers.splice(sessUsers.indexOf(user.uid))
               if(session.month != lastMonth) session.dateLabel = true
-              usersReference.doc(partner)
+              usersReference.doc(sessUsers[0])
                 .get()
                 .then((doc) => {
                   session.partner = doc.data()
                   setSent( sent => [...sent,session])
                 })
             }
+            lastMonth = session.month
           });
         })
   }
