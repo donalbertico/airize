@@ -28,13 +28,13 @@ export default function NavBar(props){
           </TouchableOpacity>
         </View>
         <View style={{flex:2}}>
-          <TouchableOpacity onPress={() => props.navigation.navigate('friends')}>
+          <TouchableOpacity onPress={() => props.navigation.navigate('events')}>
             <Image style={styles.menuOption}
               source={{ uri: props.route==2? menuUris.friendSe: menuUris.friends}}/>
           </TouchableOpacity>
         </View>
         <View style={{flex:2}}>
-          <TouchableOpacity onPress={() => props.handleSession()}>
+          <TouchableOpacity onPress={() => props.navigation.navigate('invitations')}>
             <Image style={styles.menuOption}
               source={{ uri: props.route==3? menuUris.linkSe: menuUris.link}}/>
           </TouchableOpacity>

@@ -41,7 +41,7 @@ export default function HomeScreen(props){
   const [latentSession,setLatentSession] = React.useState()
   const [playlist,setPlaylist] = React.useState()
   const [icons,setIcons] = React.useState()
-  const [listTracks,setListTracks] = React.useState()
+  const [listTracks,setLreactistTracks] = React.useState()
   const [audioPermit,setAudioPermit] = React.useState()
 
   const getSessionReady = (session) => {
@@ -53,7 +53,9 @@ export default function HomeScreen(props){
           status : 'r'
         })
     }else {
-      Toast.show({text1:'Not the Host', text2: 'Just Hosts can start the workout' ,type : 'info', position : 'bottom', visibilityTime: 4000})
+      Toast.show({text1:'Not the Host',
+        text2: 'Just Hosts can start the workout' ,
+        type : 'info', position : 'bottom', visibilityTime: 4000})
     }
   }
   const startSession = () => {
@@ -74,6 +76,7 @@ export default function HomeScreen(props){
         setLatentSession('')
         setSessions('')
         snapshot.forEach((sess, i) => {
+          setSessStarting(false)
           let session = sess.data()
           let sessDate = new firebase.firestore.Timestamp(session.dueDate.seconds,session.dueDate.nanoseconds)
           sessDate = sessDate.toDate()
@@ -83,7 +86,6 @@ export default function HomeScreen(props){
           if(session.status == 'a') sessArray = [...sessArray,session]
           if(session.status == 'r') setSessStarting(true)
         });
-        setSessions(sessArray)
       })
   }
   //on mount
@@ -128,10 +130,10 @@ export default function HomeScreen(props){
       }
     }
     return () => {
-      if(that?.sessionListener) {
-        that.sessionListener()
-        that.sessionListener = null
-      }
+      // if(that?.sessionListener) {
+      //   that.sessionListener()
+      //   that.sessionListener = null
+      // }
     }
   },[props.route.params,sessionsReference])
   //user
@@ -228,7 +230,7 @@ export default function HomeScreen(props){
   React.useEffect(()=>{
     if(assets){
       setAvatar(assets.avatar)
-      setIcons(assets.login)
+      setIcons(assets.home)
     }
   },[assets])
   //useruid and sessions reference
@@ -248,8 +250,8 @@ export default function HomeScreen(props){
     if(user.picture)setPictureUrl(user.picture)
     return () => {
       if(that?.sessionListener) {
-        that.sessionListener()
-        that.sessionListener = null
+        // that.sessionListener()
+        // that.sessionListener = null
       }
     }
   },[user,sessionsReference])
@@ -318,7 +320,8 @@ export default function HomeScreen(props){
         <View style={styles.horizontalView}>
           <View stlye={{flex:2}}>
             <View style={{margin:10}}>
-              <Image style={styles.roundImage} source={{uri: profilePicture? profilePicture : avatarUri}}/>
+              <Image style={styles.roundImage}
+                source={{uri: profilePicture? profilePicture : avatarUri}}/>
             </View>
           </View>
           <View style={{flex:5}}>
@@ -336,7 +339,7 @@ export default function HomeScreen(props){
           <TouchableOpacity style={styles.listItemContainer}
             onPress={() => {props.navigation.navigate('friends')}}>
               <View>
-                <Image style={styles.largeInputIcon} source={{uri: icons?.username}}/>
+                <Image style={styles.largeInputIcon} source={{uri: icons?.search}}/>
               </View>
               <View style={{flex:1}}></View>
               <View style={{flex:4}}>
@@ -346,7 +349,7 @@ export default function HomeScreen(props){
           <TouchableOpacity style={styles.listItemContainer}
               onPress={() => {props.navigation.navigate('invitations')}}>
               <View>
-                <Image style={styles.largeInputIcon} source={{uri: icons?.username}}/>
+                <Image style={styles.largeInputIcon} source={{uri: icons?.friends}}/>
               </View>
               <View style={{flex:1}}></View>
               <View style={{flex:4}}>
@@ -354,12 +357,22 @@ export default function HomeScreen(props){
               </View>
           </TouchableOpacity>
           {spotifyAv?
-            (playbackDevice? (<View></View>)
-              :(
+            (playbackDevice? (
+              <TouchableOpacity style={styles.listItemContainer}
+                onPress={() => setSearchDevices(true)}>
+                  <View>
+                    <Image style={styles.largeInputIcon} source={{uri: icons?.spotify}}/>
+                  </View>
+                  <View style={{flex:1}}></View>
+                  <View style={{flex:4}}>
+                    <Text>Make sure you have a Airize playlist</Text>
+                  </View>
+              </TouchableOpacity>
+            ):(
                 <TouchableOpacity style={styles.listItemContainer}
                   onPress={() => {setSearchDevices(true); setSpotifyToken('refresh')}}>
                     <View>
-                      <Image style={styles.largeInputIcon} source={{uri: icons?.username}}/>
+                      <Image style={styles.largeInputIcon} source={{uri: icons?.spotify}}/>
                     </View>
                     <View style={{flex:1}}></View>
                     <View style={{flex:4}}>
@@ -369,7 +382,7 @@ export default function HomeScreen(props){
               )):(
                 <TouchableOpacity onPress={()=>askToken(true)} style={styles.listItemContainer}>
                     <View>
-                      <Image style={styles.largeInputIcon} source={{uri: icons?.username}}/>
+                      <Image style={styles.largeInputIcon} source={{uri: icons?.spotify}}/>
                     </View>
                     <View style={{flex:1}}></View>
                     <View style={{flex:4}}>

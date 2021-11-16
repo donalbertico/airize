@@ -108,9 +108,6 @@ const styles = StyleSheet.create({
   verticalSpace:{
     marginBottom : 5
   },
-  timer:{
-    backgroundColor:theme.colors.dark
-  },
   ligthText:{
     color : theme.colors.ligth
   },
@@ -118,14 +115,15 @@ const styles = StyleSheet.create({
     color: '#999999'
   },
   menuOption:{
-    height : 65,
-    width : 68,
+    height : 55,
+    width : 75,
     backgroundColor: '#E5E5E5'
   },
   sessionItem: {
-    backgroundColor: theme.colors.ligth,
     borderRadius: 5,
-    margin : 5
+    margin : 5,
+    borderBottomWidth : 1,
+    borderColor : theme.colors.ligth
   },
   modalView: {
     alignItems: 'center',
@@ -149,6 +147,12 @@ const styles = StyleSheet.create({
     height:100,
     width:100,
     borderRadius: 100
+  },
+  smallRoundImage: {
+    height: 40,
+    width: 40,
+    borderRadius: 100,
+    marginRight: 10
   },
   verticalJump:{
     height: '5%'
@@ -185,11 +189,14 @@ const styles = StyleSheet.create({
     borderColor : theme.colors.ligth
   },
   h2:{
-    fontSize : 25
+    fontSize : 25,
+    fontFamily : 'ubuntu'
+
   },
   h2_ligth:{
     fontSize : 25,
-    color : theme.colors.white
+    color : theme.colors.white,
+    fontFamily : 'ubuntu'
   },
   subtext:{
     fontSize : 13,
@@ -200,6 +207,17 @@ const styles = StyleSheet.create({
     backgroundColor : theme.colors.ligth,
     alignItems : 'center',
     justifyContent : 'center'
+  },
+  line: {
+    height : 1,
+    margin : 10,
+    backgroundColor : theme.colors.secondary
+  },
+  flatFullButton: {
+    backgroundColor : theme.colors.ligth,
+    flex: 1,
+    justifyContent : 'center',
+    flexDirection : 'row'
   }
 })
 

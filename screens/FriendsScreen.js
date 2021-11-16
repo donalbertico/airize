@@ -8,82 +8,21 @@ import * as firebase from 'firebase'
 import { styles} from './styles'
 import 'firebase/firestore'
 import useUserRead from '../hooks/useUserRead'
+import useAirizers from '../hooks/useAirizer'
 
 import NavBar from './components/bottomNavComponent'
+import UserItem from './components/userItemComponent'
 
 export default function FriendsScreen(props){
-  const [users,setUsers] = React.useState()
-  const [friends,setFriends] = React.useState()
-  const [user,readUser] = useUserRead('get')
-  const [sessionsReference,setSessionsReference] = React.useState()
+  const [friends,contacts] = useAirizers()
   const [showCalendar,setShowCalendar] = React.useState(false)
   const [candidate,setCandidate] = React.useState()
   const [date,setDate] = React.useState(new Date())
-  const [contacts, setContacts] = React.useState()
   const [searchVal, setSearchVal] = React.useState()
   const [searchResult, setSearchResult] = React.useState()
   const [receiver, setReceiver] = React.useState()
   const [receiverNumber, setReceiverNumber] = React.useState()
 
-  const createSession = (date) => {
-    setShowCalendar(false)
-    if(!date) return;
-    sessionsReference.add({
-        users: [candidate,user.uid],
-        status: 'c',
-        dueDate : firebase.firestore.Timestamp.fromDate(date),
-        host : user.uid
-      })
-      .then((doc)=>{
-        console.log('created');
-      })
-      .catch((e)=>{console.log(e);})
-  }
-
-  React.useEffect(() => {
-    async function getContacts(){
-      try {
-        const { status } = await Contacts.requestPermissionsAsync();
-        if(status == 'granted'){
-          const { data } = await Contacts.getContactsAsync({
-            fields: [Contacts.Fields.Emails],
-          });
-          if (data.length > 0) setContacts(data)
-        }
-      } catch (e) {
-        console.log('error in contacts',e);
-      }
-    }
-    if(user.uid){
-      let db = firebase.firestore()
-      setSessionsReference(db.collection('sessions'))
-      db.collection('users').get()
-        .then((docs) => {
-          let userArray = []
-          docs.forEach((item, i) => {
-            let user = item.data()
-            user.uid = item.id
-            userArray = [...userArray,user]
-          });
-          setUsers(userArray)
-        })
-        getContacts()
-    }
-  },[user])
-  React.useEffect(() => {
-    if(contacts && users){
-      let friends = []
-      setFriends(friends)
-      contacts.forEach((contact, i) => {
-        contact.emails.forEach((email, i) => {
-          users.forEach((user, i) => {
-            if(email.email == user.email) friends = [...friends, {...contact, uid : user.uid}]
-          });
-        });
-      });
-      setFriends(friends)
-    }
-  },[contacts,users])
   React.useEffect(() => {
     if(searchVal) {
       const match = contacts.filter(element => {
@@ -95,26 +34,18 @@ export default function FriendsScreen(props){
     }
   },[searchVal])
   React.useEffect(() => {
-    async function getContact(){
-      const contact = await Contacts.getContactByIdAsync(receiver.id)
-      if(contact) setReceiverNumber(contact.phoneNumbers[0]?.number)
-    }
-    if(receiver?.id){
-      getContact()
-    }
-  },[receiver])
-  React.useEffect(() => {
-    async function sendSMS(){
+    async function sendSMS(number){
       const { result } = await SMS.sendSMSAsync(
-        [receiverNumber],
+        [number],
         "Hey I'am using Airize,\n\n  I would like to exersize with you, donwload the app here:\n\n airize.com"
       )
       if(result) console.log('result?');
     }
-    if(receiverNumber){
-      sendSMS()
+    if(receiver?.id && receiver.phoneNumbers[0]){
+      receiver.phoneNumbers[0].number
+      sendSMS(receiver.phoneNumbers[0].number)
     }
-  },[receiverNumber])
+  },[receiver])
 
   return (
     <View style={styles.container}>
@@ -140,25 +71,28 @@ export default function FriendsScreen(props){
         <View style={styles.verticalJump}></View>
         <FlatList data={searchResult} renderItem={
               ({item}) =>
-              <View style={styles.sessionItem}>
-                <TouchableOpacity
-                  onPress={() => {setReceiver(item)}}>
-                  <Text>{item.firstName} {item.lastName}</Text>
-                </TouchableOpacity>
-              </View>
+              <TouchableOpacity
+                style= {{ marginLeft: -5 }}
+                onPress={()=>{ setReceiver(item) }}>
+                <UserItem user={
+                    {...item,
+                      email:item.emails[0]?.email,
+                      picture: item.imageAvailable? item.image.uri : null
+                    }}/>
+              </TouchableOpacity>
             }/>
       </View>
+      <View style={styles.separator}>
+        <Text style={styles.subtext}>Your phone contacts</Text>
+      </View>
       <View style={{flex:3}}>
-        <View><Text>Friends :</Text></View>
-        <View style={styles.verticalJump}></View>
         <FlatList data={friends} renderItem={
             ({item}) =>
-            <View style={styles.sessionItem}>
               <TouchableOpacity
-                onPress={()=>{ props.navigation.navigate('newSession',{guests : [item] }) }}>
-                <Text>{item.firstName} {item.lastName}</Text>
+                style= {{ marginLeft: -5 }}
+                onPress={() => { props.navigation.navigate('newSession',{guests : [item] }) }}>
+                <UserItem user={item}/>
               </TouchableOpacity>
-            </View>
           }/>
       </View>
       <NavBar navigation={props.navigation} route={1}/>

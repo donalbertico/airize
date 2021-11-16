@@ -47,8 +47,8 @@ export default function Timer(props){
   },[ms])
 
   return(
-    <View style={styles.timer}>
-      {hidden && (<Text h2 style={styles.ligthText}>{h}:{m}:{s}:{ms}</Text>)}
+    <View >
+      <Text style={styles.h2}>{h}:{m}:{s}</Text>
     </View>
   )
 }

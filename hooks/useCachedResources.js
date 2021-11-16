@@ -33,7 +33,18 @@ export default function useCachedResources(){
     require('../assets/friendsSelected.png'),
     require('../assets/linkSelected.png'),
     require('../assets/propertiesSelected.png'),
-    require('../assets/searchSelected.png')
+    require('../assets/searchSelected.png'),
+    require('../assets/userImage.png'),
+    require('../assets/feedback.png'),
+    require('../assets/passwordDark.png'),
+    require('../assets/shareDark.png'),
+    require('../assets/planDark.png'),
+    require('../assets/spotifyDark.png'),
+    require('../assets/homeUnselected.png'),
+    require('../assets/backwards.png'),
+    require('../assets/play.png'),
+    require('../assets/forwards.png'),
+    require('../assets/pause.png'),
   ])
   const [storedAssets,storeAssets] = useAssetStore()
   const [assetsLoaded,setLoaded] = React.useState(false)
@@ -116,7 +127,7 @@ export default function useCachedResources(){
       assetsOb.logo = assets[1].localUri
       assetsOb.avatar= assets[2].localUri
       assetsOb.menu = {
-        home: assets[3].localUri,
+        home: assets[23].localUri,
         search: assets[4].localUri,
         friends: assets[5].localUri,
         link: assets[6].localUri,
@@ -133,6 +144,22 @@ export default function useCachedResources(){
         email : assets[10].localUri,
         password: assets[11].localUri,
         username: assets[12].localUri
+      }
+      assetsOb.preferences = {
+        profile : assets[17].localUri,
+        feedback : assets[18].localUri,
+        password : assets[19].localUri
+      }
+      assetsOb.home = {
+        search : assets[20].localUri,
+        friends : assets[21].localUri,
+        spotify : assets[22].localUri
+      }
+      assetsOb.music = {
+        previous : assets[24].localUri,
+        play : assets[25].localUri,
+        next : assets[26].localUri,
+        pause : assets[27].localUri
       }
       storeAssets(assetsOb)
       setLoaded(true)
