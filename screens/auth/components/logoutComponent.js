@@ -1,7 +1,7 @@
 import React, {Component} from 'react'
 import * as firebase from 'firebase'
 import {View, TouchableOpacity} from 'react-native'
-import {Button} from 'react-native-elements'
+import {Text} from 'react-native-elements'
 
 export default class Logout extends Component {
 
@@ -11,9 +11,9 @@ export default class Logout extends Component {
     }
 
     return(
-      <View>
-        <Button title='Logout' type='clear' onPress={_logout}/>
-      </View>
+      <TouchableOpacity onPress={_logout}>
+        <Text>Log out</Text>
+      </TouchableOpacity>
     )
   }
 }

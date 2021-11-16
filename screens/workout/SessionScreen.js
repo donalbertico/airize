@@ -7,7 +7,13 @@ import 'firebase/firestore'
 import Voice from '@react-native-voice/voice'
 import {PorcupineManager} from '@picovoice/porcupine-react-native'
 import SpotifyWebApi from 'spotify-web-api-js'
-import { View, TouchableOpacity, Modal, ActivityIndicator, Platform, Image} from 'react-native'
+import { View,
+  TouchableOpacity,
+  Modal,
+  ActivityIndicator,
+  Platform,
+  Image,
+  SafeAreaView } from 'react-native'
 import {Text} from 'react-native-elements'
 import { Ionicons } from '@expo/vector-icons';
 import {styles} from '../styles'
@@ -21,7 +27,7 @@ import useProfilePicture from '../../hooks/useProfilePicture'
 
 export default function SessionScreen(props){
   const [user] = useUserRead('get')
-  const [messageLimit,setMessageLimit] = React.useState(10)
+  const [messageLimit,setMessageLimit] = React.useState(5)
   const [refreshErr,refreshedTokens,setRefresh] = useSpotifyTokenRefresh(false)
   const [storedToken] = useSpotifyTokenStore()
   const [assets,setAssets] = useAssetStore()
@@ -32,6 +38,7 @@ export default function SessionScreen(props){
   const [logoUri,setLogo] = React.useState()
   const [playbackInfo,setPlayInfo] = React.useState()
   const [playbackImage,setPlayImage] = React.useState()
+  const [playbackCurrent,setPlaybackCurrent] = React.useState()
   const [playlistCover,setPlaylistCover] = React.useState()
   const [isRecording,setIsRecording] = React.useState(false)
   const [pause,setPause] = React.useState(true)
@@ -75,6 +82,8 @@ export default function SessionScreen(props){
   const [inactive, setInactive] = React.useState(false)
   const [ios, setIos] = React.useState(Platform.OS == 'ios' ? true : false)
   const [guestUser, setGuestUSer] = React.useState()
+  const [icons, setIcons] = React.useState()
+  const [session, setSession] = React.useState()
 
   const workSpeechResultsHandler = (results) =>{
     let options = results.value
@@ -103,11 +112,15 @@ export default function SessionScreen(props){
               return;
             }
             else if (word=='record' || word=='send' || word=='message'){
+              setMessageLimit(5)
               setUnderstood(true)
               setVoiceListening(false)
               if(playing){
                 setWasPlaying(true)
                 setSpotifyCall('pause');
+              }
+              if(next == 'long'){
+                setMessageLimit(10)
               }
               setTellChange('recording')
               setStatus('r')
@@ -190,9 +203,17 @@ export default function SessionScreen(props){
             setUpdateSession('working')
             setWakeListening(true)
             return;
-          }else if (word=='record'||word=='send'||word=='message'){
+          }else if (word=='record' || word=='send' || word=='message'){
+            setMessageLimit(5)
             setUnderstood(true)
             setVoiceListening(false)
+            if(playing){
+              setWasPlaying(true)
+              setSpotifyCall('pause');
+            }
+            if(next == 'long'){
+              setMessageLimit(10)
+            }
             setTellChange('recording')
             setStatus('r')
             setIsRecording(true)
@@ -227,8 +248,16 @@ export default function SessionScreen(props){
             setWakeListening(true)
             return;
           }else if (word=='record' || word=='send' || word=='message'){
+            setMessageLimit(5)
             setUnderstood(true)
             setVoiceListening(false)
+            if(playing){
+              setWasPlaying(true)
+              setSpotifyCall('pause');
+            }
+            if(next == 'long'){
+              setMessageLimit(10)
+            }
             setTellChange('recording')
             setStatus('r')
             setIsRecording(true)
@@ -262,6 +291,22 @@ export default function SessionScreen(props){
             setVoiceListening(false)
             setUpdateSession('askLeave')
             setWakeListening(true)
+            return;
+          }else if (word=='record' || word=='send' || word=='message'){
+            setMessageLimit(5)
+            setUnderstood(true)
+            setVoiceListening(false)
+            if(playing){
+              setWasPlaying(true)
+              setSpotifyCall('pause');
+            }
+            if(next == 'long'){
+              setMessageLimit(10)
+            }
+            setTellChange('recording')
+            setStatus('r')
+            setIsRecording(true)
+            setRecordTime(1)
             return;
           }
         }
@@ -332,7 +377,6 @@ export default function SessionScreen(props){
       if(item != sessionInfo.host){
         db.collection('users').doc(item).get()
             .then((doc) => {
-              console.log(doc.data,'?');
               setGuestUSer({...doc.data(), id : doc.uid})
             })
       }
@@ -364,16 +408,15 @@ export default function SessionScreen(props){
         sessionReference.onSnapshot((snapshot) => {
           let data = snapshot.data()
           if(data?.playback)setPlayInfo(data.playback)
+          setSession(data)
           switch (data.status) {
             case 'al':
               setStatus('al')
-              setLeaver(data.leaver)
               setAskLeave(true)
               setPauseModal(false)
               break;
             case 'ap':
               setStatus('ap')
-              setLeaver(data.leaver)
               setAskPause(true)
               break;
             case 'f':
@@ -455,7 +498,7 @@ export default function SessionScreen(props){
         })
         break;
       case 'pause':
-        Analytics.logEvent('SessionPaused', {
+        Analytics.logEvent('session_paused', {
           user: user.uid,
           screen: 'session',
           purpose: 'session paused',
@@ -472,6 +515,7 @@ export default function SessionScreen(props){
         sessionReference.update({
           status : 'f',
           time : time,
+          endDate : firebase.firestore.Timestamp.fromDate(new Date()),
           playback : {
             status : 's',
           }
@@ -685,12 +729,12 @@ export default function SessionScreen(props){
         break;
       case 'al':
         Voice.onSpeechResults = leavingSpeechResultHandler
-        if(leaver == user.uid) setTellChange('waitLeaveConfirmation')
+        if(session?.leaver == user.uid) setTellChange('waitLeaveConfirmation')
         else setTellChange('askLeave')
         break;
       case 'ap':
         Voice.onSpeechResults = pausingSpeechResultHandler
-        if(leaver == user.uid) setTellChange('waitPauseConfirmation')
+        if(session?.leaver == user.uid) setTellChange('waitPauseConfirmation')
         else setTellChange('askPause')
         break;
       case 'p':
@@ -733,7 +777,7 @@ export default function SessionScreen(props){
     }
     if(recordTime == 1){
       setTimeout(()=>{ record()},200)
-      Analytics.logEvent('MessageRecorded', {
+      Analytics.logEvent(messageLimit == 5 ?'message_recorded' : 'long_message_recorded', {
         user: user.uid,
         screen: 'session',
         purpose: 'message recorded',
@@ -892,6 +936,7 @@ export default function SessionScreen(props){
       try {
         await client.play()
         setPlaying(true)
+        setSpotifyCall('getCurrentTrack')
       } catch (e) {
         setPlaying(false)
         setSpotifyError({type : 'resume', e : e})
@@ -973,6 +1018,8 @@ export default function SessionScreen(props){
       try {
         let current = await client.getMyCurrentPlayingTrack()
         if(current?.item){
+          console.log(current.item);
+          setPlaybackCurrent(current.item)
           setPlayImage(current.item.album.images[0].url)
         }else{
           setPlayImage(playlistCover)
@@ -1191,13 +1238,10 @@ export default function SessionScreen(props){
         setInactive(false)
       }else if(nextState){
         setVoiceListening(false)
-        setWakeListening(false)
+        setWakeListening('off')
         setSessionReference()
         setInactive(true)
       }
-    }
-    return () => {
-
     }
   },[nextState])
   //assets
@@ -1206,6 +1250,7 @@ export default function SessionScreen(props){
     if(assets) {
       setAvatar(assets.avatar)
       setLogo(assets.logo)
+      setIcons(assets.music)
     }
   },[assets])
   //wordouttime - status
@@ -1235,7 +1280,7 @@ export default function SessionScreen(props){
     if(guestUser?.picture)setGuestPic(guestUser.picture)
   },[user,guestUser])
   return(
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <Modal transparent={true} visible={askLeave}>
           <View style={styles.alignCentered}>
             <View style={styles.modalView}>
@@ -1274,19 +1319,54 @@ export default function SessionScreen(props){
           </View>
       </Modal>
       <View style={styles.header}>
-        <View style={styles.horizontalView}>
-          <View style={{margin:10}}>
-            <Image style={styles.roundImage} source={{uri: hostPic? hostPic : avatarUri}}/>
-          </View>
-          <View style={{flex:1}}>
-            <Timer handleOnTime={handleOnTime} pause={pause}/>
-          </View>
-          <View style={{margin:10}}>
-            <Image style={styles.roundImage} source={{uri: guestPic? guestPic : avatarUri}}/>
+        <View style={{flex:1}}>
+          <View style={styles.alignCentered}>
+            <TouchableOpacity onPress={() => props.navigation.goBack()}>
+              <Ionicons size={30} name="arrow-back-outline" color='#E8E8E8'/>
+            </TouchableOpacity>
           </View>
         </View>
+        <View style={{justifyContent : 'center'}}>
+          <Text style={styles.h2_ligth}>Share</Text>
+        </View>
+        <View style={{flex:3}}></View>
       </View>
-      <View style={{flex:10}}>
+      <TouchableOpacity
+        style={styles.flatFullButton}>
+          <View style={{flex:1}}></View>
+          <View>
+            {isRecording?(
+              <View>
+                <Ionicons name="mic" size={70} color='black'/>
+              </View>
+            ):(isReproducing?(
+              <View>
+                <Ionicons name="play-outline" size={70} color='black'/>
+              </View>
+            ):(isSending &&(
+                <View>
+                  <ActivityIndicator style={{flex:2}}/>
+                </View>
+              ))
+            )}
+            {!isPremium && (<Text>not premium =()</Text>) }
+          </View>
+          <View style={{flex:1}}></View>
+      </TouchableOpacity>
+      <View style={styles.horizontalView}>
+        <View style={{margin:10}}>
+          <Image style={styles.roundImage} source={{uri: hostPic? hostPic : avatarUri}}/>
+        </View>
+        <View style={{flex:1}}>
+          <View style={styles.alignCentered}>
+            <Timer handleOnTime={handleOnTime} pause={pause}/>
+          </View>
+        </View>
+        <View style={{margin:10}}>
+          <Image style={styles.roundImage} source={{uri: guestPic? guestPic : avatarUri}}/>
+        </View>
+      </View>
+      <View style={{flex:6, backgroundColor : '#D9D9D9'}}>
         <View style={{flex:1}}></View>
         { inactive? (
           <View>
@@ -1298,52 +1378,74 @@ export default function SessionScreen(props){
           </View>
         ) : (
           <View>
-            <View style={styles.horizontalView}>
-              <View style={{flex:2}}></View>
-              <View>
-                {isRecording?(
-                  <View>
-                    <Ionicons name="mic" size={70} color='black'/>
+            {spotifyAv? (
+              playbackDevice? (
+                <>
+                  <View style={styles.horizontalView}>
+                    <View style={{flex:1}}></View>
+                    <Image
+                      style={
+                        {height:175, width:175,
+                          borderWidth : 5,
+                          borderRadius : 10,
+                          borderColor : '#343F4B'}}
+                      source={{ uri:playbackImage? playbackImage: logoUri }}/>
+                    <View style={{flex:1}}></View>
                   </View>
-                ):(isReproducing?(
-                  <View>
-                    <Ionicons name="play-outline" size={70} color='black'/>
+                  <View style={styles.verticalJump}></View>
+                  <View style={styles.horizontalView}>
+                    <View style={{flex:1}}></View>
+                    <View>
+                      <Text>{playbackCurrent?.name}</Text>
+                      <Text style={styles.subtext}>{playbackCurrent?.artists[0]?.name}</Text>
+                    </View>
+                    <View style={{flex:1}}></View>
                   </View>
-                ):(isSending &&(
-                    <View>
-                      <ActivityIndicator style={{flex:2}}/>
-                    </View>
-                  ))
-                )}
-                {!isPremium && (<Text>not premium =()</Text>) }
-              </View>
-              <View style={{flex:2}}></View>
-            </View>
-            <View>
-            </View>
-            <View style={styles.horizontalView}>
-              <View style={{flex:1}}></View>
-              {spotifyAv? (
-                playbackDevice? (
-                    <View>
-                      <Image style={{height:200, width:200}} source={{ uri:playbackImage? playbackImage: logoUri }}/>
-                    </View>
-                  ) : (
-                    <View>
-                      <Text>{playbackDevice}</Text>
+                  <View style={styles.verticalJump}></View>
+                  <View style={styles.verticalJump}></View>
+                  <View style={styles.horizontalView}>
+                    <View style={{flex:3}}></View>
+                      <TouchableOpacity onPress={() => setUpdateSession('playPrevious')}>
+                        <Image style={styles.inputIcon} source={{ uri: icons?.previous}}/>
+                      </TouchableOpacity>
+                      <View style={{flex:2}}></View>
+                      <TouchableOpacity onPress={ () => {
+                         playbackInfo?.status && playbackInfo?.status != 's' ?
+                          (
+                            setUpdateSession('pauseSpotify')
+                          ) : (
+                            setUpdateSession('play')
+                          )
+                        }}>
+                        <Image style={styles.inputIcon}
+                          source={{
+                            uri:  playbackInfo?.status && playbackInfo?.status != 's' ?
+                            (icons?.pause) :
+                            (icons?.play) }}/>
+                      </TouchableOpacity>
+                      <View style={{flex:2}}></View>
+                      <TouchableOpacity onPress={() => setUpdateSession('playNext')}>
+                        <Image style={styles.inputIcon} source={{ uri: icons?.next}}/>
+                      </TouchableOpacity>
+                    <View style={{flex:3}}></View>
+                  </View>
+                </>
+                ) : (
+                  <View style={styles.horizontalView}>
+                    <View style={{flex:1}}></View>
+                    <View style={{flex:4}}>
                       <Text>Spotify app is not open, please open it and come back</Text>
                     </View>
-                  )
-              ):(
-                <View><Text>authroize spotify to share your music</Text></View>
-              )}
-              <View style={{flex:1}}></View>
-            </View>
+                    <View style={{flex:1}}></View>
+                  </View>
+                )
+            ):(
+              <View><Text>authroize spotify to share your music</Text></View>
+            )}
           </View>
         )}
         <View style={{flex:2}}></View>
       </View>
-      <View style={{flex:1}}></View>
-    </View>
+    </SafeAreaView>
   )
 }

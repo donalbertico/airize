@@ -14,7 +14,7 @@ import {
   ImageBackground,
   SafeAreaView} from 'react-native'
 
-export default function Login({handleToRegister,handleRecoverPassword}) {
+export default function Login({handleRecoverPassword}) {
   const [email, setEmail] = React.useState('')
   const [password, setPass] = React.useState('')
   const [loading, setLoading] = React.useState(false)
@@ -22,6 +22,7 @@ export default function Login({handleToRegister,handleRecoverPassword}) {
   const [assets, setAssets] = useAssetStore()
   const [googleUri, setGoogleUri] = React.useState()
   const [fbUri, setFbUri] = React.useState()
+  const [icons, setIcons] = React.useState()
   const [reload,setReload] = React.useState(false)
   const [setUser] = useUserStore()
   const [request, googleResponse, promptAsync] = Google.useAuthRequest({
@@ -100,6 +101,7 @@ export default function Login({handleToRegister,handleRecoverPassword}) {
     if(assets){
       setFbUri(assets.facebook)
       setGoogleUri(assets.google)
+      setIcons(assets.login)
       setReload(false)
     }else{
       setReload(true)
@@ -107,9 +109,7 @@ export default function Login({handleToRegister,handleRecoverPassword}) {
     }
   },[assets])
   React.useEffect(() => {
-    if(reload){
-      setTimeout(()=>setAssets('get'),200)
-    }
+    if(reload) setTimeout(()=>setAssets('get'),200)
   },[reload])
   React.useEffect(() => {
     if(googleResponse?.params?.access_token){
@@ -134,8 +134,6 @@ export default function Login({handleToRegister,handleRecoverPassword}) {
     }
   },[googleResponse])
 
-
-
   return (
     <View>
         {loading?(
@@ -143,30 +141,38 @@ export default function Login({handleToRegister,handleRecoverPassword}) {
         ):(
           <>
             <Text style={styles.ligthText}>{error}</Text>
-            <Input style={styles.ligthText} inputContainerStyle={styles.inputContainer} placeholder='Email' value={email} onChangeText={email => setEmail(email)}/>
-            <Input style={styles.ligthText} inputContainerStyle={styles.inputContainer} placeholder='Password' value={password} secureTextEntry={true} onChangeText={password => setPass(password)}/>
-            <Button title='Sign In' onPress={handleLogin}/>
+            <Input style={styles.ligthText}
+              inputContainerStyle={styles.inputContainer}
+              placeholder='Email' value={email}
+              rightIcon = {
+                <Image style={styles.inputIcon} source={{uri: icons?.email}} />
+              }
+              onChangeText={email => setEmail(email)}/>
+            <Input style={styles.ligthText}
+              inputContainerStyle={styles.inputContainer}
+              placeholder='Password' value={password} secureTextEntry={true}
+              rightIcon = {
+                <Image style={styles.largeInputIcon} source={{uri: icons?.password}} />
+              }
+              onChangeText={password => setPass(password)}/>
+            <Button title='Sign In' buttonStyle = {styles.buttonStyle} onPress={handleLogin}/>
             <View style={{marginTop:10}}>
-              <View style={styles.horizontalView}>
-                <TouchableOpacity onPress={()=>handleToRegister()}>
-                  <Text style={styles.ligthText}>Register</Text>
-                </TouchableOpacity>
-                <View style={{flex:1}}></View>
-                <TouchableOpacity onPress={()=>handleRecoverPassword()}>
-                  <Text style={styles.ligthText}>forgot my password</Text>
-                </TouchableOpacity>
-              </View>
                 <View style={{marginTop :10}}>
                   <View style={styles.horizontalView}>
-                    <View style={{flex:3}}></View>
+                    <View style={{flex:1}}></View>
                     <TouchableOpacity onPress={handleGoogle}>
                       <Image style={styles.authProviders} source={{uri:googleUri}}/>
                     </TouchableOpacity>
-                    <View style={{flex:1}}></View>
+                    <View style={{flex:2}}></View>
                     <TouchableOpacity onPress={handleFbLogin}>
                       <Image style={styles.authProviders} source={{uri:fbUri}}/>
                     </TouchableOpacity>
                     <View style={{flex:3}}></View>
+                    <View style={{alignItems : 'center'}}>
+                      <TouchableOpacity onPress={()=>handleRecoverPassword()}>
+                        <Text style={styles.underlined}>forgot password?</Text>
+                      </TouchableOpacity>
+                    </View>
                   </View>
                 </View>
             </View>

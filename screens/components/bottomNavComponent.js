@@ -9,32 +9,42 @@ export default function NavBar(props){
   const [menuUris,setMenuUris] = React.useState({home:'/'})
 
   React.useEffect(()=>{
-    if(assets)setMenuUris(assets.menu)
+    if(assets) setMenuUris(assets.menu)
   },[assets])
+
   return (
     <View style={styles.bottomMenu}>
       <View style={styles.horizontalView}>
-        <View style={{flex:1}}></View>
-        <TouchableOpacity onPress={()=> props.navigation.navigate('home')}>
-          <Image style={styles.menuOption} source={{uri:menuUris.home}}/>
-        </TouchableOpacity>
-        <View style={{flex:1}}></View>
-        <TouchableOpacity onPress={()=> props.navigation.navigate('invitations')}>
-          <Image style={styles.menuOption} source={{uri:menuUris.search}}/>
-        </TouchableOpacity>
-        <View style={{flex:1}}></View>
-        <TouchableOpacity onPress={() => props.navigation.navigate('friends')}>
-          <Image style={styles.menuOption} source={{uri:menuUris.friends}}/>
-        </TouchableOpacity>
-        <View style={{flex:1}}></View>
-        <TouchableOpacity onPress={() => props.handleSession()}>
-          <Image style={styles.menuOption} source={{uri:menuUris.link}}/>
-        </TouchableOpacity>
-        <View style={{flex:1}}></View>
-        <TouchableOpacity onPress={() => props.navigation.navigate('edit')}>
-          <Image style={styles.menuOption} source={{uri:menuUris.set}}/>
-        </TouchableOpacity>
-        <View style={{flex:1}}></View>
+        <View style={{flex:2}}>
+          <TouchableOpacity onPress={()=> props.navigation.navigate('home')}>
+            <Image style={styles.menuOption}
+              source={{ uri: props.route==0? menuUris.homeSe: menuUris.home}}/>
+          </TouchableOpacity>
+        </View>
+        <View style={{flex:2}}>
+          <TouchableOpacity onPress={()=> props.navigation.navigate('friends')}>
+            <Image style={styles.menuOption}
+              source={{ uri: props.route==1? menuUris.searchSe: menuUris.search}}/>
+          </TouchableOpacity>
+        </View>
+        <View style={{flex:2}}>
+          <TouchableOpacity onPress={() => props.navigation.navigate('events')}>
+            <Image style={styles.menuOption}
+              source={{ uri: props.route==2? menuUris.friendSe: menuUris.friends}}/>
+          </TouchableOpacity>
+        </View>
+        <View style={{flex:2}}>
+          <TouchableOpacity onPress={() => props.navigation.navigate('invitations')}>
+            <Image style={styles.menuOption}
+              source={{ uri: props.route==3? menuUris.linkSe: menuUris.link}}/>
+          </TouchableOpacity>
+        </View>
+        <View style={{flex:2}}>
+          <TouchableOpacity onPress={() => props.navigation.navigate('edit')}>
+            <Image style={styles.menuOption}
+              source={{ uri: props.route==4? menuUris.setSe: menuUris.set}}/>
+          </TouchableOpacity>
+        </View>
       </View>
     </View>
   )

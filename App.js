@@ -9,11 +9,14 @@ import Toast from 'react-native-toast-message'
 import useCachedResources from './hooks/useCachedResources'
 import LoginScreen from './screens/auth/LoginScreen.js'
 import EditScreen from './screens/profile/EditScreen.js'
+import FeedbackScreen from './screens/profile/FeedbackScreen.js'
+import PersonalInfoScreen from './screens/profile/PersonalInfoScreen.js'
 import RegisterScreen from './screens/auth/RegisterScreen.js'
 import SessionScreen from './screens/workout/SessionScreen.js'
 import HomeScreen from './screens/HomeScreen.js'
 import FriendsScreen from './screens/FriendsScreen.js'
 import InvitationScreen from './screens/InvitationScreen.js'
+import EventsScreen from './screens/EventsScreen.js'
 import LoadingScreen from './screens/LoadingScreen.js'
 import SessionFormScreen from './screens/profile/SessionFormScreen.js'
 import PasswordScreen from './screens/auth/PasswordScreen.js'
@@ -40,10 +43,13 @@ export default function App(props) {
               <Stack.Screen name='home' component={HomeScreen}/>
               <Stack.Screen name='session' component={SessionScreen}/>
               <Stack.Screen name='newSession' component={SessionFormScreen}/>
-              <Stack.Screen name='edit' component={EditScreen}/>
               <Stack.Screen name='friends' component={FriendsScreen}/>
               <Stack.Screen name='invitations' component={InvitationScreen}/>
-            </>
+              <Stack.Screen name='events' component={EventsScreen}/>
+              <Stack.Screen name='personalinfo' component={PersonalInfoScreen}/>
+              <Stack.Screen name='edit' component={EditScreen}/>
+              <Stack.Screen name='feedback' component={FeedbackScreen}/>
+          </>
           ) : (
             <>
               <Stack.Screen name='login' component={LoginScreen}/>
