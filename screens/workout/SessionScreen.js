@@ -1279,18 +1279,19 @@ export default function SessionScreen(props){
     if(user?.picture)setHostPic(user.picture)
     if(guestUser?.picture)setGuestPic(guestUser.picture)
   },[user,guestUser])
+
   return(
     <SafeAreaView style={styles.container}>
       <Modal transparent={true} visible={askLeave}>
           <View style={styles.alignCentered}>
             <View style={styles.modalView}>
-              {leaver==user.uid ? (
+              {leaver==user.uid  ? (
                 <View>
-                  <Text h4> asking your partener to leave ..</Text>
+                  <Text> Asking your partener to leave ..</Text>
                 </View>
               ):(
                 <View>
-                  <Text h4> your partner is asking to leave</Text>
+                  <Text> Your partner is asking to leave</Text>
                 </View>
               )}
             </View>
@@ -1299,13 +1300,13 @@ export default function SessionScreen(props){
       <Modal transparent={true} visible={askPause}>
           <View style={styles.alignCentered}>
             <View style={styles.modalView}>
-              {leaver == user.uid ? (
+              {leaver==user.uid ? (
                 <View>
-                  <Text h4> asking your partener to pause..</Text>
+                  <Text> Asking your partener to pause..</Text>
                 </View>
               ):(
                 <View>
-                  <Text h4> your partner is asking to pause</Text>
+                  <Text> Your partner is asking to pause</Text>
                 </View>
               )}
             </View>
@@ -1314,7 +1315,9 @@ export default function SessionScreen(props){
       <Modal transparent={true} visible={pauseModal}>
           <View style={styles.alignCentered}>
             <View style={styles.modalView}>
-              <Text>PAUSED</Text>
+              <View style={styles.alignCentered}>
+                <Text styles={styles.h2}>Paused</Text>
+              </View>
             </View>
           </View>
       </Modal>

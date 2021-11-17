@@ -25,12 +25,14 @@ export default function FriendsScreen(props){
 
   React.useEffect(() => {
     if(searchVal) {
-      const match = contacts.filter(element => {
-        if (element.name.includes(searchVal)) return true
-        if (element.emails[0]?.email.includes(searchVal)) return true
-      })
-      if (match) setSearchResult(match)
-      else setSearchResult([])
+      if (contacts) {
+        const match = contacts.filter(element => {
+          if (element.name.includes(searchVal)) return true
+          if (element.emails && element.emails[0]?.email.includes(searchVal)) return true
+        })
+        if (match) setSearchResult(match)
+        else setSearchResult([])
+      }
     }
   },[searchVal])
   React.useEffect(() => {
@@ -76,14 +78,14 @@ export default function FriendsScreen(props){
                 onPress={()=>{ setReceiver(item) }}>
                 <UserItem user={
                     {...item,
-                      email:item.emails[0]?.email,
+                      email:item.emails? (item.emails[0]?.email) : (' '),
                       picture: item.imageAvailable? item.image.uri : null
                     }}/>
               </TouchableOpacity>
             }/>
       </View>
       <View style={styles.separator}>
-        <Text style={styles.subtext}>Your phone contacts</Text>
+        <Text style={styles.subtext}>Airizers</Text>
       </View>
       <View style={{flex:3}}>
         <FlatList data={friends} renderItem={
