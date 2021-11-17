@@ -2,7 +2,6 @@ import React from 'react'
 import { View, Image, TouchableOpacity } from 'react-native'
 import {styles} from '../styles'
 import useAssetStore from '../../hooks/useAssetStore'
-import Logout from '../auth/components/logoutComponent'
 
 export default function NavBar(props){
   const [assets,setAssets] = useAssetStore()
