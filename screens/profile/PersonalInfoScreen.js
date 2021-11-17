@@ -17,6 +17,7 @@ export default function PersonalInfoScreen(props) {
   const [email,setEmail] = React.useState('')
   const [firstName,setFirstName] = React.useState('')
   const [lastName,setLastName] = React.useState('')
+  const [num,setNum] = React.useState('')
   const [avatarUri,setAvatar] = React.useState()
   const [loading,setLoading] = React.useState(false)
   const [userRef,setUserRef] = React.useState()
@@ -69,10 +70,18 @@ export default function PersonalInfoScreen(props) {
   }
   const handleEdit = ()=> {
     setLoading(true)
-    let newInfo = {firstName : firstName, lastName : lastName}
+    let newInfo = {firstName : firstName, lastName : lastName, number : num}
+    if(firstName == '' || lastName == '' || num != '') {
+      Toast.show({text1:'Info required',
+        text2: 'please fill all inputs' ,
+        type : 'error',
+        position : 'bottom',
+        visibilityTime: 4000})
+    }
     userRef.update(newInfo)
       .then(()=>{
         setUser({...user,...newInfo})
+        setLoading(false)
         Toast.show({text1:'Updated',
           text2: 'data updated' ,
           type : 'success',
@@ -92,6 +101,7 @@ export default function PersonalInfoScreen(props) {
   React.useEffect(() => {
     setFirstName(user.firstName)
     setLastName(user.lastName)
+    setNum(user.number)
     if(user.uid) {
       let db = firebase.firestore();
       setUserRef(db.collection('users').doc(user.uid))
@@ -141,6 +151,7 @@ export default function PersonalInfoScreen(props) {
             </View>
             <Input placeholder='first name' value={firstName} onChangeText={(name)=>setFirstName(name)}></Input>
             <Input placeholder='last name' value={lastName} onChangeText={(lastname)=>setLastName(lastname)}></Input>
+            <Input placeholder='phone number' keyboardType="numeric" value={num} onChangeText={(num)=>setNum(num)}></Input>
           </View>
         </View>
       ):(

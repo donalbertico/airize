@@ -20,7 +20,6 @@ import EventsScreen from './screens/EventsScreen.js'
 import LoadingScreen from './screens/LoadingScreen.js'
 import SessionFormScreen from './screens/profile/SessionFormScreen.js'
 import PasswordScreen from './screens/auth/PasswordScreen.js'
-import Logout from './screens/auth/components/logoutComponent'
 
 const Stack = createStackNavigator();
 

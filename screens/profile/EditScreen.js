@@ -9,11 +9,14 @@ import useAssetStore from '../../hooks/useAssetStore'
 
 
 import NavBar from '../components/bottomNavComponent'
-import Logout from '../auth/components/logoutComponent'
 
 export default function EditScreen(props){
   const [assets,setAssets] = useAssetStore()
   const [icons,setIcons] = React.useState()
+  const [callLogout,setCallLogout] = React.useState(false)
+  const _logout = () =>{
+    firebase.auth().signOut()
+  }
 
   React.useEffect(() => {
     if(assets){
@@ -67,14 +70,14 @@ export default function EditScreen(props){
               <Text>Password</Text>
             </View>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.listItemContainer}>
+        <TouchableOpacity style={styles.listItemContainer} onPress={_logout}>
             <View>
               <Ionicons size={32} name="exit" color='#343F4B'/>
             </View>
             <View style={{flex:1}}>
             </View>
             <View style={{flex:5}}>
-              <Logout/>
+              <Text>Log out</Text>
             </View>
         </TouchableOpacity>
       </View>

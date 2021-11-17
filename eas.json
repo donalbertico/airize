@@ -1,0 +1,15 @@
+{
+  "build": {
+    "production": {
+      "releaseChannel": "production"
+    },
+    "preview": {
+      "releaseChannel": "staging",
+      "distribution": "internal"
+    }
+  },
+  "cli": {
+    "version": ">= 0.36.1",
+    "requireCommit": true
+  }
+}

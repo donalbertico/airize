@@ -5,9 +5,9 @@
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
-    "facebookScheme" : "fb447773566952295",
-    "facebookAppId" : "447773566952295",
-    "facebookDisplayName" : "airize",
+    "facebookScheme": "fb447773566952295",
+    "facebookAppId": "447773566952295",
+    "facebookDisplayName": "airize",
     "scheme": "airize",
     "splash": {
       "image": "./assets/splash.png",
@@ -24,9 +24,11 @@
       "supportsTablet": true,
       "infoPlist": {
         "NSMicrophoneUsageDescription": "This app uses the microphone to listen for commands and record messages",
-        "UIBackgroundModes" : [
+        "UIBackgroundModes": [
           "audio"
-        ]
+        ],
+        "NSPhotoLibraryUsageDescription": "The app accesses your photos to set a profile picture",
+        "NSCameraUsageDescription": "Allow $(PRODUCT_NAME) to access your camera"
       },
       "bundleIdentifier": "app.ios.airize"
     },
@@ -35,8 +37,14 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#FFFFFF"
       },
-      "package": "app.android.airize",
-      "googleServicesFile": "./google-services.json"
+      "googleServicesFile": "./google-services.json",
+      "permissions": [
+        "android.permission.RECORD_AUDIO",
+        "android.permission.CAMERA",
+        "android.permission.READ_EXTERNAL_STORAGE",
+        "android.permission.WRITE_EXTERNAL_STORAGE"
+      ],
+      "package": "app.ios.airize"
     },
     "web": {
       "favicon": "./assets/favicon.png",

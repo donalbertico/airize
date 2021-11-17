@@ -16,6 +16,7 @@ export default function useAirizers(){
         const { status } = await Contacts.requestPermissionsAsync();
         if(status == 'granted'){
           const { data } = await Contacts.getContactsAsync();
+          console.log(data);
           if (data.length > 0) setContacts(data)
         }
       } catch (e) {
@@ -43,16 +44,38 @@ export default function useAirizers(){
       let friends = []
       setFriends(friends)
       contacts.forEach((contact, i) => {
-        contact.emails.forEach((email, j) => {
+        let added = false
+        contact.emails?.forEach((email, j) => {
           users.forEach((userData, y) => {
-            if(email.email == userData.email) friends = [...friends,
-              {...contact,
-                uid : userData.uid,
-                picture : userData.picture,
-                email : userData.email
-               }]
+            if(userData.email != user.email) {
+              if(email.email == userData.email) {
+                added = true
+                friends = [...friends,
+                            {...contact,
+                              uid : userData.uid,
+                              picture : userData.picture,
+                              email : userData.email,
+                              phone : userData.phone
+                             }]
+              }
+            }
           });
         });
+        if(!added) contact.phoneNumbers?.forEach((phone, j) => {
+          users.forEach((userData, y) => {
+            if(userData.email != user.email) {
+              if(phone.number == userData.number) {
+                friends = [...friends,
+                            {...contact,
+                              uid : userData.uid,
+                              picture : userData.picture,
+                              email : userData.email,
+                              phone : userData.phone
+                             }]
+                }
+              }
+            });
+          });
       });
       setFriends(friends)
     }

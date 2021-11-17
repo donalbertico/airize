@@ -18,7 +18,6 @@ import useSpotifyTokenRefresh from '../hooks/useSpotifyTokenRefresh'
 import useAssetStore from '../hooks/useAssetStore'
 import useAppState from '../hooks/useAppState'
 import useNotifications from '../hooks/useNotifications'
-import Logout from './auth/components/logoutComponent'
 import NavBar from './components/bottomNavComponent'
 import SessionList from './components/sessionListComponent'
 
