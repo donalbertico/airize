@@ -4,6 +4,7 @@ import * as Analytics from 'expo-firebase-analytics';
 import { View, TouchableOpacity, SafeAreaView } from 'react-native'
 import { Button, Text, FlatList } from 'react-native-elements'
 import { Ionicons } from '@expo/vector-icons';
+import Toast from 'react-native-toast-message'
 import {styles} from './styles'
 import useUserRead from '../hooks/useUserRead'
 import SessionList from './components/sessionListComponent'
@@ -17,10 +18,16 @@ export default function EventsScreen(props) {
   const [user,setUser] = useUserRead('get')
 
   const handleSessionSelected = (session) => {
-    sessionsReference.doc(session.id)
-      .update({
-        status : 'r'
-      })
+    if(session.host == user.uid){
+      sessionsReference.doc(session.id)
+        .update({
+          status : 'r'
+        })
+    }else{
+      Toast.show({text1:'Not the Host',
+        text2: 'Just Hosts can start the workout' ,
+        type : 'error', position : 'bottom', visibilityTime: 4000})
+    }
   }
   const setNewReferenceQuery = () => {
     return sessionsReference

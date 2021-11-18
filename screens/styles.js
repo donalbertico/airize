@@ -143,7 +143,8 @@ const styles = StyleSheet.create({
   },
   buttonStyle: {
     borderRadius: 50,
-    height : 50
+    height : 50,
+    backgroundColor : theme.colors.primary
   },
   roundImage: {
     height:100,
@@ -220,6 +221,9 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent : 'center',
     flexDirection : 'row'
+  },
+  secondaryButton:{
+    color : theme.colors.secondary
   }
 })
 

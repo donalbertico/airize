@@ -13,9 +13,7 @@ export default function useAirizers(){
   const compareNumbers = (num1 , num2) => {
     let count = 0
     for (var i = 0; i < num1.length; i++) {
-      if (num2.includes( num1[i] )){
-        count++
-      }
+      if (num2.includes( num1[i] )) count++
     }
     if (count > 7) return true
     else return false
