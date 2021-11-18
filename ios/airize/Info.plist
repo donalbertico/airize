@@ -65,7 +65,7 @@
       </dict>
     </dict>
     <key>NSCameraUsageDescription</key>
-    <string>Allow $(PRODUCT_NAME) to access your camera</string>
+    <string>Allow Airize to access your camera</string>
     <key>NSContactsUsageDescription</key>
     <string>Allow $(PRODUCT_NAME) to access your contacts</string>
     <key>NSMicrophoneUsageDescription</key>
