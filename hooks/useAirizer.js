@@ -51,24 +51,24 @@ export default function useAirizers(){
   },[user])
   useEffect(() => {
     if(contacts && users){
-      let friends = []
-      setFriends(friends)
+      setFriends([])
       users.forEach((userData, u) => {
         contacts.forEach((contact, i) => {
           let added = false
           contact.emails?.forEach((email, j) => {
             if(userData.email == email.email){
-              friends.push({...userData, ... contact})
+              // friends.push({...userData, ... contact})
+              setFriends( friends => [...friends,{...userData, ... contact}])
             }
           });
           if(!added) contact.phoneNumbers?.forEach((phone, j) => {
             if(userData.number && compareNumbers(userData.number, phone.number)){
-              friends.push({...userData, ... contact})
+              // friends.push({...userData, ... contact})
+              setFriends( friends => [...friends,{...userData, ... contact}])
             }
             });
         });
       });
-      setFriends(friends)
     }
   },[contacts,users])
 

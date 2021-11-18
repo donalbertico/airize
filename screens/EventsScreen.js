@@ -18,6 +18,8 @@ export default function EventsScreen(props) {
   const [user,setUser] = useUserRead('get')
 
   const handleSessionSelected = (session) => {
+    console.log(session);
+    console.log(user.uid);
     if(session.host == user.uid){
       sessionsReference.doc(session.id)
         .update({
