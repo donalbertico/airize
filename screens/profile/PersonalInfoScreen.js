@@ -71,31 +71,33 @@ export default function PersonalInfoScreen(props) {
   const handleEdit = ()=> {
     setLoading(true)
     let newInfo = {firstName : firstName, lastName : lastName, number : num}
-    if(firstName == '' || lastName == '' || num != '') {
+    if(firstName == '' || lastName == '' || num == '') {
       Toast.show({text1:'Info required',
         text2: 'please fill all inputs' ,
         type : 'error',
         position : 'bottom',
         visibilityTime: 4000})
+        setLoading(false)
+    }else {
+      userRef.update(newInfo)
+        .then(()=>{
+          setUser({...user,...newInfo})
+          setLoading(false)
+          Toast.show({text1:'Updated',
+            text2: 'data updated' ,
+            type : 'success',
+            position : 'bottom',
+            visibilityTime: 4000})
+        })
+        .catch((e) => {
+          setLoading(false)
+          Toast.show({text1:'Error',
+            text2: e.message ,
+            type : 'error',
+            position : 'bottom',
+            visibilityTime: 4000})
+        })
     }
-    userRef.update(newInfo)
-      .then(()=>{
-        setUser({...user,...newInfo})
-        setLoading(false)
-        Toast.show({text1:'Updated',
-          text2: 'data updated' ,
-          type : 'success',
-          position : 'bottom',
-          visibilityTime: 4000})
-      })
-      .catch((e) => {
-        setLoading(false)
-        Toast.show({text1:'Error',
-          text2: e.message ,
-          type : 'error',
-          position : 'bottom',
-          visibilityTime: 4000})
-      })
   }
 
   React.useEffect(() => {
