@@ -25,38 +25,39 @@ const Stack = createStackNavigator();
 
 
 export default function App(props) {
-  const [auth] = useCachedResources()
+  const [auth, ready] = useCachedResources()
   const [showApp, setShowApp] = React.useState(false)
+  const [myTheme, setTheme] = React.useState({})
 
   React.useEffect(()=>{
-    if(auth == true) setShowApp(true)
+    if(ready) setTheme(theme)
+    if(auth == true && ready) setShowApp(true)
     if(!auth) setShowApp(false)
-  },[auth])
+  },[auth, ready])
 
   return (
-    <ThemeProvider theme={theme}>
+    <ThemeProvider theme={myTheme}>
       <NavigationContainer>
         <Stack.Navigator screenOptions={{headerShown:false}}>
-          {showApp? (
-            <>
-              <Stack.Screen name='home' component={HomeScreen}/>
-              <Stack.Screen name='session' component={SessionScreen}/>
-              <Stack.Screen name='newSession' component={SessionFormScreen}/>
-              <Stack.Screen name='friends' component={FriendsScreen}/>
-              <Stack.Screen name='invitations' component={InvitationScreen}/>
-              <Stack.Screen name='events' component={EventsScreen}/>
-              <Stack.Screen name='personalinfo' component={PersonalInfoScreen}/>
-              <Stack.Screen name='edit' component={EditScreen}/>
-              <Stack.Screen name='feedback' component={FeedbackScreen}/>
-          </>
-          ) : (
-            <>
-              <Stack.Screen name='login' component={LoginScreen}/>
-              <Stack.Screen name='register' component={RegisterScreen}/>
-              <Stack.Screen name='loading' component={LoadingScreen}/>
+            {showApp? (
+              <>
+                <Stack.Screen name='home' component={HomeScreen}/>
+                <Stack.Screen name='session' component={SessionScreen}/>
+                <Stack.Screen name='newSession' component={SessionFormScreen}/>
+                <Stack.Screen name='friends' component={FriendsScreen}/>
+                <Stack.Screen name='invitations' component={InvitationScreen}/>
+                <Stack.Screen name='events' component={EventsScreen}/>
+                <Stack.Screen name='personalinfo' component={PersonalInfoScreen}/>
+                <Stack.Screen name='edit' component={EditScreen}/>
+                <Stack.Screen name='feedback' component={FeedbackScreen}/>
             </>
-          )}
-          <Stack.Screen name='password' component={PasswordScreen}/>
+            ) : (
+              <>
+                <Stack.Screen name='login' component={LoginScreen}/>
+                <Stack.Screen name='register' component={RegisterScreen}/>
+              </>
+            )}
+            <Stack.Screen name='password' component={PasswordScreen}/>
         </Stack.Navigator>
       </NavigationContainer>
       <Toast ref={(ref) => Toast.setRef(ref)}/>

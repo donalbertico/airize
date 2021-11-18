@@ -49,15 +49,20 @@ export default function useCachedResources(){
   ])
   const [storedAssets,storeAssets] = useAssetStore()
   const [assetsLoaded,setLoaded] = React.useState(false)
+  const [userReady,setUserReady] = React.useState(false)
   const [ready,setReady] = React.useState(false)
+  const [fontReady,setFontReady] = React.useState(false)
   const [keys,storeKeys] = useKeyStore()
 
   React.useEffect(()=>{
+    SplashScreen.preventAutoHideAsync();
     async function loadResourcesAndDataAsync(){
       await Font.loadAsync({
         'ubuntu' : require('../assets/Ubuntu-R.ttf')
+      }).then(() => {
+        console.log('load??');
+        setFontReady(true)
       })
-      SplashScreen.preventAutoHideAsync();
       try {
         firebase.initializeApp(apiKeys.firebase)
         let db = firebase.firestore()
@@ -77,7 +82,7 @@ export default function useCachedResources(){
             setIsNew(false)
             setAuth(false)
             setUser({destroyed :true})
-            setReady(true)
+            setUserReady(true)
           }
         })
       } catch (err) {
@@ -95,7 +100,7 @@ export default function useCachedResources(){
   React.useEffect(() => {
     if(auth==true && user!='get'){
       if(user.uid){
-        setReady(true)
+        setUserReady(true)
         return;
       }
       if(!isNew){
@@ -112,7 +117,7 @@ export default function useCachedResources(){
               newInfo.picture = docData.picture
               newInfo.provider = docData.provider
               setUser(newInfo)
-              setReady(true)
+              setUserReady(true)
             })
             .catch((e)=>{
               console.log('pepeta',e);
@@ -168,10 +173,11 @@ export default function useCachedResources(){
     }
   },[assets])
   React.useEffect(() => {
-    if(assetsLoaded && ready){
+    if(assetsLoaded && userReady && fontReady){
       SplashScreen.hideAsync()
+      setReady(true)
     }
-  },[assetsLoaded,ready])
+  },[assetsLoaded,userReady,fontReady])
 
-  return [auth]
+  return [auth, ready]
 }

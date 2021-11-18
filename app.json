@@ -21,16 +21,17 @@
       "**/*"
     ],
     "ios": {
-      "supportsTablet": true,
+      "supportsTablet": false,
       "infoPlist": {
         "NSMicrophoneUsageDescription": "This app uses the microphone to listen for commands and record messages",
         "UIBackgroundModes": [
           "audio"
         ],
         "NSPhotoLibraryUsageDescription": "The app accesses your photos to set a profile picture",
-        "NSCameraUsageDescription": "Allow $(PRODUCT_NAME) to access your camera"
+        "NSCameraUsageDescription": "Allow Airize to access your camera"
       },
-      "bundleIdentifier": "app.ios.airize"
+      "bundleIdentifier": "app.ios.airize",
+      "googleServicesFile": "./GoogleService-Info.plist"
     },
     "android": {
       "adaptiveIcon": {

@@ -15,6 +15,7 @@
 		44D1C027AC8646419FF4EF09 /* noop-file.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DA343110BE04E2E9EBCA7A2 /* noop-file.swift */; };
 		96905EF65AED1B983A6B3ABC /* libPods-airize.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 58EEBF8E8E6FB1BC6CAF49B5 /* libPods-airize.a */; };
 		BB2F792D24A3F905000567C9 /* Expo.plist in Resources */ = {isa = PBXBuildFile; fileRef = BB2F792C24A3F905000567C9 /* Expo.plist */; };
+		42DC43E323BB4B98926FF870 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = DD90A8098AA348FBA57C2404 /* GoogleService-Info.plist */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -35,6 +36,7 @@
 		E2F9DF6A54E342C1B1714463 /* airize-Bridging-Header.h */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 4; includeInIndex = 0; lastKnownFileType = sourcecode.c.h; name = "airize-Bridging-Header.h"; path = "airize/airize-Bridging-Header.h"; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
 		ED2971642150620600B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = Platforms/AppleTVOS.platform/Developer/SDKs/AppleTVOS12.0.sdk/System/Library/Frameworks/JavaScriptCore.framework; sourceTree = DEVELOPER_DIR; };
+		DD90A8098AA348FBA57C2404 /* GoogleService-Info.plist */ = {isa = PBXFileReference; name = "GoogleService-Info.plist"; path = "airize/GoogleService-Info.plist"; sourceTree = "<group>"; fileEncoding = 4; lastKnownFileType = text.plist.xml; explicitFileType = undefined; includeInIndex = 0; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -63,6 +65,7 @@
 				AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */,
 				3DA343110BE04E2E9EBCA7A2 /* noop-file.swift */,
 				E2F9DF6A54E342C1B1714463 /* airize-Bridging-Header.h */,
+				DD90A8098AA348FBA57C2404 /* GoogleService-Info.plist */,
 			);
 			name = airize;
 			sourceTree = "<group>";
@@ -190,6 +193,7 @@
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
 				13B07FBD1A68108700A75B9A /* LaunchScreen.xib in Resources */,
 				3E461D99554A48A4959DE609 /* SplashScreen.storyboard in Resources */,
+				42DC43E323BB4B98926FF870 /* GoogleService-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -374,7 +378,7 @@
 				SWIFT_OBJC_BRIDGING_HEADER = "airize/airize-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = "1";
 				VERSIONING_SYSTEM = "apple-generic";
 			};
 			name = Debug;
@@ -400,7 +404,7 @@
 				PRODUCT_NAME = airize;
 				SWIFT_OBJC_BRIDGING_HEADER = "airize/airize-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = "1";
 				VERSIONING_SYSTEM = "apple-generic";
 			};
 			name = Release;
