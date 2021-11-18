@@ -22,7 +22,6 @@ export default function InvitationScreen(props) {
   const [sessionsReference,setSessionsReference] = React.useState()
   const [usersReference,setUsersReference] = React.useState()
   const handleSessionSelected = (session) => {
-    console.log(session);
     setCandidate(session)
     setShowDialog(true)
   }
@@ -195,7 +194,7 @@ export default function InvitationScreen(props) {
             </View>
           </View>
         )}
-        <SessionList sessions={sent}/>
+        <SessionList sessions={sent} handleSessionSelected={() => {}}/>
       </View>
       <NavBar navigation={props.navigation} route={3}/>
     </SafeAreaView>

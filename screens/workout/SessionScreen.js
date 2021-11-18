@@ -81,7 +81,7 @@ export default function SessionScreen(props){
   const [iosVoiceControl, setIosVoiceControl] = React.useState(0)
   const [inactive, setInactive] = React.useState(false)
   const [ios, setIos] = React.useState(Platform.OS == 'ios' ? true : false)
-  const [guestUser, setGuestUSer] = React.useState()
+  const [guestUser, setGuestUser] = React.useState()
   const [icons, setIcons] = React.useState()
   const [session, setSession] = React.useState()
 
@@ -372,17 +372,8 @@ export default function SessionScreen(props){
     props.navigation.addListener('beforeRemove',(e)=>{
       e.preventDefault()
     })
-    let sessionInfo = props.route.params.session
-    sessionInfo.users.forEach((item, i) => {
-      if(item != sessionInfo.host){
-        db.collection('users').doc(item).get()
-            .then((doc) => {
-              setGuestUSer({...doc.data(), id : doc.uid})
-            })
-      }
-    });
     Analytics.setCurrentScreen('session');
-    setSessionReference(db.collection('sessions').doc(sessionInfo.id))
+    setSessionReference(db.collection('sessions').doc(props.route.params.session.id))
     allowRecordIos()
     setPorcupine()
     if(ios) getVoices()
@@ -599,6 +590,21 @@ export default function SessionScreen(props){
         break;
     }
   },[updateSession])
+  //session
+  //listen for session to ask for other users info
+  React.useEffect(() => {
+    if(session) {
+      let db = firebase.firestore()
+      session.users.forEach((item, i) => {
+        if(item != user.uid){
+          db.collection('users').doc(item).get()
+              .then((doc) => {
+                setGuestUser({...doc.data(), id : doc.uid})
+              })
+        }
+      });
+    }
+  },[session])
 
   //
   //Voice command listeners
@@ -1278,7 +1284,7 @@ export default function SessionScreen(props){
   React.useEffect(() => {
     if(user?.picture)setHostPic(user.picture)
     if(guestUser?.picture)setGuestPic(guestUser.picture)
-  },[user,guestUser])
+  },[guestUser])
 
   return(
     <SafeAreaView style={styles.container}>

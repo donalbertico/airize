@@ -337,7 +337,8 @@ export default function HomeScreen(props){
         if(news > 0) setLastNews(news)
       }
       if(!fromNotification){
-        if(latentSession.status == 'r') setNotification({title : 'starting'})
+        if(latentSession.status == 'r' && latentSession.host != user.uid) 
+          setNotification({title : 'starting'})
       }
     }
   },[latentSession])

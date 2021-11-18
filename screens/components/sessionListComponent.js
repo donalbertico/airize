@@ -44,7 +44,7 @@ export default function SessionList(props){
                 <SessionItem item={{...item, user:item.host}}/>
               </TouchableOpacity>
             ) : (
-              <TouchableOpacity >
+              <TouchableOpacity onPress={() => props.handleSessionSelected(item)}>
                 <SessionItem item={{...item, user:item.partner}}/>
               </TouchableOpacity>
             )}
