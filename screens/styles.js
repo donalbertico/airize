@@ -134,7 +134,9 @@ const styles = StyleSheet.create({
     elevation : 5,
     backgroundColor : theme.colors.ligth,
     margin : 20,
-    padding : 30
+    padding : 30,
+    minHeight : 150,
+    minWidth : 250,
   },
   buttonOpen: {
     backgroundColor : theme.colors.secondary

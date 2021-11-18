@@ -223,7 +223,6 @@ export default function HomeScreen(props){
       } catch (e) {
         Toast.show({text1:'Not able to connect to Spotify',
           type : 'error', position : 'bottom', visibilityTime: 4000})
-        setRefresh(true)
       }
     }
     async function getPlayLists(){
@@ -330,20 +329,23 @@ export default function HomeScreen(props){
           <View style={styles.modalView}>
             {isHost? (
               <View>
-                <Text h4>
+                <Text>
                   Waiting for your partner to start
                 </Text>
                 <View></View>
               </View>
             ): (
               <View>
-                <Text >
-                  User is asking to start
-                </Text>
-                <View></View>
-                <View>
-                  <Button style={styles.buttonOpen} title='Start Session' buttonStyle={{borderRadius:100, height:110}}
-                    titleStyle={{fontSize:20}} onPress={() => startSession()}/>
+                <View style={{marginBottom:20}}>
+                  <Text>
+                    Your friend is ready to start
+                  </Text>
+                </View>
+                <View style={styles.horizontalView}>
+                  <View style={{flex:1}}></View>
+                  <View>
+                    <Button type='clear' title='Start' onPress={() => startSession()}/>
+                  </View>
                 </View>
               </View>
             )}
@@ -430,7 +432,7 @@ export default function HomeScreen(props){
         </View>
         <View style={{flex:1}}>
           <ScrollView >
-            <Image style={{height: 650 , width : '100%'}} source={{uri: icons?.infogram}}/>
+            <Image style={{height: 710 , width : '100%'}} source={{uri: icons?.infogram}}/>
           </ScrollView>
         </View>
       </View>
