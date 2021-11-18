@@ -15,6 +15,13 @@ export default function EventsScreen(props) {
   const [usersReference,setUsersReference] = React.useState()
   const [sessions,setSessions] = React.useState()
   const [user,setUser] = useUserRead('get')
+
+  const handleSessionSelected = (session) => {
+    sessionsReference.doc(session.id)
+      .update({
+        status : 'r'
+      })
+  }
   const setNewReferenceQuery = () => {
     return sessionsReference
       .where('users', 'array-contains', user.uid)
@@ -101,7 +108,7 @@ export default function EventsScreen(props) {
           <View style={{flex:6}}></View>
       </TouchableOpacity>
       <View style={{flex:8}}>
-        <SessionList sessions={sessions} />
+        <SessionList sessions={sessions} handleSessionSelected={handleSessionSelected}/>
       </View>
       <NavBar navigation={props.navigation} route={2}/>
     </SafeAreaView>

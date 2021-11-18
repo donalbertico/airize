@@ -110,11 +110,13 @@ export default function HomeScreen(props){
         const audioPermission = await Audio.requestPermissionsAsync();
         if(audioPermission?.granted){
           setAudioPermit(true)
+          Voice.onSpeechResults = () => {}
+          Voice.onSpeechVolumeResults = () => {}
           Voice.start()
           setTimeout(() => {
             Voice.stop()
             Voice.destroy()
-          },200)
+          },150)
         }
       } catch (err) {
         console.error('Failed to start recording', err);

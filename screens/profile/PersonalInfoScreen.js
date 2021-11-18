@@ -151,7 +151,7 @@ export default function PersonalInfoScreen(props) {
             </View>
             <Input placeholder='first name' value={firstName} onChangeText={(name)=>setFirstName(name)}></Input>
             <Input placeholder='last name' value={lastName} onChangeText={(lastname)=>setLastName(lastname)}></Input>
-            <Input placeholder='phone number (avoid country code)' keyboardType="numeric" value={num} onChangeText={(num)=>setNum(num)}></Input>
+            <Input placeholder='phone number' keyboardType="numeric" value={num} onChangeText={(num)=>setNum(num)}></Input>
           </View>
         </View>
       ):(
