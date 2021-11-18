@@ -86,9 +86,7 @@ export default function InvitationScreen(props) {
   },[])
   React.useEffect(() => {
     let that = this
-    if(user?.uid && sessionsReference && that){
-      that.sessionsReference = setNewReferenceQuery()
-    }
+    if(user?.uid && sessionsReference && that) that.sessionsReference = setNewReferenceQuery()
   }, [user,sessionsReference])
   React.useEffect(() => {
     switch (updateSess) {

@@ -73,7 +73,7 @@ export default function SessionFormScreen(props) {
           visibilityTime: 4000})
         setTimeout(() =>
           props.navigation.navigate('invitations')
-        ,3000)
+        ,2000)
       })
       .catch((e)=>{console.log(e);})
   }
