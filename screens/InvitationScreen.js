@@ -22,6 +22,7 @@ export default function InvitationScreen(props) {
   const [sessionsReference,setSessionsReference] = React.useState()
   const [usersReference,setUsersReference] = React.useState()
   const handleSessionSelected = (session) => {
+    console.log(session);
     setCandidate(session)
     setShowDialog(true)
   }
@@ -80,8 +81,8 @@ export default function InvitationScreen(props) {
     Analytics.setCurrentScreen('invitations');
     return () => {
       if(that?.sessionsReference) that.sessionsReference = null
-      setSessions()
-      setSent()
+      setSessions([])
+      setSent([])
     }
   },[])
   React.useEffect(() => {
@@ -89,6 +90,7 @@ export default function InvitationScreen(props) {
     if(user?.uid && sessionsReference && that) that.sessionsReference = setNewReferenceQuery()
   }, [user,sessionsReference])
   React.useEffect(() => {
+    let that = this
     switch (updateSess) {
       case 'accept':
         setSessions([])
@@ -97,7 +99,13 @@ export default function InvitationScreen(props) {
             .then(() => {
               setUpdateSess('')
               setShowDialog(false)
-              props.navigation.navigate('home',{refresh : true})
+              Toast.show({text1:'Invitation acepted',
+                type : 'success',
+                position : 'bottom',
+                visibilityTime: 4000})
+              setTimeout(() =>
+                props.navigation.navigate('events')
+              ,1000)
             })
         break;
       case 'decline':
@@ -107,7 +115,11 @@ export default function InvitationScreen(props) {
             .then(() => {
               setUpdateSess('')
               setShowDialog(false)
-              props.navigation.navigate('home')
+              Toast.show({text1:'Invitation declined',
+                type : 'info',
+                position : 'bottom',
+                visibilityTime: 4000})
+              that.sessionsReference = setNewReferenceQuery()
             })
         break;
     }
@@ -131,10 +143,32 @@ export default function InvitationScreen(props) {
       <Modal transparent={true} visible={showDialog}>
         <View style = {styles.alignCentered}>
           <View style={styles.modalView}>
+            <View style={{marginBottom : 10}}>
+              <Text>New invitation</Text>
+            </View>
             <View style={styles.horizontalView}>
-              <Button title='Accept' onPress={() => setUpdateSess('accept')}/>
-              <View></View>
-              <Button title='Decline' type='clear' onPress={() => setUpdateSess('decline')}/>
+              <View style={{ justifyContent:'center',width : 220}}>
+                <View style={styles.line}></View>
+              </View>
+            </View>
+            <View style={styles.horizontalView}>
+              <View style={{marginRight: 30}}>
+                <Text style={styles.h2}>{candidate.day}</Text>
+                <Text>{candidate.Nday}</Text>
+              </View>
+              <View>
+                <Text>{candidate.dueTime}</Text>
+                <Text style={styles.subtext}>with {candidate.host?.firstName} {candidate.host?.lastName}</Text>
+              </View>
+            </View>
+            <View style={{marginBottom:15}}></View>
+            <View style={styles.horizontalView}>
+              <Button title='Decline' type='clear'
+                titleStyle= {styles.secondaryButton}
+                onPress={() => setUpdateSess('decline')}/>
+              <View style={{width : 20}}></View>
+              <Button title='Accept' type='clear'
+                onPress={() => setUpdateSess('accept')}/>
             </View>
           </View>
         </View>
@@ -143,7 +177,7 @@ export default function InvitationScreen(props) {
         <View style={styles.separator}>
           <Text style={styles.subtext}>Invitations</Text>
         </View>
-        { !sessions[0] && (
+        { (!sessions || !sessions[0]) && (
           <View style={{height : 50}}>
             <View style={styles.alignCentered}>
               <Text style={styles.subtext}>no invitations</Text>
@@ -154,7 +188,7 @@ export default function InvitationScreen(props) {
         <View style={styles.separator}>
           <Text style={styles.subtext}>Sent invitations</Text>
         </View>
-        { !sent[0] && (
+        { (!sent || !sent[0]) && (
           <View style={{height : 50}}>
             <View style={styles.alignCentered}>
               <Text style={styles.subtext}>no sent invitations</Text>

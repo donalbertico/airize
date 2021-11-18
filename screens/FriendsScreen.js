@@ -39,9 +39,8 @@ export default function FriendsScreen(props){
     async function sendSMS(number){
       const { result } = await SMS.sendSMSAsync(
         [number],
-        "Hey I'am using Airize,\n\n  I would like to exersize with you, donwload the app here:\n\n airize.com"
+        "Hey I'am using Airize,\n\n  I would like to exersize with you.\n Just donwload the app here: airize.app"
       )
-      if(result) console.log('result?');
     }
     if(receiver?.id && receiver.phoneNumbers[0]){
       receiver.phoneNumbers[0].number

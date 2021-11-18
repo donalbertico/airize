@@ -41,12 +41,10 @@ export default function SessionList(props){
             )}
             {item.host?.firstName ? (
               <TouchableOpacity onPress={() => props.handleSessionSelected(item)}>
-                <TouchableOpacity>
-                  <SessionItem item={{...item, user:item.host}}/>
-                </TouchableOpacity>
+                <SessionItem item={{...item, user:item.host}}/>
               </TouchableOpacity>
             ) : (
-              <TouchableOpacity>
+              <TouchableOpacity >
                 <SessionItem item={{...item, user:item.partner}}/>
               </TouchableOpacity>
             )}

@@ -105,6 +105,7 @@ export default function HomeScreen(props){
   //on mount
   React.useEffect(()=>{
     let db = firebase.firestore()
+    let that = this
     async function askPermissions(){
       try {
         const audioPermission = await Audio.requestPermissionsAsync();
@@ -137,6 +138,15 @@ export default function HomeScreen(props){
     responseListener.current = Notifications.addNotificationResponseReceivedListener(response => {
       setFromNotification(true)
     })
+    return () => {
+      console.log('?');
+      if(sessionsReference && that) {
+        that.sessionListener = null
+        setTimeout(() => {
+          that.sessionListener = setNewReferenceListener()
+        },200)
+      }
+    }
   },[])
   //.route
   //lookf for user because it has been updated
@@ -148,13 +158,32 @@ export default function HomeScreen(props){
         that.sessionListener = setNewReferenceListener()
       }
     }
-    return () => {
-      // if(that?.sessionListener) {
-      //   that.sessionListener()
-      //   that.sessionListener = null
-      // }
+    console.log(props.route.name );
+    if(props.route.name != 'home'){
+      console.log('confirme?');
+      if(sessionsReference) {
+        this.sessionListener = null
+        setTimeout(() => {
+          that.sessionListener = setNewReferenceListener()
+        },200)
+      }
     }
   },[props.route.params,sessionsReference])
+  //.route
+  //look if page changed to restart sessions listener
+  React.useEffect(()=>{
+    let that = this;
+    console.log(props.route.name );
+    if(props.route.name != 'home'){
+      console.log('confirme?');
+      if(sessionsReference) {
+        this.sessionListener = null
+        setTimeout(() => {
+          that.sessionListener = setNewReferenceListener()
+        },200)
+      }
+    }
+  },[props.route.name])
   //user
   //wait for the user until is set because of fresh login
   React.useEffect(()=>{

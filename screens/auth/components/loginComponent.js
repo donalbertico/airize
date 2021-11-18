@@ -155,7 +155,7 @@ export default function Login({handleRecoverPassword}) {
                 <Image style={styles.largeInputIcon} source={{uri: icons?.password}} />
               }
               onChangeText={password => setPass(password)}/>
-            <Button title='Sign In' buttonStyle = {styles.buttonStyle} onPress={handleLogin}/>
+            <Button title='Sign In' buttonStyle={styles.buttonStyle} onPress={handleLogin}/>
             <View style={{marginTop:10}}>
                 <View style={{marginTop :10}}>
                   <View style={styles.horizontalView}>

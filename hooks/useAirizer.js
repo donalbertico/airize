@@ -12,13 +12,8 @@ export default function useAirizers(){
   const [users, setUsers] = useState()
   const compareNumbers = (num1 , num2) => {
     let count = 0
-    for (var i = 0; i < num1.length; i++) {
-      if (num2.includes( num1[i] )){
-        count++
-      }
-    }
-    if (count > 7) return true
-    else return false
+      if (num2.includes( num1.substring(3) )) return true
+      else return false
   }
 
   useEffect(() => {
@@ -58,35 +53,20 @@ export default function useAirizers(){
     if(contacts && users){
       let friends = []
       setFriends(friends)
-      contacts.forEach((contact, i) => {
-        let added = false
-        contact.emails?.forEach((email, j) => {
-          users.forEach((userData, y) => {
-            if(email.email == userData.email) {
-              added = true
-              friends = [...friends,
-                          {...contact,
-                            uid : userData.uid,
-                            picture : userData.picture,
-                            email : userData.email,
-                            phone : userData.phone
-                           }]
+      users.forEach((userData, u) => {
+        contacts.forEach((contact, i) => {
+          let added = false
+          contact.emails?.forEach((email, j) => {
+            if(userData.email == email.email){
+              friends.push({...userData, ... contact})
             }
           });
-        });
-        if(!added) contact.phoneNumbers?.forEach((phone, j) => {
-          users.forEach((userData, y) => {
-            if(userData.number && compareNumbers(phone.number, userData.number)) {
-              friends = [...friends,
-                          {...contact,
-                            uid : userData.uid,
-                            picture : userData.picture,
-                            email : userData.email,
-                            phone : userData.phone
-                           }]
-              }
+          if(!added) contact.phoneNumbers?.forEach((phone, j) => {
+            if(userData.number && compareNumbers(userData.number, phone.number)){
+              friends.push({...userData, ... contact})
+            }
             });
-          });
+        });
       });
       setFriends(friends)
     }
