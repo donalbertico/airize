@@ -1,4 +1,4 @@
-package app.ios.airize.generated;
+package app.android.airize.generated;
 
 import java.util.Arrays;
 import java.util.List;

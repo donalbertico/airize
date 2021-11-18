@@ -1,4 +1,4 @@
-package app.ios.airize;
+package app.android.airize;
 import android.content.res.Configuration;
 import android.content.Intent;
 
