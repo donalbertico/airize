@@ -22,6 +22,7 @@ export default function EventsScreen(props) {
                                         .update({
                                           status : 'r'
                                         })
+                                        .then(() => props.navigation.navigate('home'))
     else Toast.show({text1:'Not the Host',
         text2: 'Just Hosts can start the workout' ,
         type : 'error', position : 'bottom', visibilityTime: 4000})

@@ -84,7 +84,9 @@ export default function HomeScreen(props){
             session.dueDate = `${sessDate.getHours()} : ${sessDate.getMinutes()}`
             if(session.status == 'c')  {
               sessArray = [...sessArray,session]
+              console.log(session.id,'?',latentSession.id);
               if(latentSession?.id == session.id) {
+                console.log('???');
                 setLatentSession()
                 setSessStarting(false)
                 if(session.host == user.uid) Toast.show({text1:'Partner not ready',
