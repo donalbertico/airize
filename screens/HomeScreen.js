@@ -71,6 +71,10 @@ export default function HomeScreen(props){
     sessionsReference.doc(latentSession.id)
       .update({status : 's'})
   }
+  const deleySession = () => {
+    sessionsReference.doc(latentSession.id)
+      .update({status : 'a'})
+  }
   const setNewReferenceListener = () => {
     let start = new Date()
     let end = new Date()
@@ -139,7 +143,6 @@ export default function HomeScreen(props){
       setFromNotification(true)
     })
     return () => {
-      console.log('?');
       if(sessionsReference && that) {
         that.sessionListener = null
         setTimeout(() => {
@@ -158,9 +161,7 @@ export default function HomeScreen(props){
         that.sessionListener = setNewReferenceListener()
       }
     }
-    console.log(props.route.name );
     if(props.route.name != 'home'){
-      console.log('confirme?');
       if(sessionsReference) {
         this.sessionListener = null
         setTimeout(() => {
@@ -173,9 +174,7 @@ export default function HomeScreen(props){
   //look if page changed to restart sessions listener
   React.useEffect(()=>{
     let that = this;
-    console.log(props.route.name );
     if(props.route.name != 'home'){
-      console.log('confirme?');
       if(sessionsReference) {
         this.sessionListener = null
         setTimeout(() => {
@@ -337,7 +336,7 @@ export default function HomeScreen(props){
         if(news > 0) setLastNews(news)
       }
       if(!fromNotification){
-        if(latentSession.status == 'r' && latentSession.host != user.uid) 
+        if(latentSession.status == 'r' && latentSession.host != user.uid)
           setNotification({title : 'starting'})
       }
     }
@@ -374,7 +373,12 @@ export default function HomeScreen(props){
                   </Text>
                 </View>
                 <View style={styles.horizontalView}>
-                  <View style={{flex:1}}></View>
+                  <View>
+                    <Button type='clear'
+                      titleStyle= {styles.secondaryButton}
+                      title='Not yet' onPress={() => deleySession()}/>
+                  </View>
+                    <View style={{width : 30}}></View>
                   <View>
                     <Button type='clear' title='Start' onPress={() => startSession()}/>
                   </View>

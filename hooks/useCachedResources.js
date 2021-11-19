@@ -60,7 +60,6 @@ export default function useCachedResources(){
       await Font.loadAsync({
         'ubuntu' : require('../assets/Ubuntu-R.ttf')
       }).then(() => {
-        console.log('load??');
         setFontReady(true)
       })
       try {

@@ -18,18 +18,14 @@ export default function EventsScreen(props) {
   const [user,setUser] = useUserRead('get')
 
   const handleSessionSelected = (session) => {
-    console.log(session);
-    console.log(user.uid);
-    if(session.host == user.uid){
-      sessionsReference.doc(session.id)
-        .update({
-          status : 'r'
-        })
-    }else{
-      Toast.show({text1:'Not the Host',
+    if(session.host == user.uid) sessionsReference.doc(session.id)
+                                        .update({
+                                          status : 'r'
+                                        })
+    else Toast.show({text1:'Not the Host',
         text2: 'Just Hosts can start the workout' ,
         type : 'error', position : 'bottom', visibilityTime: 4000})
-    }
+
   }
   const setNewReferenceQuery = () => {
     return sessionsReference
