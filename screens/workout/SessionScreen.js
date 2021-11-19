@@ -14,7 +14,7 @@ import { View,
   Platform,
   Image,
   SafeAreaView } from 'react-native'
-import {Text} from 'react-native-elements'
+import { Text, Button} from 'react-native-elements'
 import { Ionicons } from '@expo/vector-icons';
 import {styles} from '../styles'
 import Timer from './components/timerComponent'
