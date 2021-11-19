@@ -18,15 +18,27 @@ export default function EventsScreen(props) {
   const [user,setUser] = useUserRead('get')
 
   const handleSessionSelected = (session) => {
-    if(session.host == user.uid) sessionsReference.doc(session.id)
-                                        .update({
-                                          status : 'r'
-                                        })
-                                        .then(() => props.navigation.navigate('home'))
-    else Toast.show({text1:'Not the Host',
+    if(session.host == user.uid){
+        let today = new Date()
+        let sessDate = new firebase.firestore.Timestamp(session.dueDate.seconds,session.dueDate.nanoseconds)
+        sessDate = sessDate.toDate()
+      if(today.getMonth() == sessDate.getMonth() &&
+          today.getDate() == sessDate.getDate()) {
+            sessionsReference.doc(session.id)
+                              .update({
+                                status : 'r'
+                              })
+                              .then(() => props.navigation.navigate('home'))
+        }else{
+          Toast.show({text1:'Not today',
+             text2: 'Workout is not planning for today' ,
+             type : 'error', position : 'bottom', visibilityTime: 4000})
+        }
+    } else {
+     Toast.show({text1:'Not the Host',
         text2: 'Just Hosts can start the workout' ,
         type : 'error', position : 'bottom', visibilityTime: 4000})
-
+    }
   }
   const setNewReferenceQuery = () => {
     return sessionsReference
@@ -80,15 +92,27 @@ export default function EventsScreen(props) {
   }
 
   React.useEffect(() => {
+    let that = this
     let db = firebase.firestore()
     setSessionsReference(db.collection('sessions'))
     setUsersReference(db.collection('users'))
     Analytics.setCurrentScreen('events');
+    return () => {
+      that.sessionsReference = null
+    }
   },[])
+
   React.useEffect(() => {
     let that = this
-    if(user?.uid && sessionsReference && that) that.sessionsReference = setNewReferenceQuery()
+    if(user?.uid && sessionsReference ) that.sessionsReference = setNewReferenceQuery()
   },[user,sessionsReference])
+
+  React.useEffect( () => {
+    let that = this
+    if(props.route.name == 'events' && !that.sessionsReference && sessionsReference){
+      that.sessionsReference = setNewReferenceQuery()
+    }
+  },[props.route])
 
   return (
     <SafeAreaView style={styles.container}>

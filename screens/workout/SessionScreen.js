@@ -14,7 +14,7 @@ import { View,
   Platform,
   Image,
   SafeAreaView } from 'react-native'
-import {Text} from 'react-native-elements'
+import { Text, Button} from 'react-native-elements'
 import { Ionicons } from '@expo/vector-icons';
 import {styles} from '../styles'
 import Timer from './components/timerComponent'
@@ -64,7 +64,6 @@ export default function SessionScreen(props){
   const [currentUri,setCurrentRui] = React.useState()
   const [updateSession,setUpdateSession] = React.useState()
   const [sessionReference, setSessionReference] = React.useState()
-  const [leaver, setLeaver] = React.useState()
   const [tellChange, setTellChange] = React.useState()
   const [playing, setPlaying] = React.useState(false)
   const [wasPlaying, setWasPlaying] = React.useState(false)
@@ -1134,7 +1133,6 @@ export default function SessionScreen(props){
       let stringError = spotifyError.e['_response']
       let obj = stringError&& JSON.parse(stringError)
       if(error){
-        console.log('1',error);
         switch (error?.status){
           case 404:
             if(spotifyError.type != 'pause') setSpotifyCall('getDevices')
@@ -1145,7 +1143,6 @@ export default function SessionScreen(props){
           default:
         }
       }else {
-        console.log('st',obj);
         if(obj?.error){
           switch (obj?.error.status){
             case 403:
@@ -1185,7 +1182,7 @@ export default function SessionScreen(props){
             setWakeListening(true)
           break;
         case 'waitLeaveConfirmation':
-            Speech.speak('asking friend to stop',options)
+            Speech.speak('asking friend to finish',options)
             setTellChange('')
             setWakeListening(true)
           break;
@@ -1291,46 +1288,64 @@ export default function SessionScreen(props){
       <Modal transparent={true} visible={askLeave}>
           <View style={styles.alignCentered}>
             <View style={styles.modalView}>
-              {leaver==user.uid  ? (
-                <View style={{marginBottom : 10}}>
+              {session?.leaver == user.uid  ? (
+                <View>
                   <Text> Asking your partener to leave ..</Text>
                 </View>
               ):(
-                <View style={{marginBottom : 10}}>
+                <View>
                   <Text> Your partner is asking to leave</Text>
-                  <View style={styles.horizontalView}>
-                    <Button title='Decline' type='clear'
-                      titleStyle= {styles.secondaryButton}
-                      onPress={() => setUpdateSess('decline')}/>
-                    <View style={{width : 20}}></View>
-                    <Button title='Accept' type='clear'
-                      onPress={() => setUpdateSess('accept')}/>
-                  </View>
                 </View>
               )}
+              <View style={{margin:10}}></View>
+              <View style={styles.horizontalView}>
+                <Button title='Continue' type='clear'
+                  titleStyle= {styles.secondaryButton}
+                  onPress={() => setUpdateSession('working')}/>
+                <View style={{width : 20}}></View>
+                <Button title='Finish' type='clear'
+                  onPress={() => setStatus('f')}/>
+              </View>
             </View>
           </View>
       </Modal>
       <Modal transparent={true} visible={askPause}>
           <View style={styles.alignCentered}>
             <View style={styles.modalView}>
-              {leaver==user.uid ? (
+              {session?.leaver==user.uid ? (
                 <View>
                   <Text> Asking your partener to pause..</Text>
                 </View>
               ):(
                 <View>
-                  <Text> Your partner is asking to pause</Text>
+                  <View>
+                    <Text> Your partner is asking to pause</Text>
+                  </View>
                 </View>
               )}
+              <View style={{margin:10}}></View>
+              <View style={styles.horizontalView}>
+                <Button title='Continue' type='clear'
+                  titleStyle= {styles.secondaryButton}
+                  onPress={() => setUpdateSession('working')}/>
+                <View style={{width : 20}}></View>
+                <Button title='Pause' type='clear'
+                  onPress={() => setUpdateSession('pause')}/>
+              </View>
             </View>
           </View>
       </Modal>
       <Modal transparent={true} visible={pauseModal}>
           <View style={styles.alignCentered}>
             <View style={styles.modalView}>
-              <View style={styles.alignCentered}>
-                <Text styles={styles.h2}>Paused</Text>
+              <View>
+                <Text style={styles.h2}> Puased</Text>
+              </View>
+              <View style={{margin:10}}></View>
+              <View style={styles.horizontalView}>
+                <View style={{flex : 1}}></View>
+                <Button title='Continue' type='clear'
+                  onPress={() => setUpdateSession('working')}/>
               </View>
             </View>
           </View>

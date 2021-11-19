@@ -83,14 +83,14 @@ export default function InvitationScreen(props) {
     setUsersReference(db.collection('users'))
     Analytics.setCurrentScreen('invitations');
     return () => {
-      if(that?.sessionsReference) that.sessionsReference = null
       setSessions([])
       setSent([])
+      setSessionsReference()
     }
   },[])
   React.useEffect(() => {
     let that = this
-    if(user?.uid && sessionsReference && that) that.sessionsReference = setNewReferenceQuery()
+    if(user?.uid && sessionsReference) that.sessionsReference = setNewReferenceQuery()
   }, [user,sessionsReference])
   React.useEffect(() => {
     let that = this
@@ -194,7 +194,7 @@ export default function InvitationScreen(props) {
         { (!sent || !sent[0]) && (
           <View style={{height : 50}}>
             <View style={styles.alignCentered}>
-              <Text style={styles.subtext}>no sent invitations</Text>
+              <Text style={styles.subtext}>no pendent invitations</Text>
             </View>
           </View>
         )}
