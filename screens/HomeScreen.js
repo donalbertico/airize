@@ -72,28 +72,16 @@ export default function HomeScreen(props){
     if(sessionsReference?.where)
       return sessionsReference
         .where('users', 'array-contains', user.uid)
-        .where('status', 'in', ['c','r','s','p','ap','al'])
+        .where('status', 'in', ['c','r','s','p','ap','al','a'])
         .onSnapshot((snapshot) => {
           let sessArray = []
-          setLatentSession('')
           snapshot.forEach((sess, i) => {
             let session = sess.data()
             let sessDate = new firebase.firestore.Timestamp(session.dueDate.seconds,session.dueDate.nanoseconds)
             sessDate = sessDate.toDate()
             session.id = sess.id
             session.dueDate = `${sessDate.getHours()} : ${sessDate.getMinutes()}`
-            if(session.status == 'c')  {
-              sessArray = [...sessArray,session]
-              console.log(session.id,'?',latentSession.id);
-              if(latentSession?.id == session.id) {
-                console.log('???');
-                setLatentSession()
-                setSessStarting(false)
-                if(session.host == user.uid) Toast.show({text1:'Partner not ready',
-                        text2: 'go to events and start again later',
-                        type : 'info', position : 'bottom', visibilityTime: 4000})
-              }
-            }
+            if(session.status == 'c') sessArray = [...sessArray,session]
             if(session.status == 'r')  {
               if(session.host == user.uid) setIsHost(true)
               setSessStarting(true)
@@ -135,7 +123,6 @@ export default function HomeScreen(props){
       }
     }
     checkPermissions()
-    setLatentSession('')
     setSessionsReference(db.collection('sessions'))
     Analytics.setCurrentScreen('home');
     responseListener.current = Notifications.addNotificationResponseReceivedListener(response => {
@@ -317,26 +304,35 @@ export default function HomeScreen(props){
       }
     }
   },[nextState])
-  // latentSession
+  // checkingSession
   // redirect to session if latent status 'started'
   React.useEffect(() => {
-    if(latentSession){
-      if(latentSession.status != 'f' && latentSession.status != 'r'
-          && latentSession.status != 'a' &&  latentSession.status != 'c'
-          &&  latentSession.status != 'd'){
+    if(checkingSession){
+      if(checkingSession.status != 'f' && checkingSession.status != 'r'
+          && checkingSession.status != 'a' &&  checkingSession.status != 'c'
+          &&  checkingSession.status != 'd'){
         setFromNotification(false)
         setSessStarting(false)
-        props.navigation.navigate('session',{ session : latentSession, playlist: playlist})
+        props.navigation.navigate('session',{ session : checkingSession, playlist: playlist})
       }
       if(news != lastNews){
-        if(latentSession.status == 'c' && latentSession.host != user.uid) {
+        if(checkingSession.status == 'c' && checkingSession.host != user.uid) {
           setNotification({title : 'invited'})
         }
         if(news > 0) setLastNews(news)
       }
       if(!fromNotification){
-        if(latentSession.status == 'r' && latentSession.host != user.uid)
+        if(checkingSession.status == 'r' && checkingSession.host != user.uid)
           setNotification({title : 'starting'})
+      }
+      if(checkingSession.status == 'a') {
+        if(latentSession?.id == checkingSession.id) {
+          setLatentSession()
+          setSessStarting(false)
+          if(checkingSession.host == user.uid) Toast.show({text1:'Partner not ready',
+                  text2: 'go to events and start again later',
+                  type : 'info', position : 'bottom', visibilityTime: 4000})
+        }
       }
     }
   },[checkingSession])

@@ -32,7 +32,6 @@ export default function EventsScreen(props) {
     return sessionsReference
       .where('users', 'array-contains', user.uid)
       .where('status', '==', 'a')
-      .orderBy('dueDate','desc')
       .get()
       .then((snapshot) => {
         let sessArray = []
@@ -46,7 +45,6 @@ export default function EventsScreen(props) {
           session.id = sess.id
           session.dueTime = `${sessDate.getHours()} : ${sessDate.getMinutes()}`
           let formated = sessDate.toLocaleString('default', {month: 'long', day: 'numeric'}).split(' ')
-          console.log(formated);
           if (formated[3]){
             session.day = formated[2]
             session.Nday = formated[0]
