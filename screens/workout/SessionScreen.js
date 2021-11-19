@@ -1292,12 +1292,20 @@ export default function SessionScreen(props){
           <View style={styles.alignCentered}>
             <View style={styles.modalView}>
               {leaver==user.uid  ? (
-                <View>
+                <View style={{marginBottom : 10}}>
                   <Text> Asking your partener to leave ..</Text>
                 </View>
               ):(
-                <View>
+                <View style={{marginBottom : 10}}>
                   <Text> Your partner is asking to leave</Text>
+                  <View style={styles.horizontalView}>
+                    <Button title='Decline' type='clear'
+                      titleStyle= {styles.secondaryButton}
+                      onPress={() => setUpdateSess('decline')}/>
+                    <View style={{width : 20}}></View>
+                    <Button title='Accept' type='clear'
+                      onPress={() => setUpdateSess('accept')}/>
+                  </View>
                 </View>
               )}
             </View>
