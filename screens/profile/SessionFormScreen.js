@@ -2,7 +2,7 @@ import * as React from 'react'
 import * as firebase from 'firebase'
 import DateTimePicker from '@react-native-community/datetimepicker'
 import Toast from 'react-native-toast-message'
-import {View, TouchableOpacity,Platform } from 'react-native'
+import {View, TouchableOpacity,Platform, SafeAreaView } from 'react-native'
 import {Text, Button, Input} from 'react-native-elements'
 import { Dropdown } from 'react-native-element-dropdown';
 import { Ionicons } from '@expo/vector-icons'
@@ -86,18 +86,19 @@ export default function SessionFormScreen(props) {
   },[props.route.params])
   React.useEffect(() => {
     let formated = date.toLocaleString('default', {month: 'long'}).split(' ')
+    console.log(formated);
     if (formated[1]) {
       setFormated(`${formated[0]} ${formated[1]} ${formated[2]}`)
       setStringDate(`${formated[0]} ${formated[1]} ${formated[2]} - ${date.getHours()} : ${date.getMinutes()}`)
     }
     else {
       setFormated(`${formated[0]} ${date.getDate()}`)
-      setStringDate(`${formated[0]} ${formated[1]} ${formated[2]} - ${date.getHours()} : ${date.getMinutes()}`)
+      setStringDate(`${date.getDate()}  ${formated[0]} - ${date.getHours()} : ${date.getMinutes()}`)
     }
   },[date])
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <View style={{flex:1}}>
           <View style={styles.alignCentered}>
@@ -177,6 +178,6 @@ export default function SessionFormScreen(props) {
       <View>
         <NavBar navigation={props.navigation}/>
       </View>
-    </View>
+    </SafeAreaView>
   )
 }

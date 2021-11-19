@@ -42,12 +42,16 @@ export default function InvitationScreen(props) {
             session.id = sess.id
             session.dueTime = `${sessDate.getHours()} : ${sessDate.getMinutes()}`
             let formated = sessDate.toLocaleString('default', {month: 'long', day :'numeric'}).split(' ')
-            if (formated[1]) {
+            if (formated[3]) {
               session.day = formated[2]
               session.Nday = formated[0]
               session.month = formated[1]
+            } else {
+              let formated = sessDate.toLocaleString('default', {month: 'short', weekday: 'short', day: 'numeric'}).split(' ')
+              session.day = formated[1]
+              session.Nday = formated[0]
+              session.month = formated[2]
             }
-            else session.dueDate = `${formated[0]} ${sessDate.getDate()}`
             if(session.host != user.uid) {
               if(session.month != lastMonth) session.dateLabel = true
               usersReference.doc(session.host)

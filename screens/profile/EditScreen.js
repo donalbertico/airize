@@ -19,9 +19,7 @@ export default function EditScreen(props){
   }
 
   React.useEffect(() => {
-    if(assets){
-     setIcons(assets.preferences)
-   }
+    if(assets) setIcons(assets.preferences)
   },[assets])
 
   return(

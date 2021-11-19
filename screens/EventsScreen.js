@@ -25,6 +25,7 @@ export default function EventsScreen(props) {
         .update({
           status : 'r'
         })
+        .then( () => props.navigation.navigate('home'))
     }else{
       Toast.show({text1:'Not the Host',
         text2: 'Just Hosts can start the workout' ,
@@ -49,11 +50,17 @@ export default function EventsScreen(props) {
           session.id = sess.id
           session.dueTime = `${sessDate.getHours()} : ${sessDate.getMinutes()}`
           let formated = sessDate.toLocaleString('default', {month: 'long', day: 'numeric'}).split(' ')
-          if (formated[1]){
+          console.log(formated);
+          if (formated[3]){
             session.day = formated[2]
             session.Nday = formated[0]
             session.month = formated[1]
-           }
+          }else {
+            let formated = sessDate.toLocaleString('default', {month: 'short', weekday: 'short', day: 'numeric'}).split(' ')
+            session.day = formated[1]
+            session.Nday = formated[0]
+            session.month = formated[2]
+          }
           if(session.month != lastMonth) session.dateLabel = true
           lastMonth = session.month
           if(session.host != user.uid) {

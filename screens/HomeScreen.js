@@ -51,22 +51,8 @@ export default function HomeScreen(props){
   const [fromNotification, setFromNotification] = React.useState(false)
   const [firstLoad, setFirstLoad] = React.useState(true)
   const responseListener = React.useRef()
+  const [checkingSession, setCheckingSession] = React.useState()
 
-
-  const getSessionReady = (session) => {
-    if(session.host == user.uid){
-      setSessStarting(true)
-      setIsHost(true)
-      sessionsReference.doc(session.id)
-        .update({
-          status : 'r'
-        })
-    }else {
-      Toast.show({text1:'Not the Host',
-        text2: 'Just Hosts can start the workout' ,
-        type : 'info', position : 'bottom', visibilityTime: 4000})
-    }
-  }
   const startSession = () => {
     sessionsReference.doc(latentSession.id)
       .update({status : 's'})
@@ -92,12 +78,22 @@ export default function HomeScreen(props){
             sessDate = sessDate.toDate()
             session.id = sess.id
             session.dueDate = `${sessDate.getHours()} : ${sessDate.getMinutes()}`
-            if(session.status == 'c') sessArray = [...sessArray,session]
+            if(session.status == 'c')  {
+              sessArray = [...sessArray,session]
+              if(startingSession?.id == session.id) {
+                setLatentSession()
+                setSessStarting(false)
+                Toast.show({text1:'Partner not ready',
+                  type : 'info', position : 'bottom', visibilityTime: 4000})
+              }
+            }
             if(session.status == 'r')  {
+              if(session.host == user.uid) setIsHost(true)
               setSessStarting(true)
               setNotified(false)
+              setLatentSession(session)
             }
-            setLatentSession(session)
+            setCheckingSession(session)
           });
           setSessions(sessArray)
         })
@@ -337,11 +333,11 @@ export default function HomeScreen(props){
         if(news > 0) setLastNews(news)
       }
       if(!fromNotification){
-        if(latentSession.status == 'r' && latentSession.host != user.uid) 
+        if(latentSession.status == 'r' && latentSession.host != user.uid)
           setNotification({title : 'starting'})
       }
     }
-  },[latentSession])
+  },[checkingSession])
   //sessions
   //set news for notification control
   React.useEffect(() => {
