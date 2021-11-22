@@ -3,23 +3,21 @@
 <plist version="1.0">
 <dict>
 	<key>CLIENT_ID</key>
-	<string>420079497855-bf5jcve6ej31visegaibn6qh7k0h03qr.apps.googleusercontent.com</string>
+	<string>795853275646-rt73098b5dt37oqt6nk7o8925d339iv9.apps.googleusercontent.com</string>
 	<key>REVERSED_CLIENT_ID</key>
-	<string>com.googleusercontent.apps.420079497855-bf5jcve6ej31visegaibn6qh7k0h03qr</string>
-	<key>ANDROID_CLIENT_ID</key>
-	<string>420079497855-u10gcttur504uconei9b163mn3pvnast.apps.googleusercontent.com</string>
+	<string>com.googleusercontent.apps.795853275646-rt73098b5dt37oqt6nk7o8925d339iv9</string>
 	<key>API_KEY</key>
-	<string>AIzaSyASxEfjbsluA0wmAgzqpxVFoIAGbB-Mxc8</string>
+	<string>AIzaSyAaXklvMRqgXSmRpfENMJakJ1C8TVcsERk</string>
 	<key>GCM_SENDER_ID</key>
-	<string>420079497855</string>
+	<string>795853275646</string>
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
 	<string>app.ios.airize</string>
 	<key>PROJECT_ID</key>
-	<string>airize-development</string>
+	<string>airize-77c1b</string>
 	<key>STORAGE_BUCKET</key>
-	<string>airize-development.appspot.com</string>
+	<string>airize-77c1b.appspot.com</string>
 	<key>IS_ADS_ENABLED</key>
 	<false></false>
 	<key>IS_ANALYTICS_ENABLED</key>
@@ -31,8 +29,6 @@
 	<key>IS_SIGNIN_ENABLED</key>
 	<true></true>
 	<key>GOOGLE_APP_ID</key>
-	<string>1:420079497855:ios:4eddfc15c954463b14454a</string>
-	<key>DATABASE_URL</key>
-	<string>https://airize-development-default-rtdb.europe-west1.firebasedatabase.app</string>
+	<string>1:795853275646:ios:3879c642a994599e5e00af</string>
 </dict>
 </plist>

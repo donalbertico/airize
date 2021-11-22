@@ -525,7 +525,7 @@ export default function SessionScreen(props){
                 status : 'r',
               }
             })
-          }else{
+          }else if(listTraks?.length > 0){
             Analytics.logEvent('SpotifyPlay', {
               user: user.uid,
               screen: 'session',
@@ -1304,7 +1304,7 @@ export default function SessionScreen(props){
                   onPress={() => setUpdateSession('working')}/>
                 <View style={{width : 20}}></View>
                 <Button title='Finish' type='clear'
-                  onPress={() => setStatus('f')}/>
+                  onPress={() => { setPause(true);setStatus('f')}}/>
               </View>
             </View>
           </View>
@@ -1435,32 +1435,43 @@ export default function SessionScreen(props){
                   </View>
                   <View style={styles.verticalJump}></View>
                   <View style={styles.verticalJump}></View>
-                  <View style={styles.horizontalView}>
-                    <View style={{flex:3}}></View>
-                      <TouchableOpacity onPress={() => setUpdateSession('playPrevious')}>
-                        <Image style={styles.inputIcon} source={{ uri: icons?.previous}}/>
-                      </TouchableOpacity>
-                      <View style={{flex:2}}></View>
-                      <TouchableOpacity onPress={ () => {
-                         playbackInfo?.status && playbackInfo?.status != 's' ?
-                          (
-                            setUpdateSession('pauseSpotify')
-                          ) : (
-                            setUpdateSession('play')
-                          )
-                        }}>
-                        <Image style={styles.inputIcon}
-                          source={{
-                            uri:  playbackInfo?.status && playbackInfo?.status != 's' ?
-                            (icons?.pause) :
-                            (icons?.play) }}/>
-                      </TouchableOpacity>
-                      <View style={{flex:2}}></View>
-                      <TouchableOpacity onPress={() => setUpdateSession('playNext')}>
-                        <Image style={styles.inputIcon} source={{ uri: icons?.next}}/>
-                      </TouchableOpacity>
-                    <View style={{flex:3}}></View>
-                  </View>
+                  { playlist? (
+                    <View style={styles.horizontalView}>
+                      <View style={{flex:3}}></View>
+                        <TouchableOpacity onPress={() => setUpdateSession('playPrevious')}>
+                          <Image style={styles.inputIcon} source={{ uri: icons?.previous}}/>
+                        </TouchableOpacity>
+                        <View style={{flex:2}}></View>
+                        <TouchableOpacity onPress={ () => {
+                           playbackInfo?.status && playbackInfo?.status != 's' ?
+                            (
+                              setUpdateSession('pauseSpotify')
+                            ) : (
+                              setUpdateSession('play')
+                            )
+                          }}>
+                          <Image style={styles.inputIcon}
+                            source={{
+                              uri:  playbackInfo?.status && playbackInfo?.status != 's' ?
+                              (icons?.pause) :
+                              (icons?.play) }}/>
+                        </TouchableOpacity>
+                        <View style={{flex:2}}></View>
+                        <TouchableOpacity onPress={() => setUpdateSession('playNext')}>
+                          <Image style={styles.inputIcon} source={{ uri: icons?.next}}/>
+                        </TouchableOpacity>
+                      <View style={{flex:3}}></View>
+                    </View>
+                  ) : (
+                    <View style={styles.horizontalView}>
+                      <View style={{flex:1}}></View>
+                      <View style={{flex:4}}>
+                        <Text>No Airize playlist, you can still listens to your partner music</Text>
+                      </View>
+                      <View style={{flex:1}}></View>
+                    </View>
+                  )}
+
                 </>
                 ) : (
                   <View style={styles.horizontalView}>
@@ -1472,7 +1483,13 @@ export default function SessionScreen(props){
                   </View>
                 )
             ):(
-              <View><Text>authroize spotify to share your music</Text></View>
+              <View style={styles.horizontalView}>
+                <View style={{flex:1}}></View>
+                <View style={{flex:4}}>
+                  <Text>Authorize Spotify to share your music</Text>
+                </View>
+                <View style={{flex:1}}></View>
+              </View>
             )}
           </View>
         )}
