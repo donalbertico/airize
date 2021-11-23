@@ -231,8 +231,11 @@ export default function HomeScreen(props){
         const result = await client.getMyDevices()
         if(result){
           let devices = result.devices
+          console.log(result);
+
           if(devices?.length == 0) setDevice()
           devices.forEach((device, i) => {
+            console.log(device);
             if(device.type == "Smartphone") setDevice(device.id)
           });
         }
@@ -256,6 +259,7 @@ export default function HomeScreen(props){
     }
     if(spotifyToken&&spotifyToken!='refresh'){
       client.setAccessToken(spotifyToken)
+      console.log('?');
       getDevices()
       getPlayLists()
     }
@@ -290,6 +294,7 @@ export default function HomeScreen(props){
     let that = this;
     if(props.route.name == 'home'){
       if(nextState == 'active'){
+        console.log('shearch?');
         setSearchDevices(true)
         setSpotifyToken('refresh')
         if(!that?.sessionListener){
@@ -443,7 +448,7 @@ export default function HomeScreen(props){
                     </View>
                     <View style={{flex:1}}></View>
                     <View style={{flex:4}}>
-                      <Text>Make sure spotify app is open</Text>
+                      <Text>Make sure Spotify (Premiun User) app is open</Text>
                     </View>
                 </TouchableOpacity>
               )):(
