@@ -1134,7 +1134,6 @@ export default function SessionScreen(props){
       let stringError = spotifyError.e['_response']
       let obj = stringError&& JSON.parse(stringError)
       if(error){
-        console.log('1',error);
         switch (error?.status){
           case 404:
             if(spotifyError.type != 'pause') setSpotifyCall('getDevices')
@@ -1145,7 +1144,6 @@ export default function SessionScreen(props){
           default:
         }
       }else {
-        console.log('st',obj);
         if(obj?.error){
           switch (obj?.error.status){
             case 403:
