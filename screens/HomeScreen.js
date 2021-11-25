@@ -233,6 +233,7 @@ export default function HomeScreen(props){
           let devices = result.devices
           if(devices?.length == 0) setDevice()
           devices.forEach((device, i) => {
+            console.log(device);
             if(device.type == "Smartphone") setDevice(device.id)
           });
         }
@@ -290,6 +291,7 @@ export default function HomeScreen(props){
     let that = this;
     if(props.route.name == 'home'){
       if(nextState == 'active'){
+        console.log('shearch?');
         setSearchDevices(true)
         setSpotifyToken('refresh')
         if(!that?.sessionListener){
@@ -423,40 +425,16 @@ export default function HomeScreen(props){
                 <Text>Plan a workout</Text>
               </View>
           </TouchableOpacity>
-          {spotifyAv?
-            (playbackDevice? (
-              <TouchableOpacity style={styles.listItemContainer}
-                onPress={() => setSearchDevices(true)}>
-                  <View>
-                    <Image style={styles.largeInputIcon} source={{uri: icons?.spotify}}/>
-                  </View>
-                  <View style={{flex:1}}></View>
-                  <View style={{flex:4}}>
-                    <Text>Make sure you have a Airize playlist</Text>
-                  </View>
-              </TouchableOpacity>
-            ):(
-                <TouchableOpacity style={styles.listItemContainer}
-                  onPress={() => {setSearchDevices(true); setSpotifyToken('refresh')}}>
-                    <View>
-                      <Image style={styles.largeInputIcon} source={{uri: icons?.spotify}}/>
-                    </View>
-                    <View style={{flex:1}}></View>
-                    <View style={{flex:4}}>
-                      <Text>Make sure spotify app is open</Text>
-                    </View>
-                </TouchableOpacity>
-              )):(
-                <TouchableOpacity onPress={()=>askToken(true)} style={styles.listItemContainer}>
-                    <View>
-                      <Image style={styles.largeInputIcon} source={{uri: icons?.spotify}}/>
-                    </View>
-                    <View style={{flex:1}}></View>
-                    <View style={{flex:4}}>
-                      <Text>Share music/podcast</Text>
-                    </View>
-                </TouchableOpacity>
-            )}
+          <TouchableOpacity style={styles.listItemContainer}
+              onPress={() => {props.navigation.navigate('invitations')}}>
+              <View>
+                <Image style={styles.largeInputIcon} source={{uri: icons?.friends}}/>
+              </View>
+              <View style={{flex:1}}></View>
+              <View style={{flex:4}}>
+                <Text>Send messages</Text>
+              </View>
+          </TouchableOpacity>
         </View>
         <View style={styles.separator}>
           <Text style={styles.subtext}>Voice commands</Text>

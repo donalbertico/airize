@@ -1,14 +1,14 @@
 export default{
   firebase : {
-    apiKey: "AIzaSyDU-AvUc5z3SgMabD0dgTXIjSdjy7sTkrk",
-    authDomain: "airize-development.firebaseapp.com",
-    projectId: "airize-development",
-    storageBucket: "airize-development.appspot.com",
-    messagingSenderId: "420079497855",
-    appId: "1:420079497855:web:6ab07042945c415a14454a",
-    measurementId: "G-JRQ8TDGJ2N"
+    apiKey: "AIzaSyD160Ee-aNSD9hr0geFwyobaJ51ZjKJ0bE",
+    authDomain: "airize-77c1b.firebaseapp.com",
+    projectId: "airize-77c1b",
+    storageBucket: "airize-77c1b.appspot.com",
+    messagingSenderId: "795853275646",
+    appId: "1:795853275646:web:d148f8b0b36df2545e00af",
+    measurementId: "G-SZD55T5FSE"
   },
   spotify : {
-    clientId : "2e4dab11cd8c42608560c988dbf341ab"
+    clientId : "738c5b2fbff040da8c5c50078c422d24"
   }
 }

@@ -64,7 +64,6 @@ export default function SessionScreen(props){
   const [currentUri,setCurrentRui] = React.useState()
   const [updateSession,setUpdateSession] = React.useState()
   const [sessionReference, setSessionReference] = React.useState()
-  const [leaver, setLeaver] = React.useState()
   const [tellChange, setTellChange] = React.useState()
   const [playing, setPlaying] = React.useState(false)
   const [wasPlaying, setWasPlaying] = React.useState(false)
@@ -526,7 +525,7 @@ export default function SessionScreen(props){
                 status : 'r',
               }
             })
-          }else{
+          }else if(listTraks?.length > 0){
             Analytics.logEvent('SpotifyPlay', {
               user: user.uid,
               screen: 'session',
@@ -1183,7 +1182,7 @@ export default function SessionScreen(props){
             setWakeListening(true)
           break;
         case 'waitLeaveConfirmation':
-            Speech.speak('asking friend to stop',options)
+            Speech.speak('asking friend to finish',options)
             setTellChange('')
             setWakeListening(true)
           break;
@@ -1289,46 +1288,64 @@ export default function SessionScreen(props){
       <Modal transparent={true} visible={askLeave}>
           <View style={styles.alignCentered}>
             <View style={styles.modalView}>
-              {leaver==user.uid  ? (
-                <View style={{marginBottom : 10}}>
+              {session?.leaver == user.uid  ? (
+                <View>
                   <Text> Asking your partener to leave ..</Text>
                 </View>
               ):(
-                <View style={{marginBottom : 10}}>
+                <View>
                   <Text> Your partner is asking to leave</Text>
-                  <View style={styles.horizontalView}>
-                    <Button title='Decline' type='clear'
-                      titleStyle= {styles.secondaryButton}
-                      onPress={() => setUpdateSess('decline')}/>
-                    <View style={{width : 20}}></View>
-                    <Button title='Accept' type='clear'
-                      onPress={() => setUpdateSess('accept')}/>
-                  </View>
                 </View>
               )}
+              <View style={{margin:10}}></View>
+              <View style={styles.horizontalView}>
+                <Button title='Continue' type='clear'
+                  titleStyle= {styles.secondaryButton}
+                  onPress={() => setUpdateSession('working')}/>
+                <View style={{width : 20}}></View>
+                <Button title='Finish' type='clear'
+                  onPress={() => { setPause(true);setStatus('f')}}/>
+              </View>
             </View>
           </View>
       </Modal>
       <Modal transparent={true} visible={askPause}>
           <View style={styles.alignCentered}>
             <View style={styles.modalView}>
-              {leaver==user.uid ? (
+              {session?.leaver==user.uid ? (
                 <View>
                   <Text> Asking your partener to pause..</Text>
                 </View>
               ):(
                 <View>
-                  <Text> Your partner is asking to pause</Text>
+                  <View>
+                    <Text> Your partner is asking to pause</Text>
+                  </View>
                 </View>
               )}
+              <View style={{margin:10}}></View>
+              <View style={styles.horizontalView}>
+                <Button title='Continue' type='clear'
+                  titleStyle= {styles.secondaryButton}
+                  onPress={() => setUpdateSession('working')}/>
+                <View style={{width : 20}}></View>
+                <Button title='Pause' type='clear'
+                  onPress={() => setUpdateSession('pause')}/>
+              </View>
             </View>
           </View>
       </Modal>
       <Modal transparent={true} visible={pauseModal}>
           <View style={styles.alignCentered}>
             <View style={styles.modalView}>
-              <View style={styles.alignCentered}>
-                <Text styles={styles.h2}>Paused</Text>
+              <View>
+                <Text style={styles.h2}> Puased</Text>
+              </View>
+              <View style={{margin:10}}></View>
+              <View style={styles.horizontalView}>
+                <View style={{flex : 1}}></View>
+                <Button title='Continue' type='clear'
+                  onPress={() => setUpdateSession('working')}/>
               </View>
             </View>
           </View>
@@ -1418,32 +1435,43 @@ export default function SessionScreen(props){
                   </View>
                   <View style={styles.verticalJump}></View>
                   <View style={styles.verticalJump}></View>
-                  <View style={styles.horizontalView}>
-                    <View style={{flex:3}}></View>
-                      <TouchableOpacity onPress={() => setUpdateSession('playPrevious')}>
-                        <Image style={styles.inputIcon} source={{ uri: icons?.previous}}/>
-                      </TouchableOpacity>
-                      <View style={{flex:2}}></View>
-                      <TouchableOpacity onPress={ () => {
-                         playbackInfo?.status && playbackInfo?.status != 's' ?
-                          (
-                            setUpdateSession('pauseSpotify')
-                          ) : (
-                            setUpdateSession('play')
-                          )
-                        }}>
-                        <Image style={styles.inputIcon}
-                          source={{
-                            uri:  playbackInfo?.status && playbackInfo?.status != 's' ?
-                            (icons?.pause) :
-                            (icons?.play) }}/>
-                      </TouchableOpacity>
-                      <View style={{flex:2}}></View>
-                      <TouchableOpacity onPress={() => setUpdateSession('playNext')}>
-                        <Image style={styles.inputIcon} source={{ uri: icons?.next}}/>
-                      </TouchableOpacity>
-                    <View style={{flex:3}}></View>
-                  </View>
+                  { playlist? (
+                    <View style={styles.horizontalView}>
+                      <View style={{flex:3}}></View>
+                        <TouchableOpacity onPress={() => setUpdateSession('playPrevious')}>
+                          <Image style={styles.inputIcon} source={{ uri: icons?.previous}}/>
+                        </TouchableOpacity>
+                        <View style={{flex:2}}></View>
+                        <TouchableOpacity onPress={ () => {
+                           playbackInfo?.status && playbackInfo?.status != 's' ?
+                            (
+                              setUpdateSession('pauseSpotify')
+                            ) : (
+                              setUpdateSession('play')
+                            )
+                          }}>
+                          <Image style={styles.inputIcon}
+                            source={{
+                              uri:  playbackInfo?.status && playbackInfo?.status != 's' ?
+                              (icons?.pause) :
+                              (icons?.play) }}/>
+                        </TouchableOpacity>
+                        <View style={{flex:2}}></View>
+                        <TouchableOpacity onPress={() => setUpdateSession('playNext')}>
+                          <Image style={styles.inputIcon} source={{ uri: icons?.next}}/>
+                        </TouchableOpacity>
+                      <View style={{flex:3}}></View>
+                    </View>
+                  ) : (
+                    <View style={styles.horizontalView}>
+                      <View style={{flex:1}}></View>
+                      <View style={{flex:4}}>
+                        <Text>No Airize playlist, you can still listens to your partner music</Text>
+                      </View>
+                      <View style={{flex:1}}></View>
+                    </View>
+                  )}
+
                 </>
                 ) : (
                   <View style={styles.horizontalView}>
@@ -1455,7 +1483,13 @@ export default function SessionScreen(props){
                   </View>
                 )
             ):(
-              <View><Text>authroize spotify to share your music</Text></View>
+              <View style={styles.horizontalView}>
+                <View style={{flex:1}}></View>
+                <View style={{flex:4}}>
+                  <Text>Authorize Spotify to share your music</Text>
+                </View>
+                <View style={{flex:1}}></View>
+              </View>
             )}
           </View>
         )}

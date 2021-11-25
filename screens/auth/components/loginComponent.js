@@ -26,8 +26,8 @@ export default function Login({handleRecoverPassword}) {
   const [reload,setReload] = React.useState(false)
   const [setUser] = useUserStore()
   const [request, googleResponse, promptAsync] = Google.useAuthRequest({
-    androidClientId : "420079497855-u10gcttur504uconei9b163mn3pvnast.apps.googleusercontent.com",
-    iosClientId : "420079497855-bf5jcve6ej31visegaibn6qh7k0h03qr.apps.googleusercontent.com"
+    androidClientId : "795853275646-ae8uvd3aq1h31pf5uflniq4o5mu3vhik.apps.googleusercontent.com",
+    iosClientId : "795853275646-rt73098b5dt37oqt6nk7o8925d339iv9.apps.googleusercontent.com"
   })
 
   const handleLogin = () => {
@@ -51,7 +51,7 @@ export default function Login({handleRecoverPassword}) {
   const handleFbLogin = () => {
     async function fblog(){
       try {
-        await fb.initializeAsync({ appId: '447773566952295'})
+        await fb.initializeAsync({ appId: '426169569075169'})
         const {type, token} = await fb.logInWithReadPermissionsAsync({
           permissions: ['public_profile']
         })
