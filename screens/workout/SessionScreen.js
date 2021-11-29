@@ -14,16 +14,18 @@ import { View,
   Platform,
   Image,
   SafeAreaView } from 'react-native'
-import { Text, Button} from 'react-native-elements'
+import { Text, Button, Input } from 'react-native-elements'
 import { Ionicons } from '@expo/vector-icons';
 import {styles} from '../styles'
-import Timer from './components/timerComponent'
 import useAssetStore from '../../hooks/useAssetStore'
 import useUserRead from '../../hooks/useUserRead'
 import useSpotifyTokenRefresh from '../../hooks/useSpotifyTokenRefresh'
 import useSpotifyTokenStore from '../../hooks/useSpotifyTokenStore'
 import useAppState from '../../hooks/useAppState'
 import useProfilePicture from '../../hooks/useProfilePicture'
+
+import Timer from './components/timerComponent'
+import Chat from './components/chatComponent'
 
 export default function SessionScreen(props){
   const [user] = useUserRead('get')
@@ -83,6 +85,8 @@ export default function SessionScreen(props){
   const [guestUser, setGuestUser] = React.useState()
   const [icons, setIcons] = React.useState()
   const [session, setSession] = React.useState()
+  const [messages, setMessages] = React.useState()
+  const [messageText, setMessageText] = React.useState()
 
   const workSpeechResultsHandler = (results) =>{
     let options = results.value
@@ -329,8 +333,17 @@ export default function SessionScreen(props){
       setSpotifyToken(storedToken.access)
     }
   }
-  const handleOnTime = (time)=>{
+  const handleOnTime = (time) => {
     setWorkoutTime(time)
+  }
+  const sendMessage = (text) => {
+    sessionReference.collection('messages')
+      .add({
+        user: user.uid,
+        text: text,
+        status: 's',
+        time: firebase.firestore.Timestamp.fromDate(new Date())
+      })
   }
   //onMount hook
   React.useEffect(()=>{
@@ -432,15 +445,15 @@ export default function SessionScreen(props){
       })
       that.messagesListener =
         sessionReference.collection('messages')
-          .where('status','==','s')
-          .where('user','!=',user.uid)
+          .orderBy('time')
           .onSnapshot((snapshot) => {
+            setMessages([])
             snapshot.forEach((message, i) => {
               let messageData = message.data()
               messageData.id = message.id
+              setMessages(messages => [...messages,messageData])
               if(messageData.status == 's'){
-                  setMessage({...messageData, name :`${messageData.id}.${messageData.fileType}`})
-                  return;
+                  // setMessage({...messageData, name :`${messageData.id}.${messageData.fileType}`})
               }
             });
         })
@@ -1099,7 +1112,6 @@ export default function SessionScreen(props){
   //show text for set the device
   React.useEffect(() => {
     if(playbackInfo){
-      console.log(playbackInfo);
       switch (playbackInfo.status) {
         case 's':
           setSpotifyCall('pause')
@@ -1483,17 +1495,33 @@ export default function SessionScreen(props){
                   </View>
                 )
             ):(
-              <View style={styles.horizontalView}>
-                <View style={{flex:1}}></View>
-                <View style={{flex:4}}>
-                  <Text>Authorize Spotify to share your music</Text>
-                </View>
-                <View style={{flex:1}}></View>
-              </View>
+              <Chat sessMessages={messages}/>
             )}
           </View>
         )}
-        <View style={{flex:2}}></View>
+      </View>
+      <View style={styles.horizontalView}>
+        <View style={{flex:1, alignCentered: true}}>
+          <TouchableOpacity onPress={() => {
+              setWakeListening('off');
+              setRecordTime(1);
+              setTellChange('recording')
+              setStatus('r')
+              setIsRecording(true)
+            } }>
+            <Ionicons name="mic" size={40} color='black'/>
+          </TouchableOpacity>
+        </View>
+        <View style={{flex:7}}>
+            <Input style={styles.ligthText} inputContainerStyle={styles.inputContainer}
+              placeholder='...' value={messageText}
+              onChangeText={(messageText) => setMessageText(messageText)}/>
+        </View>
+        <View style={{flex:1, alignCentered: true}}>
+          <TouchableOpacity onPress={() => sendMessage(messageText)}>
+            <Ionicons name="play-outline" size={40} color='black'/>
+          </TouchableOpacity>
+        </View>
       </View>
     </SafeAreaView>
   )

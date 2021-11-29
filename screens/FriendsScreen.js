@@ -31,7 +31,7 @@ export default function FriendsScreen(props){
           if (element.emails && element.emails[0]?.email.includes(searchVal)) return true
         })
         if (match) setSearchResult(match)
-        else setSearchResult([])
+        else setSearchResult(contacts)
       }
     }
   },[searchVal])
@@ -47,6 +47,9 @@ export default function FriendsScreen(props){
       sendSMS(receiver.phoneNumbers[0].number)
     }
   },[receiver])
+  React.useEffect(() => {
+    if(contacts) setSearchResult(contacts)
+  },[contacts])
 
   return (
     <View style={styles.container}>
@@ -68,8 +71,23 @@ export default function FriendsScreen(props){
           inputContainerStyle={styles.searchBar}
           placeholder="Search for contacts"
           value={searchVal}
+          onCancel={() => setSearchResult(contacts)}
+          onClear={() => setSearchResult(contacts)}
           onChangeText={(val) => setSearchVal(val)}/>
         <View style={styles.verticalJump}></View>
+        <FlatList data={friends} renderItem={
+            ({item}) =>
+              <TouchableOpacity
+                style= {{ marginLeft: -5 }}
+                onPress={() => { props.navigation.navigate('newSession',{guests : [item] }) }}>
+                <UserItem user={item}/>
+              </TouchableOpacity>
+          }/>
+      </View>
+      <View style={styles.separator}>
+        <Text style={styles.subtext}>Your Contacts</Text>
+      </View>
+      <View style={{flex:3}}>
         <FlatList data={searchResult} renderItem={
               ({item}) =>
               <TouchableOpacity
@@ -82,19 +100,6 @@ export default function FriendsScreen(props){
                     }}/>
               </TouchableOpacity>
             }/>
-      </View>
-      <View style={styles.separator}>
-        <Text style={styles.subtext}>Airizers</Text>
-      </View>
-      <View style={{flex:3}}>
-        <FlatList data={friends} renderItem={
-            ({item}) =>
-              <TouchableOpacity
-                style= {{ marginLeft: -5 }}
-                onPress={() => { props.navigation.navigate('newSession',{guests : [item] }) }}>
-                <UserItem user={item}/>
-              </TouchableOpacity>
-          }/>
       </View>
       <NavBar navigation={props.navigation} route={1}/>
     </View>
