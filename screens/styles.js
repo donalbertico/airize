@@ -224,6 +224,15 @@ const styles = StyleSheet.create({
   },
   secondaryButton:{
     color : theme.colors.secondary
+  },
+  messageBox : {
+    backgroundColor : theme.colors.secondary,
+    margin : 5,
+    marginLeft : 15,
+    marginRight : 15,
+    alignSelf: 'flex-end',
+    borderRadius : 50,
+    padding : 10
   }
 })
 
