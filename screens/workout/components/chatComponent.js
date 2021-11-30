@@ -1,35 +1,45 @@
 import React from 'react'
-import { View, FlatList, Text } from 'react-native'
+import { View, FlatList, Text, TouchableOpacity } from 'react-native'
 import { styles } from '../../styles'
 import { Ionicons } from '@expo/vector-icons';
 import useUserRead from '../../../hooks/useUserRead'
-export default function Chat({sessMessages}) {
+
+export default function Chat({sessMessages, playAudioMessage}) {
   const [messages, setMessages] = React.useState([])
   const [user] = useUserRead('get')
+  const listRef = React.useRef()
 
   React.useEffect(() => {
-    if(sessMessages) setMessages(sessMessages)
+    if(sessMessages) {
+      setMessages(sessMessages)
+    }
   },[sessMessages])
+
+  React.useEffect(() => {
+    if(messages?.length > 0) {
+      setTimeout(() => {
+        listRef.current.scrollToEnd({ animated: true})
+      },200)
+    }
+  },[messages])
 
   return (
     <View>
-      <FlatList inverted data={messages} renderItem = {
+      <FlatList ref ={listRef} data={messages} renderItem = {
             ({item}) => (
               <View style={styles.horizontalView}>
                 { item.user == user?.uid && (
                   <View style={{flex:1}}></View>
                 )}
-                <View style={{flex:3, alignItems: 'stretch'}}>
                   {item.text ? (
                     <View style={styles.messageBox}>
                       <Text>{item.text}</Text>
                     </View>
                   ) :(
-                    <View style={styles.messageBox}>
+                    <TouchableOpacity onPress={() => playAudioMessage(item.id)} style={styles.messageBox}>
                       <Ionicons name="mic" size={40} color='black'/>
-                    </View>
+                    </TouchableOpacity>
                   )}
-                </View>
                 { item.user != user?.uid && (
                   <View style={{flex:1}}></View>
                 )}
