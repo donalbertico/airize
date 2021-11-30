@@ -232,7 +232,8 @@ const styles = StyleSheet.create({
     marginRight : 15,
     alignSelf: 'flex-end',
     borderRadius : 50,
-    padding : 10
+    padding : 10,
+    maxWidth : 250
   }
 })
 

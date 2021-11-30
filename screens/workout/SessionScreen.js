@@ -337,13 +337,17 @@ export default function SessionScreen(props){
     setWorkoutTime(time)
   }
   const sendMessage = (text) => {
-    sessionReference.collection('messages')
-      .add({
-        user: user.uid,
-        text: text,
-        status: 's',
-        time: firebase.firestore.Timestamp.fromDate(new Date())
-      })
+    if(text) sessionReference.collection('messages')
+            .add({
+              user: user.uid,
+              text: text,
+              status: 's',
+              time: firebase.firestore.Timestamp.fromDate(new Date())
+            })
+  }
+  const playAudioMessage = (msg) => {
+    let name = `${msg.id}.${msg.fileType}`
+    setMessage({...msg, name : name})
   }
   //onMount hook
   React.useEffect(()=>{
@@ -452,8 +456,8 @@ export default function SessionScreen(props){
               let messageData = message.data()
               messageData.id = message.id
               setMessages(messages => [...messages,messageData])
-              if(messageData.status == 's'){
-                  // setMessage({...messageData, name :`${messageData.id}.${messageData.fileType}`})
+              if(messageData.fileType && messageData.status == 's' && messageData.user != user.uid){
+                setMessage({...messageData, name :`${messageData.id}.${messageData.fileType}`})
               }
             });
         })
@@ -1495,7 +1499,7 @@ export default function SessionScreen(props){
                   </View>
                 )
             ):(
-              <Chat sessMessages={messages}/>
+              <Chat playAudioMessage={(msg) => playAudioMessage(msg)} sessMessages={messages}/>
             )}
           </View>
         )}
@@ -1513,7 +1517,7 @@ export default function SessionScreen(props){
           </TouchableOpacity>
         </View>
         <View style={{flex:7}}>
-            <Input style={styles.ligthText} inputContainerStyle={styles.inputContainer}
+            <Input inputContainerStyle={styles.inputContainer}
               placeholder='...' value={messageText}
               onChangeText={(messageText) => setMessageText(messageText)}/>
         </View>
