@@ -13,7 +13,8 @@ import { View,
   ActivityIndicator,
   Platform,
   Image,
-  SafeAreaView } from 'react-native'
+  SafeAreaView,
+  ImageBackground } from 'react-native'
 import { Text, Button, Input } from 'react-native-elements'
 import { Ionicons } from '@expo/vector-icons';
 import {styles} from '../styles'
@@ -38,6 +39,7 @@ export default function SessionScreen(props){
   const [guestPic, setGuestPic] = useProfilePicture()
   const [avatarUri,setAvatar] = React.useState()
   const [logoUri,setLogo] = React.useState()
+  const [backgroundChat,setBackground] = React.useState()
   const [playbackInfo,setPlayInfo] = React.useState()
   const [playbackImage,setPlayImage] = React.useState()
   const [playbackCurrent,setPlaybackCurrent] = React.useState()
@@ -343,6 +345,9 @@ export default function SessionScreen(props){
               text: text,
               status: 's',
               time: firebase.firestore.Timestamp.fromDate(new Date())
+            })
+            .then(() => {
+              setMessageText('')
             })
   }
   const playAudioMessage = (msg) => {
@@ -1270,6 +1275,7 @@ export default function SessionScreen(props){
       setAvatar(assets.avatar)
       setLogo(assets.logo)
       setIcons(assets.music)
+      setBackground(assets.backgroundChat)
     }
   },[assets])
   //wordouttime - status
@@ -1369,52 +1375,60 @@ export default function SessionScreen(props){
       <View style={styles.header}>
         <View style={{flex:1}}>
           <View style={styles.alignCentered}>
-            <TouchableOpacity onPress={() => props.navigation.goBack()}>
+            <TouchableOpacity onPress={() => setUpdateSession('askLeave')}>
               <Ionicons size={30} name="arrow-back-outline" color='#E8E8E8'/>
             </TouchableOpacity>
           </View>
         </View>
         <View style={{justifyContent : 'center'}}>
-          <Text style={styles.h2_ligth}>Share</Text>
+          <Text style={styles.h2_ligth}>{guestUser?.firstName} {guestUser?.lastName}</Text>
         </View>
         <View style={{flex:3}}></View>
       </View>
-      <TouchableOpacity
-        style={styles.flatFullButton}>
+      <ImageBackground
+        style={{width : '100%'}}
+        source={{uri : backgroundChat}}>
+        <View style={styles.horizontalView}>
+          <View style={{margin:10}}>
+            <Image style={styles.roundImage} source={{uri: hostPic? hostPic : avatarUri}}/>
+          </View>
+          <View style={{flex:1}}>
+            <View style={styles.alignCentered}>
+              <Timer handleOnTime={handleOnTime} pause={pause}/>
+            </View>
+          </View>
+          <View style={{margin:10}}>
+            <Image style={styles.roundImage} source={{uri: guestPic? guestPic : avatarUri}}/>
+          </View>
+        </View>
+      </ImageBackground>
+      <View style={{flex:1, backgroundColor : '#D9D9D9'}}>
           <View style={{flex:1}}></View>
           <View>
             {isRecording?(
-              <View>
-                <Ionicons name="mic" size={70} color='black'/>
+              <View style={{alignItems : 'center'}}>
+                <Ionicons name="mic" size={35} color='black'/>
               </View>
             ):(isReproducing?(
-              <View>
-                <Ionicons name="play-outline" size={70} color='black'/>
+              <View style={{alignItems : 'center'}}>
+                <Ionicons name="play-outline" size={35} color='black'/>
               </View>
             ):(isSending &&(
-                <View>
+                <View style={{alignItems : 'center'}}>
                   <ActivityIndicator style={{flex:2}}/>
                 </View>
               ))
             )}
+            { status == 'w' && (
+              <View style={{alignItems : 'center'}}>
+                <Text style={styles.h2_dark}>Start Workout</Text>
+              </View>
+            )}
             {!isPremium && (<Text>not premium =()</Text>) }
           </View>
           <View style={{flex:1}}></View>
-      </TouchableOpacity>
-      <View style={styles.horizontalView}>
-        <View style={{margin:10}}>
-          <Image style={styles.roundImage} source={{uri: hostPic? hostPic : avatarUri}}/>
-        </View>
-        <View style={{flex:1}}>
-          <View style={styles.alignCentered}>
-            <Timer handleOnTime={handleOnTime} pause={pause}/>
-          </View>
-        </View>
-        <View style={{margin:10}}>
-          <Image style={styles.roundImage} source={{uri: guestPic? guestPic : avatarUri}}/>
-        </View>
       </View>
-      <View style={{flex:6, backgroundColor : '#D9D9D9'}}>
+      <View style={{flex:6}}>
         <View style={{flex:1}}></View>
         { inactive? (
           <View>
@@ -1504,28 +1518,33 @@ export default function SessionScreen(props){
           </View>
         )}
       </View>
-      <View style={styles.horizontalView}>
-        <View style={{flex:1, alignCentered: true}}>
-          <TouchableOpacity onPress={() => {
-              setWakeListening('off');
-              setRecordTime(1);
-              setTellChange('recording')
-              setStatus('r')
-              setIsRecording(true)
-            } }>
-            <Ionicons name="mic" size={40} color='black'/>
-          </TouchableOpacity>
-        </View>
-        <View style={{flex:7}}>
-            <Input inputContainerStyle={styles.inputContainer}
-              placeholder='...' value={messageText}
-              onChangeText={(messageText) => setMessageText(messageText)}/>
-        </View>
-        <View style={{flex:1, alignCentered: true}}>
-          <TouchableOpacity onPress={() => sendMessage(messageText)}>
-            <Ionicons name="play-outline" size={40} color='black'/>
-          </TouchableOpacity>
-        </View>
+      <View style={{borderWidth : 1, borderColor: '#D9D9D9'}}>
+          <Input inputContainerStyle={styles.chatInput}
+            placeholder='message' value={messageText}
+            onChangeText={(messageText) => setMessageText(messageText)}
+            leftIcon = {() => (
+              <TouchableOpacity
+                style={{marginLeft : -10}}
+                onPress={() => {
+                  setWakeListening('off');
+                  setRecordTime(1);
+                  setTellChange('recording')
+                  setStatus('r')
+                  setIsRecording(true)
+                } }>
+                <Ionicons name="mic" size={35} color='black'/>
+              </TouchableOpacity> )
+            }
+            rightIcon = {() => (
+              <TouchableOpacity
+                style={{marginRight : -10}}
+                onPress={() => sendMessage(messageText)}>
+                <Ionicons name="play-outline" size={35} color='black'/>
+              </TouchableOpacity>
+            )}
+            />
+
+
       </View>
     </SafeAreaView>
   )

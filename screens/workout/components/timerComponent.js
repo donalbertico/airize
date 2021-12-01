@@ -48,7 +48,7 @@ export default function Timer(props){
 
   return(
     <View >
-      <Text style={styles.h2}>{h}:{m}:{s}</Text>
+      <Text style={styles.h1_ligth}>{h}:{m}:{s}</Text>
     </View>
   )
 }

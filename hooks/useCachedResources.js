@@ -38,7 +38,7 @@ export default function useCachedResources(){
     require('../assets/feedback.png'),
     require('../assets/passwordDark.png'),
     require('../assets/shareDark.png'),
-    require('../assets/planDark.png'),
+    require('../assets/calendarDark.png'),
     require('../assets/spotifyDark.png'),
     require('../assets/homeUnselected.png'),
     require('../assets/backwards.png'),
@@ -46,6 +46,10 @@ export default function useCachedResources(){
     require('../assets/forwards.png'),
     require('../assets/pause.png'),
     require('../assets/infogram.png'),
+    require('../assets/backgroundChat.png'),
+    require('../assets/backgroundHome.png'),
+    require('../assets/inviteDark.png'),
+    require('../assets/chatDark.png'),
   ])
   const [storedAssets,storeAssets] = useAssetStore()
   const [assetsLoaded,setLoaded] = React.useState(false)
@@ -156,10 +160,11 @@ export default function useCachedResources(){
         password : assets[19].localUri
       }
       assetsOb.home = {
-        search : assets[20].localUri,
+        search : assets[31].localUri,
         friends : assets[21].localUri,
-        spotify : assets[22].localUri,
-        infogram : assets[28].localUri
+        infogram : assets[28].localUri,
+        plan: assets[21].localUri,
+        chat: assets[32].localUri
       }
       assetsOb.music = {
         previous : assets[24].localUri,
@@ -167,6 +172,8 @@ export default function useCachedResources(){
         next : assets[26].localUri,
         pause : assets[27].localUri
       }
+      assetsOb.backgroundChat = assets[29].localUri
+      assetsOb.backgroundHome = assets[30].localUri
       storeAssets(assetsOb)
       setLoaded(true)
     }

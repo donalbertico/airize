@@ -28,20 +28,32 @@ export default function Chat({sessMessages, playAudioMessage}) {
       <FlatList ref ={listRef} data={messages} renderItem = {
             ({item}) => (
               <View style={styles.horizontalView}>
-                { item.user == user?.uid && (
-                  <View style={{flex:1}}></View>
-                )}
-                  {item.text ? (
-                    <View style={styles.messageBox}>
-                      <Text>{item.text}</Text>
-                    </View>
-                  ) :(
-                    <TouchableOpacity onPress={() => playAudioMessage(item.id)} style={styles.messageBox}>
-                      <Ionicons name="mic" size={40} color='black'/>
-                    </TouchableOpacity>
-                  )}
-                { item.user != user?.uid && (
-                  <View style={{flex:1}}></View>
+                { item.user == user?.uid ? (
+                  <>
+                    <View style={{flex:1}}></View>
+                    {item.text ? (
+                      <View style={styles.messageBox}>
+                        <Text>{item.text}</Text>
+                      </View>
+                    ) :(
+                      <TouchableOpacity onPress={() => playAudioMessage(item.id)} style={styles.messageBox}>
+                        <Ionicons name="mic" size={40} color='black'/>
+                      </TouchableOpacity>
+                    )}
+                  </>
+                ) : (
+                  <>
+                    {item.text ? (
+                      <View style={styles.othersMessageBox}>
+                        <Text style={{color:'white'}}>{item.text}</Text>
+                      </View>
+                    ) :(
+                      <TouchableOpacity onPress={() => playAudioMessage(item.id)} style={styles.othersMessageBox}>
+                        <Ionicons name="mic" size={40} color='black'/>
+                      </TouchableOpacity>
+                    )}
+                    <View style={{flex:1}}></View>
+                  </>
                 )}
               </View>
             )
