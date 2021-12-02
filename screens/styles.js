@@ -42,7 +42,7 @@ const styles = StyleSheet.create({
     backgroundColor : theme.colors.ligth,
     borderTopStartRadius: 10,
     paddingLeft : 10,
-    justifyContent : 'center',
+    alignItems : 'center',
     padding : 17
   },
   alignCentered:{
@@ -98,6 +98,11 @@ const styles = StyleSheet.create({
     paddingLeft : 15,
     paddingRight: 15
   },
+  chatInput:{
+    marginTop : 8,
+    marginBottom: -20,
+    borderBottomWidth : 0
+  },
   searchBar: {
     backgroundColor : theme.colors.ligth,
   },
@@ -151,6 +156,11 @@ const styles = StyleSheet.create({
     width:100,
     borderRadius: 100
   },
+  bigRoundImage: {
+    height: 150,
+    width: 150,
+    borderRadius: 100
+  },
   smallRoundImage: {
     height: 40,
     width: 40,
@@ -194,12 +204,21 @@ const styles = StyleSheet.create({
   h2:{
     fontSize : 25,
     fontFamily : 'ubuntu'
-
   },
   h2_ligth:{
     fontSize : 25,
     color : theme.colors.white,
     fontFamily : 'ubuntu'
+  },
+  h1_ligth:{
+    fontSize : 36,
+    color : theme.colors.white,
+    fontFamily : 'ubuntu'
+  },
+  h2_dark : {
+    fontSize : 25,
+    fontFamily : 'ubuntu',
+    color : theme.colors.dark,
   },
   subtext:{
     fontSize : 13,
@@ -226,7 +245,17 @@ const styles = StyleSheet.create({
     color : theme.colors.secondary
   },
   messageBox : {
-    backgroundColor : theme.colors.secondary,
+    backgroundColor : theme.colors.ligth,
+    margin : 5,
+    marginLeft : 15,
+    marginRight : 15,
+    alignSelf: 'flex-end',
+    borderRadius : 50,
+    padding : 10,
+    maxWidth : 250
+  },
+  othersMessageBox : {
+    backgroundColor : theme.colors.dark,
     margin : 5,
     marginLeft : 15,
     marginRight : 15,

@@ -5,7 +5,8 @@ import * as firebase from 'firebase'
 import 'firebase/firestore'
 import * as Analytics from 'expo-firebase-analytics';
 import * as Notifications from 'expo-notifications';
-import { View, TouchableOpacity, Image, Modal, SafeAreaView, ScrollView} from 'react-native'
+import { View, TouchableOpacity, Image, Modal, SafeAreaView,
+   ScrollView, ImageBackground} from 'react-native'
 import { Text, Button } from 'react-native-elements'
 import Voice from '@react-native-voice/voice'
 import Toast from 'react-native-toast-message'
@@ -52,6 +53,7 @@ export default function HomeScreen(props){
   const [firstLoad, setFirstLoad] = React.useState(true)
   const responseListener = React.useRef()
   const [checkingSession, setCheckingSession] = React.useState()
+  const [backgroundHome, setBackground] = React.useState()
 
   const startSession = () => {
     sessionsReference.doc(latentSession.id)
@@ -267,6 +269,7 @@ export default function HomeScreen(props){
     if(assets){
       setAvatar(assets.avatar)
       setIcons(assets.home)
+      setBackground(assets.backgroundHome)
     }
   },[assets])
   //useruid and sessions reference
@@ -385,65 +388,70 @@ export default function HomeScreen(props){
           </View>
         </View>
       </Modal>
-      <View style={styles.mainHeader}>
-        <View style={styles.horizontalView}>
-          <View stlye={{flex:2}}>
-            <View style={{margin:10}}>
-              <Image style={styles.roundImage}
-                source={{uri: profilePicture? profilePicture : avatarUri}}/>
-            </View>
-          </View>
-          <View style={{flex:5}}>
-            <View style={{flex:1}}></View>
-            <View style={{flex:1}}>
-              <View style={styles.homeLigthBox}>
-                <Text style={styles.h2}>{user?.firstName} {user?.lastName}</Text>
-              </View>
-            </View>
-          </View>
-        </View>
-      </View>
-      <View style={{flex:8}}>
-        <View >
-          <TouchableOpacity style={styles.listItemContainer}
-            onPress={() => {props.navigation.navigate('friends')}}>
-              <View>
-                <Image style={styles.largeInputIcon} source={{uri: icons?.search}}/>
-              </View>
-              <View style={{flex:1}}></View>
-              <View style={{flex:4}}>
-                <Text>Invite a friend</Text>
-              </View>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.listItemContainer}
-              onPress={() => {props.navigation.navigate('invitations')}}>
-              <View>
-                <Image style={styles.largeInputIcon} source={{uri: icons?.friends}}/>
-              </View>
-              <View style={{flex:1}}></View>
-              <View style={{flex:4}}>
-                <Text>Plan a workout</Text>
-              </View>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.listItemContainer}
-              onPress={() => {props.navigation.navigate('invitations')}}>
-              <View>
-                <Image style={styles.largeInputIcon} source={{uri: icons?.friends}}/>
-              </View>
-              <View style={{flex:1}}></View>
-              <View style={{flex:4}}>
-                <Text>Send messages</Text>
-              </View>
-          </TouchableOpacity>
-        </View>
-        <View style={styles.separator}>
-          <Text style={styles.subtext}>Voice commands</Text>
-        </View>
+      <View style={styles.header}>
         <View style={{flex:1}}>
-          <ScrollView >
-            <Image style={{height: 710 , width : '100%'}} source={{uri: icons?.infogram}}/>
-          </ScrollView>
         </View>
+        <View style={{justifyContent : 'center'}}>
+          <Text style={styles.h2_ligth}>Home</Text>
+        </View>
+        <View style={{flex:3}}></View>
+      </View>
+      <ImageBackground
+        style={{width : '100%'}}
+        source={{uri : backgroundHome}}>
+        <View style={{alignItems : 'center'}}>
+          <View style={{margin:10}}>
+            <Image style={styles.bigRoundImage}
+              source={{uri: profilePicture? profilePicture : avatarUri}}/>
+          </View>
+        </View>
+      </ImageBackground>
+      <View style={{flex:1}}>
+          <View style={styles.homeLigthBox}>
+            <Text style={styles.h2}>{user?.firstName} {user?.lastName}</Text>
+          </View>
+      </View>
+      <View style={{flex:7}}>
+        <ScrollView>
+          <View >
+            <TouchableOpacity style={styles.listItemContainer}
+              onPress={() => {props.navigation.navigate('friends')}}>
+                <View>
+                  <Image style={styles.largeInputIcon} source={{uri: icons?.search}}/>
+                </View>
+                <View style={{flex:1}}></View>
+                <View style={{flex:4}}>
+                  <Text>Invite a friend</Text>
+                </View>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.listItemContainer}
+                onPress={() => {props.navigation.navigate('invitations')}}>
+                <View>
+                  <Image style={{height : 22, width : 22}} source={{uri: icons?.plan}}/>
+                </View>
+                <View style={{flex:1}}></View>
+                <View style={{flex:4}}>
+                  <Text>Plan a workout</Text>
+                </View>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.listItemContainer}
+                onPress={() => {props.navigation.navigate('invitations')}}>
+                <View>
+                  <Image style={{height : 22, width : 27}} source={{uri: icons?.chat}}/>
+                </View>
+                <View style={{flex:1}}></View>
+                <View style={{flex:4}}>
+                  <Text>Send messages</Text>
+                </View>
+            </TouchableOpacity>
+          </View>
+          <View style={styles.separator}></View>
+          <View style={{flex:1}}>
+              <View style={{marginTop : 10, marginBottom: 20}}>
+                <Image style={{height: 610 , width : '90%'}} source={{uri: icons?.infogram}}/>
+              </View>
+          </View>
+        </ScrollView>
       </View>
       <View>
         <NavBar navigation={props.navigation} route={0}/>
