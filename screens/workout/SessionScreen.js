@@ -352,6 +352,7 @@ export default function SessionScreen(props){
   }
   const playAudioMessage = (msg) => {
     let name = `${msg.id}.${msg.fileType}`
+    console.log(name);
     setMessage({...msg, name : name})
   }
   //onMount hook
@@ -897,6 +898,7 @@ export default function SessionScreen(props){
       } catch (e) {
         console.log('error playing',e);
         setWakeListening(true)
+        setIsReproducing(false)
       }
     }
     if(message)playMessage()
@@ -1407,11 +1409,11 @@ export default function SessionScreen(props){
           <View>
             {isRecording?(
               <View style={{alignItems : 'center'}}>
-                <Ionicons name="mic" size={35} color='black'/>
+                <Ionicons name="mic" size={35} color='#343F4B'/>
               </View>
             ):(isReproducing?(
               <View style={{alignItems : 'center'}}>
-                <Ionicons name="play-outline" size={35} color='black'/>
+                <Ionicons name="play-outline" size={35} color='#343F4B'/>
               </View>
             ):(isSending &&(
                 <View style={{alignItems : 'center'}}>
@@ -1519,32 +1521,30 @@ export default function SessionScreen(props){
         )}
       </View>
       <View style={{borderWidth : 1, borderColor: '#D9D9D9'}}>
-          <Input inputContainerStyle={styles.chatInput}
-            placeholder='message' value={messageText}
-            onChangeText={(messageText) => setMessageText(messageText)}
-            leftIcon = {() => (
-              <TouchableOpacity
-                style={{marginLeft : -10}}
-                onPress={() => {
-                  setWakeListening('off');
-                  setRecordTime(1);
-                  setTellChange('recording')
-                  setStatus('r')
-                  setIsRecording(true)
-                } }>
-                <Ionicons name="mic" size={35} color='black'/>
-              </TouchableOpacity> )
-            }
-            rightIcon = {() => (
-              <TouchableOpacity
-                style={{marginRight : -10}}
-                onPress={() => sendMessage(messageText)}>
-                <Ionicons name="play-outline" size={35} color='black'/>
-              </TouchableOpacity>
-            )}
-            />
-
-
+        <Input inputContainerStyle={styles.chatInput}
+          placeholder='message' value={messageText}
+          onChangeText={(messageText) => setMessageText(messageText)}
+          leftIcon = {() => (
+            <TouchableOpacity
+              style={{marginLeft : -10}}
+              onPress={() => {
+                setWakeListening('off');
+                setRecordTime(1);
+                setTellChange('recording')
+                setStatus('r')
+                setIsRecording(true)
+              } }>
+              <Ionicons name="mic" size={35} color='black'/>
+            </TouchableOpacity> )
+          }
+          rightIcon = {() => (
+            <TouchableOpacity
+              style={{marginRight : -10}}
+              onPress={() => sendMessage(messageText)}>
+              <Ionicons name="play-outline" size={35} color='black'/>
+            </TouchableOpacity>
+          )}
+          />
       </View>
     </SafeAreaView>
   )

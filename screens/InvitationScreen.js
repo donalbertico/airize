@@ -42,8 +42,9 @@ export default function InvitationScreen(props) {
             session.id = sess.id
             session.dueTime = `${sessDate.getHours()} : ${sessDate.getMinutes()}`
             let formated = sessDate.toLocaleString('default', {month: 'long', day :'numeric'}).split(' ')
+            console.log(formated);
             if (formated[3]) {
-              session.day = formated[2]
+              session.day = formated[2]=="" ? formated[3] : formated[2]
               session.Nday = formated[0]
               session.month = formated[1]
             } else {

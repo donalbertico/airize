@@ -36,8 +36,8 @@ export default function Chat({sessMessages, playAudioMessage}) {
                         <Text>{item.text}</Text>
                       </View>
                     ) :(
-                      <TouchableOpacity onPress={() => playAudioMessage(item.id)} style={styles.messageBox}>
-                        <Ionicons name="mic" size={40} color='black'/>
+                      <TouchableOpacity onPress={() => playAudioMessage(item)} style={styles.messageBox}>
+                        <Ionicons name="mic" size={40} color='#343F4B'/>
                       </TouchableOpacity>
                     )}
                   </>
@@ -48,8 +48,8 @@ export default function Chat({sessMessages, playAudioMessage}) {
                         <Text style={{color:'white'}}>{item.text}</Text>
                       </View>
                     ) :(
-                      <TouchableOpacity onPress={() => playAudioMessage(item.id)} style={styles.othersMessageBox}>
-                        <Ionicons name="mic" size={40} color='black'/>
+                      <TouchableOpacity onPress={() => playAudioMessage(item)} style={styles.othersMessageBox}>
+                        <Ionicons name="mic" size={40} color='#D9D9D9'/>
                       </TouchableOpacity>
                     )}
                     <View style={{flex:1}}></View>
