@@ -157,8 +157,8 @@ const styles = StyleSheet.create({
     borderRadius: 100
   },
   bigRoundImage: {
-    height: 150,
-    width: 150,
+    height: 200,
+    width: 200,
     borderRadius: 100
   },
   smallRoundImage: {

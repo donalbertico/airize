@@ -22,16 +22,16 @@ export default function useCachedResources(){
     require('../assets/avatar.png'),
     require('../assets/homeSelected.png'),
     require('../assets/searchUnselected.png'),
-    require('../assets/friendsUnselected.png'),
-    require('../assets/linkUnselected.png'),
+    require('../assets/planUnselected.png'),
+    require('../assets/chatUnselected.png'),
     require('../assets/propertiesUnselected.png'),
     require('../assets/googleLogo.png'),
     require('../assets/facebookLogo.png'),
     require('../assets/email.png'),
     require('../assets/password.png'),
     require('../assets/username.png'),
-    require('../assets/friendsSelected.png'),
-    require('../assets/linkSelected.png'),
+    require('../assets/planSelected.png'),
+    require('../assets/chatSelected.png'),
     require('../assets/propertiesSelected.png'),
     require('../assets/searchSelected.png'),
     require('../assets/userImage.png'),
@@ -50,6 +50,7 @@ export default function useCachedResources(){
     require('../assets/backgroundHome.png'),
     require('../assets/inviteDark.png'),
     require('../assets/chatDark.png'),
+    require('../assets/delete.png'),
   ])
   const [storedAssets,storeAssets] = useAssetStore()
   const [assetsLoaded,setLoaded] = React.useState(false)
@@ -138,13 +139,13 @@ export default function useCachedResources(){
       assetsOb.menu = {
         home: assets[23].localUri,
         search: assets[4].localUri,
-        friends: assets[5].localUri,
-        link: assets[6].localUri,
+        plan: assets[5].localUri,
+        chat: assets[6].localUri,
         set: assets[7].localUri,
         homeSe : assets[3].localUri,
-        friendSe: assets[13].localUri,
+        planSe: assets[13].localUri,
         searchSe: assets[16].localUri,
-        linkSe: assets[14].localUri,
+        chatSe: assets[14].localUri,
         setSe: assets[15].localUri
       }
       assetsOb.google= assets[8].localUri
@@ -157,6 +158,7 @@ export default function useCachedResources(){
       assetsOb.preferences = {
         profile : assets[17].localUri,
         feedback : assets[18].localUri,
+        delete : assets[33].localUri,
         password : assets[19].localUri
       }
       assetsOb.home = {

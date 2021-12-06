@@ -9,6 +9,7 @@ import Toast from 'react-native-toast-message'
 import useCachedResources from './hooks/useCachedResources'
 import LoginScreen from './screens/auth/LoginScreen.js'
 import EditScreen from './screens/profile/EditScreen.js'
+import DeleteScreen from './screens/profile/DeleteScreen.js'
 import FeedbackScreen from './screens/profile/FeedbackScreen.js'
 import PersonalInfoScreen from './screens/profile/PersonalInfoScreen.js'
 import RegisterScreen from './screens/auth/RegisterScreen.js'
@@ -22,7 +23,6 @@ import SessionFormScreen from './screens/profile/SessionFormScreen.js'
 import PasswordScreen from './screens/auth/PasswordScreen.js'
 
 const Stack = createStackNavigator();
-
 
 export default function App(props) {
   const [auth, ready] = useCachedResources()
@@ -49,6 +49,7 @@ export default function App(props) {
                 <Stack.Screen name='events' component={EventsScreen}/>
                 <Stack.Screen name='personalinfo' component={PersonalInfoScreen}/>
                 <Stack.Screen name='edit' component={EditScreen}/>
+                <Stack.Screen name='delete' component={DeleteScreen}/>
                 <Stack.Screen name='feedback' component={FeedbackScreen}/>
             </>
             ) : (

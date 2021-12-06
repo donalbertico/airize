@@ -158,7 +158,7 @@ export default function RegisterScreen(props){
                             value={termsConditions} onValueChange={(val) => setTermsConditions(val)}/>
                         </View>
                         <Text style={{marginBottom:20,...styles.greyText}}>I accept </Text>
-                        <TouchableOpacity onPress={()=>Linking.openURL('https://falmouthlaunchpad.co.uk/')}>
+                        <TouchableOpacity onPress={()=>Linking.openURL('https://www.airize.app/terms-of-use')}>
                           <Text style={styles.ligthText}>Terms and Conditions</Text>
                         </TouchableOpacity>
                       </View>

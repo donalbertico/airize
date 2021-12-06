@@ -11,5 +11,9 @@
   "cli": {
     "version": ">= 0.36.1",
     "requireCommit": true
+  },
+  "submit": {
+    "production": {
+    }
   }
 }

@@ -7,7 +7,6 @@ import { Ionicons } from '@expo/vector-icons';
 import {styles} from '../styles'
 import useAssetStore from '../../hooks/useAssetStore'
 
-
 import NavBar from '../components/bottomNavComponent'
 
 export default function EditScreen(props){
@@ -61,11 +60,21 @@ export default function EditScreen(props){
         <TouchableOpacity style={styles.listItemContainer}
           onPress={() => {props.navigation.navigate('password',{change : true})}}>
             <View>
-              <Image style={{height : 26, width : 23}} source={{uri: icons?.password}}/>
+              <Image style={{height : 27, width : 23}} source={{uri: icons?.password}}/>
             </View>
             <View style={{flex:1}}></View>
             <View style={{flex:5}}>
               <Text>Password</Text>
+            </View>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.listItemContainer}
+          onPress={() => {props.navigation.navigate('delete',{change : true})}}>
+            <View>
+              <Image style={{height : 26, width : 23}} source={{uri: icons?.delete}}/>
+            </View>
+            <View style={{flex:1}}></View>
+            <View style={{flex:5}}>
+              <Text>Delete account</Text>
             </View>
         </TouchableOpacity>
         <TouchableOpacity style={styles.listItemContainer} onPress={_logout}>
