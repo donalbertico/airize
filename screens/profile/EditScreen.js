@@ -7,7 +7,6 @@ import { Ionicons } from '@expo/vector-icons';
 import {styles} from '../styles'
 import useAssetStore from '../../hooks/useAssetStore'
 
-
 import NavBar from '../components/bottomNavComponent'
 
 export default function EditScreen(props){

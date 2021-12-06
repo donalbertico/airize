@@ -49,7 +49,13 @@ export default function DeleteScreen(props) {
             .then(() => {
               console.log('sessions deleted');
             })
-
+           if(user.picture){
+             if(user.picture.split('-profile')[1]){
+               firebase.storage().ref(user.picture)
+                  .delete()
+                  .catch(e => console.log(e))
+             }
+           }
            db.collection('users').doc(user.uid)
               .delete().then(() => {
                 const authUser = firebase.auth().currentUser;
@@ -75,6 +81,13 @@ export default function DeleteScreen(props) {
           .then(() => {
             console.log('sessions deleted');
           })
+          if(user.picture){
+            if(user.picture.split('-profile')[1]){
+              firebase.storage().ref(user.picture)
+                 .delete()
+                 .catch(e => console.log(e))
+            }
+          }
          db.collection('users').doc(user.uid)
             .delete().then(() => {
               const authUser = firebase.auth().currentUser;
@@ -116,14 +129,17 @@ export default function DeleteScreen(props) {
         }
         break;
       case 'password':
-        if(!password) return Toast.show({text1: 'Error',
+        if(!password) {
+          Toast.show({text1: 'Error',
                   text2 : 'enter password',
                   type : 'error',
                   position : 'bottom',
                   visibilityTime: 5000
                 })
+          setLoading(false)
+          return;
+        }
         const credentials = firebase.auth.EmailAuthProvider.credential(user.email,password)
-        console.log(credentials);
         reAuth(credentials)
         break;
     }
