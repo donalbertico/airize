@@ -20,8 +20,10 @@ import useSpotifyTokenRefresh from '../hooks/useSpotifyTokenRefresh'
 import useAssetStore from '../hooks/useAssetStore'
 import useAppState from '../hooks/useAppState'
 import useNotifications from '../hooks/useNotifications'
+
 import NavBar from './components/bottomNavComponent'
 import SessionList from './components/sessionListComponent'
+import SessionsListenerComponent from './components/sessionsListenerComponent'
 
 export default function HomeScreen(props){
   const [refreshErr,refreshedTokens,setRefresh] = useSpotifyTokenRefresh(false)
@@ -58,46 +60,6 @@ export default function HomeScreen(props){
   const [showCommands, setShowCommand] = React.useState(false)
   const scrollRef = React.useRef()
 
-  const startSession = () => {
-    sessionsReference.doc(latentSession.id)
-      .update({status : 's'})
-  }
-  const deleySession = () => {
-    sessionsReference.doc(latentSession.id)
-      .update({status : 'a'})
-  }
-  const setNewReferenceListener = () => {
-    let start = new Date()
-    let end = new Date()
-    start.setUTCHours(0,0,0,0)
-    end.setUTCHours(23,59,59,999)
-    // .where('dueDate' ,'>=', start)
-    // .where('dueDate' ,'<', end)
-    // console.log('listening?',sessionsReference?.where);
-    if(sessionsReference?.where)
-      return sessionsReference
-        .where('users', 'array-contains', user.uid)
-        .where('status', 'in', ['c','r','s','p','ap','al','a'])
-        .onSnapshot((snapshot) => {
-          let sessArray = []
-          snapshot.forEach((sess, i) => {
-            let session = sess.data()
-            let sessDate = new firebase.firestore.Timestamp(session.dueDate.seconds,session.dueDate.nanoseconds)
-            sessDate = sessDate.toDate()
-            session.id = sess.id
-            session.dueDate = `${sessDate.getHours()} : ${sessDate.getMinutes()}`
-            if(session.status == 'c') sessArray = [...sessArray,session]
-            if(session.status == 'r')  {
-              if(session.host == user.uid) setIsHost(true)
-              setSessStarting(true)
-              setNotified(false)
-              setLatentSession(session)
-            }
-            setCheckingSession(session)
-          });
-          setSessions(sessArray)
-        })
-  }
   //on mount
   React.useEffect(()=>{
     let db = firebase.firestore()
@@ -130,55 +92,13 @@ export default function HomeScreen(props){
     checkPermissions()
     setSessionsReference(db.collection('sessions'))
     Analytics.setCurrentScreen('home');
-    responseListener.current = Notifications.addNotificationResponseReceivedListener(response => {
-      setFromNotification(true)
-    })
-    return () => {
-      if(sessionsReference && that) {
-        that.sessionListener = null
-        setTimeout(() => {
-          that.sessionListener = setNewReferenceListener()
-        },200)
-      }
-    }
   },[])
-  //.route
-  //lookf for user because it has been updated
-  React.useEffect(()=>{
-    let that = this;
-    if(props.route.params?.userUpdate)setUser('get')
-    if(props.route.params?.refresh) {
-      if(!that?.sessionListener){
-        that.sessionListener = setNewReferenceListener()
-      }
-    }
-    if(props.route.name != 'home'){
-      if(sessionsReference) {
-        this.sessionListener = null
-        setTimeout(() => {
-          that.sessionListener = setNewReferenceListener()
-        },200)
-      }
-    }
-  },[props.route.params,sessionsReference])
-  //.route
-  //look if page changed to restart sessions listener
-  React.useEffect(()=>{
-    let that = this;
-    if(props.route.name != 'home'){
-      if(sessionsReference) {
-        this.sessionListener = null
-        setTimeout(() => {
-          that.sessionListener = setNewReferenceListener()
-        },200)
-      }
-    }
-  },[props.route.name])
   //user
   //wait for the user until is set because of fresh login
   React.useEffect(()=>{
     if(user == 'get' || user.destroyed){setUser('get')}
     if(user.uid) setNotificationService(true)
+    if(user.picture)setPictureUrl(user.picture)
   },[user])
   //spotify authorization
   //check if auth is true
@@ -227,45 +147,6 @@ export default function HomeScreen(props){
       setStoredToken(refreshedTokens)
     }
   },[refreshedTokens])
-  //searchDevices
-  //looks for spotify devices and the avalible
-  React.useEffect(()=>{
-    const client = new SpotifyWebApi()
-    async function getDevices(){
-      try {
-        const result = await client.getMyDevices()
-        if(result){
-          let devices = result.devices
-          if(devices?.length == 0) setDevice()
-          devices.forEach((device, i) => {
-            console.log(device);
-            if(device.type == "Smartphone") setDevice(device.id)
-          });
-        }
-      } catch (e) {
-        Toast.show({text1:'Not able to connect to Spotify',
-          type : 'error', position : 'bottom', visibilityTime: 4000})
-      }
-    }
-    async function getPlayLists(){
-      try {
-        const result = await client.getUserPlaylists()
-        if(result){
-          result.items?.forEach((playlist, i) => {
-            if(playlist.name.toLowerCase() == 'airize') setPlaylist(playlist.uri)
-          });
-        }
-      } catch (e) {
-        Toast.show({text1:'Not able to connect to Spotify',
-          type : 'error', position : 'bottom', visibilityTime: 4000})
-      }
-    }
-    if(spotifyToken&&spotifyToken!='refresh'){
-      client.setAccessToken(spotifyToken)
-      getDevices()
-      getPlayLists()
-    }
-  },[spotifyToken])
   //assets
   //check for assets
   React.useEffect(()=>{
@@ -275,86 +156,6 @@ export default function HomeScreen(props){
       setBackground(assets.backgroundHome)
     }
   },[assets])
-  //useruid and sessions reference
-  //set Sessions listener
-  React.useEffect(() => {
-    let that = this;
-    if(!that) return ()=>{};
-    let start = new Date()
-    let end = new Date()
-    start.setUTCHours(0,0,0,0)
-    end.setUTCHours(23,59,59,999)
-    if(user.uid && sessionsReference) {
-      if(!that?.sessionListener){
-        that.sessionListener = setNewReferenceListener()
-      }
-    }
-    if(user.picture)setPictureUrl(user.picture)
-  },[user,sessionsReference])
-  // nextState
-  // refreshe some states when app in nextState
-  React.useEffect(() => {
-    let that = this;
-    if(props.route.name == 'home'){
-      if(nextState == 'active'){
-        console.log('shearch?');
-        setSearchDevices(true)
-        setSpotifyToken('refresh')
-        if(!that?.sessionListener){
-          that.sessionListener = setNewReferenceListener()
-        }
-      }else if(nextState == 'background'){
-        if(that?.sessionListener){
-          setNotified(false)
-          that.sessionListener = null
-          that.sessionListener = setNewReferenceListener()
-        }
-      }
-    }
-  },[nextState])
-  // checkingSession
-  // redirect to session if latent status 'started'
-  React.useEffect(() => {
-    if(checkingSession){
-      if(checkingSession.status != 'f' && checkingSession.status != 'r'
-          && checkingSession.status != 'a' &&  checkingSession.status != 'c'
-          &&  checkingSession.status != 'd'){
-        setFromNotification(false)
-        setSessStarting(false)
-        props.navigation.navigate('session',{ session : checkingSession, playlist: playlist})
-      }
-      if(news != lastNews){
-        if(checkingSession.status == 'c' && checkingSession.host != user.uid) {
-          setNotification({title : 'invited'})
-        }
-        if(news > 0) setLastNews(news)
-      }
-      if(!fromNotification){
-        if(checkingSession.status == 'r' && checkingSession.host != user.uid)
-          setNotification({title : 'starting'})
-      }
-      if(checkingSession.status == 'a') {
-        if(latentSession?.id == checkingSession.id) {
-          setLatentSession()
-          setSessStarting(false)
-          if(checkingSession.host == user.uid) Toast.show({text1:'Partner not ready',
-                  text2: 'go to events and start again later',
-                  type : 'info', position : 'bottom', visibilityTime: 4000})
-        }
-      }
-    }
-  },[checkingSession])
-  //sessions
-  //set news for notification control
-  React.useEffect(() => {
-    if(sessions) {
-      setNews(sessions.length)
-      if(firstLoad)  {
-        setLastNews(sessions.length)
-        setFirstLoad(false)
-      }
-    }
-  },[sessions])
   // showComamnds
   // scroll View
   React.useEffect(() => {
@@ -363,39 +164,7 @@ export default function HomeScreen(props){
 
   return(
     <SafeAreaView style={styles.container}>
-      <Modal transparent={true} visible={sessStarting}>
-        <View style={styles.alignCentered}>
-          <View style={styles.modalView}>
-            {isHost? (
-              <View>
-                <Text>
-                  Waiting for your partner to start
-                </Text>
-                <View></View>
-              </View>
-            ): (
-              <View>
-                <View style={{marginBottom:20}}>
-                  <Text>
-                    Your friend is ready to start
-                  </Text>
-                </View>
-                <View style={styles.horizontalView}>
-                  <View>
-                    <Button type='clear'
-                      titleStyle= {styles.secondaryButton}
-                      title='Not yet' onPress={() => deleySession()}/>
-                  </View>
-                    <View style={{width : 30}}></View>
-                  <View>
-                    <Button type='clear' title='Start' onPress={() => startSession()}/>
-                  </View>
-                </View>
-              </View>
-            )}
-          </View>
-        </View>
-      </Modal>
+      <SessionsListenerComponent navigation={props.navigation}/>
       <View style={styles.header}>
         <View style={{flex:1}}>
         </View>

@@ -8,7 +8,6 @@ import apiKeys from '../constants/apiKeys'
 import useUserRead from './useUserRead'
 import useUserStore from './useUserStore'
 import useAssetStore from './useAssetStore'
-import useKeyStore from './useKeyStore'
 
 export default function useCachedResources(){
   const [auth, setAuth] = React.useState('toLoad')
@@ -57,7 +56,6 @@ export default function useCachedResources(){
   const [userReady,setUserReady] = React.useState(false)
   const [ready,setReady] = React.useState(false)
   const [fontReady,setFontReady] = React.useState(false)
-  const [keys,storeKeys] = useKeyStore()
 
   React.useEffect(()=>{
     SplashScreen.preventAutoHideAsync();
@@ -81,7 +79,6 @@ export default function useCachedResources(){
               setIsNew(true)
             }
             setAuth(true)
-            getKeys()
           }else{
             setIsNew(false)
             setAuth(false)
@@ -92,12 +89,6 @@ export default function useCachedResources(){
       } catch (err) {
         console.warn(err);
       }
-    }
-    async function getKeys(){
-      const uri = await firebase.storage().ref('scr/spotify.json').getDownloadURL()
-      let rs = await fetch(uri)
-      let json = await rs.json()
-      storeKeys({spotify:json.id})
     }
     loadResourcesAndDataAsync();
   }, []);

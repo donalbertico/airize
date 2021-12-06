@@ -10,6 +10,7 @@ import useUserRead from '../hooks/useUserRead'
 import SessionList from './components/sessionListComponent'
 
 import NavBar from './components/bottomNavComponent'
+import SessionsListenerComponent from './components/sessionsListenerComponent'
 
 export default function EventsScreen(props) {
   const [sessionsReference,setSessionsReference] = React.useState()
@@ -117,6 +118,7 @@ export default function EventsScreen(props) {
 
   return (
     <SafeAreaView style={styles.container}>
+      <SessionsListenerComponent navigation={props.navigation}/>
       <View style={styles.header}>
         <View style={{flex:1}}>
           <View style={styles.alignCentered}>
