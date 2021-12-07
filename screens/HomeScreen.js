@@ -235,8 +235,8 @@ export default function HomeScreen(props){
             </TouchableOpacity>
             { showCommands && (
               <View style={{flex:1}}>
-                  <View style={{marginTop : 40, marginBottom: 30}}>
-                    <Image style={{height: 610 , width : '90%'}} source={{uri: icons?.infogram}}/>
+                  <View style={{marginTop : 25, marginBottom: 5, height : 800}}>
+                    <Image style={{height: '80%' , width : '95%'}} source={{uri: icons?.infogram}}/>
                   </View>
               </View>
             )}
