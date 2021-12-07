@@ -68,7 +68,8 @@ const styles = StyleSheet.create({
     alignItems : 'center'
   },
   bottomMenu:{
-    justifyContent : 'center'
+    justifyContent : 'center',
+    backgroundColor : theme.colors.dark
   },
   image:{
     flex:1,
