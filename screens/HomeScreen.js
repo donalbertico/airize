@@ -164,7 +164,6 @@ export default function HomeScreen(props){
 
   return(
     <View style={styles.container}>
-      <SessionsListenerComponent navigation={props.navigation}/>
       <View style={styles.header}>
         <View style={{flex:1}}>
         </View>
@@ -184,9 +183,9 @@ export default function HomeScreen(props){
         </View>
       </ImageBackground>
       <View style={{flex:1,marginBottom : 10}}>
-          <View style={styles.homeLigthBox}>
-            <Text style={styles.h2}>{user?.firstName} {user?.lastName}</Text>
-          </View>
+        <View style={styles.homeLigthBox}>
+          <Text style={styles.h2}>{user?.firstName} {user?.lastName}</Text>
+        </View>
       </View>
       <View style={{flex:6}}>
         <ScrollView ref={scrollRef}>
@@ -246,6 +245,7 @@ export default function HomeScreen(props){
       <View>
         <NavBar navigation={props.navigation} route={0}/>
       </View>
+      <SessionsListenerComponent navigation={props.navigation}/>
     </View>
   )
 }

@@ -22,7 +22,7 @@ export default function EditScreen(props){
   },[assets])
 
   return(
-    <SafeAreaView style={styles.container}>
+    <View style={styles.container}>
       <View style={styles.header}>
         <View style={{flex:1}}>
           <View style={styles.alignCentered}>
@@ -89,6 +89,6 @@ export default function EditScreen(props){
         </TouchableOpacity>
       </View>
       <NavBar navigation={props.navigation} route={4}/>
-    </SafeAreaView>
+    </View>
   )
 }

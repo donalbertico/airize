@@ -131,7 +131,7 @@ export default function InvitationScreen(props) {
   },[updateSess])
 
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={styles.container}>
       <SessionsListenerComponent navigation={props.navigation}/>
       <View style={styles.header}>
         <View style={{flex:1}}>
@@ -204,6 +204,6 @@ export default function InvitationScreen(props) {
         <SessionList sessions={sent} handleSessionSelected={() => {}}/>
       </View>
       <NavBar navigation={props.navigation} route={3}/>
-    </SafeAreaView>
+    </View>
   )
 }
