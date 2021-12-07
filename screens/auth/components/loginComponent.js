@@ -52,9 +52,7 @@ export default function Login({handleRecoverPassword}) {
     async function fblog(){
       try {
         await fb.initializeAsync({ appId: '426169569075169'})
-        const {type, token} = await fb.logInWithReadPermissionsAsync({
-          permissions: ['public_profile']
-        })
+        const {type, token} = await fb.logInWithReadPermissionsAsync()
         if(type == 'success'){
           const credential = firebase.auth.FacebookAuthProvider.credential(token)
           if (credential) {

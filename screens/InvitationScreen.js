@@ -11,6 +11,7 @@ import useUserRead from '../hooks/useUserRead'
 import SessionList from './components/sessionListComponent'
 
 import NavBar from './components/bottomNavComponent'
+import SessionsListenerComponent from './components/sessionsListenerComponent'
 
 export default function InvitationScreen(props) {
   const [user,setUser] = useUserRead('get')
@@ -131,6 +132,7 @@ export default function InvitationScreen(props) {
 
   return (
     <SafeAreaView style={styles.container}>
+      <SessionsListenerComponent navigation={props.navigation}/>
       <View style={styles.header}>
         <View style={{flex:1}}>
           <View style={styles.alignCentered}>

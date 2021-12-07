@@ -12,6 +12,8 @@ import useAirizers from '../hooks/useAirizer'
 
 import NavBar from './components/bottomNavComponent'
 import UserItem from './components/userItemComponent'
+import SessionsListenerComponent from './components/sessionsListenerComponent'
+
 
 export default function FriendsScreen(props){
   const [friends,contacts] = useAirizers()
@@ -53,6 +55,7 @@ export default function FriendsScreen(props){
 
   return (
     <View style={styles.container}>
+      <SessionsListenerComponent navigation={props.navigation}/>
       <View style={styles.header}>
         <View style={{flex:1}}>
           <View style={styles.alignCentered}>

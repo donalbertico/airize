@@ -68,7 +68,6 @@ const styles = StyleSheet.create({
     alignItems : 'center'
   },
   bottomMenu:{
-    backgroundColor : theme.colors.dark,
     justifyContent : 'center'
   },
   image:{
@@ -121,6 +120,12 @@ const styles = StyleSheet.create({
   },
   menuOption:{
     height : 55,
+    width : 75,
+    backgroundColor: '#E5E5E5'
+  },
+  menuOptionWeird:{
+    marginTop : 2,
+    height : 53,
     width : 75,
     backgroundColor: '#E5E5E5'
   },

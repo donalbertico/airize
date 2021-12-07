@@ -352,7 +352,6 @@ export default function SessionScreen(props){
   }
   const playAudioMessage = (msg) => {
     let name = `${msg.id}.${msg.fileType}`
-    console.log(name);
     setMessage({...msg, name : name})
   }
   //onMount hook
@@ -538,77 +537,6 @@ export default function SessionScreen(props){
         sessionReference.update({
           status : 's'
         })
-        break;
-      case 'play':
-        if(spotifyAv && playbackDevice) {
-          if(playbackInfo?.status){
-            sessionReference.update({
-              playback : {
-                uri : listTracks,
-                status : 'r',
-              }
-            })
-          }else if(listTraks?.length > 0){
-            Analytics.logEvent('SpotifyPlay', {
-              user: user.uid,
-              screen: 'session',
-              purpose: 'play spotify',
-            });
-            sessionReference.update({
-              playback : {
-                uri : listTracks,
-                status : 'p',
-              }
-            })
-          }
-        }
-        setUpdateSession('')
-        break;
-      case 'playMyList':
-        if(spotifyAv && playbackDevice) {
-          if(playlist){
-            sessionReference.update({
-              playback : {
-                uri : listTracks,
-                status : 'p',
-              }
-            })
-          }
-        }
-        setUpdateSession('')
-        break;
-      case 'pauseSpotify':
-        if(spotifyAv && playbackDevice) {
-          sessionReference.update({
-            playback : {
-              uri : listTracks,
-              status : 's',
-            }
-          })
-        }
-        setUpdateSession('')
-        break;
-      case 'playNext':
-        let nextStatus = playbackInfo?.status == 'n' ? 'nn' : 'n'
-        if(spotifyAv && playbackDevice) {
-          sessionReference.update({
-            playback : {
-              status : nextStatus
-            }
-          })
-        }
-        setUpdateSession('')
-        break;
-      case 'playPrevious':
-        let previousStatus = playbackInfo?.status == 'l' ? 'll' : 'l'
-        if(spotifyAv && playbackDevice) {
-          sessionReference.update({
-            playback : {
-              status : previousStatus
-            }
-          })
-        }
-        setUpdateSession('')
         break;
     }
   },[updateSession])
@@ -1195,7 +1123,7 @@ export default function SessionScreen(props){
     if (iosVoice != 'init'){
       switch (tellChange) {
         case 'askLeave':
-            Speech.speak('friend is asking to stop',options)
+            Speech.speak('friend is asking to finish',options)
             setTellChange('')
             setWakeListening(true)
           break;
