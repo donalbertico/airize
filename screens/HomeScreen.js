@@ -163,7 +163,7 @@ export default function HomeScreen(props){
   },[showCommands])
 
   return(
-    <SafeAreaView style={styles.container}>
+    <View style={styles.container}>
       <SessionsListenerComponent navigation={props.navigation}/>
       <View style={styles.header}>
         <View style={{flex:1}}>
@@ -234,10 +234,11 @@ export default function HomeScreen(props){
                 </View>
             </TouchableOpacity>
             { showCommands && (
-              <View style={{flex:1}}>
-                  <View style={{marginTop : 25, marginBottom: 5, height : 800}}>
-                    <Image style={{height: '80%' , width : '95%'}} source={{uri: icons?.infogram}}/>
-                  </View>
+              <View style={{flex:1, marginBottom : -30}}>
+                <View style={styles.horizontalView}>
+                  <Image style={{marginLeft: -70, marginTop: -100,height: 800 , width : 430, transform:[{scale : 0.7}]}} source={{uri: icons?.infogram}}/>
+                  <View style={{flex:1}}></View>
+                </View>
               </View>
             )}
         </ScrollView>
@@ -245,6 +246,6 @@ export default function HomeScreen(props){
       <View>
         <NavBar navigation={props.navigation} route={0}/>
       </View>
-    </SafeAreaView>
+    </View>
   )
 }

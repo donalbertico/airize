@@ -117,7 +117,7 @@ export default function EventsScreen(props) {
   },[props.route])
 
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={styles.container}>
       <SessionsListenerComponent navigation={props.navigation}/>
       <View style={styles.header}>
         <View style={{flex:1}}>
@@ -148,6 +148,6 @@ export default function EventsScreen(props) {
         <SessionList sessions={sessions} handleSessionSelected={handleSessionSelected}/>
       </View>
       <NavBar navigation={props.navigation} route={2}/>
-    </SafeAreaView>
+    </View>
   )
 }
