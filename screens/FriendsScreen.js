@@ -4,6 +4,7 @@ import * as SMS from 'expo-sms'
 import { View, FlatList, Text, TouchableOpacity, Modal} from 'react-native'
 import { Ionicons } from '@expo/vector-icons';
 import { SearchBar } from 'react-native-elements'
+import Toast from 'react-native-toast-message'
 import * as firebase from 'firebase'
 import { styles} from './styles'
 import 'firebase/firestore'
@@ -39,10 +40,20 @@ export default function FriendsScreen(props){
   },[searchVal])
   React.useEffect(() => {
     async function sendSMS(number){
-      const { result } = await SMS.sendSMSAsync(
-        [number],
-        "Hey I'am using Airize,\n\n  I would like to exersize with you.\n Just donwload the app here: airize.app"
-      )
+      console.log(number);
+      const isAvailable = await SMS.isAvailableAsync()
+      if (isAvailable) {
+        const { result } = await SMS.sendSMSAsync(
+          number,
+          "Hey I'am using Airize,\n\n  I would like to exersize with you.\n Just donwload the app here: airize.app"
+        )
+        if(result == 'unknown'){
+          Toast.show({
+              text1: 'Airize could not open your SMS service',
+              position : 'bottom',
+              type: 'error'})
+        }
+      }
     }
     if(receiver?.id && receiver.phoneNumbers[0]){
       receiver.phoneNumbers[0].number

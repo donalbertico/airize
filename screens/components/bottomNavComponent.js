@@ -22,7 +22,7 @@ export default function NavBar(props){
         </View>
         <View style={{flex:1}}>
           <TouchableOpacity onPress={()=> props.navigation.navigate('friends')}>
-            <View style={{backgroundColor : '#E5E5E5', marginRight : -2}}>
+            <View style={{backgroundColor : '#E5E5E5', marginRight : 5}}>
               <Image
                 style={props.route==1? styles.menuOption: styles.menuOptionWeird}
                 source={{ uri: props.route==1? menuUris.searchSe: menuUris.search}}/>
@@ -43,7 +43,7 @@ export default function NavBar(props){
         </View>
         <View style={{flex:1}}>
           <TouchableOpacity onPress={() => props.navigation.navigate('edit')}>
-            <View style={{backgroundColor : '#E5E5E5', marginRight : -2}}>
+            <View style={{backgroundColor : '#E5E5E5', marginRight : 5}}>
               <Image
                 style={props.route==4? styles.menuOption: styles.menuOptionWeird}
                 source={{ uri: props.route==4? menuUris.setSe: menuUris.set}}/>

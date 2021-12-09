@@ -123,15 +123,15 @@ export default function PasswordScreen(props){
               </View>
               <View style={{flex:1}}></View>
               <View style={{flex:2, justifyContent:'center'}}>
-                <Button title='RESET'
+                <Button title='UPDATE'
                   onPress={handleReset}/>
               </View>
             </View>
             <View style={styles.verticalJump}></View>
             <View style={{flex:7, padding : 15}}>
-                <Input placeholder='current' value={current} onChangeText={(current)=>setCurrent(current)}></Input>
-                <Input placeholder='password' value={password} secureTextEntry={true} onChangeText={(password)=>setPass(password)}></Input>
-                <Input placeholder='repeat password' value={repeat} secureTextEntry={true} onChangeText={(repeat)=>setRepeat(repeat)}></Input>
+                <Input placeholder='current' value={current} secureTextEntry onChangeText={(current)=>setCurrent(current)}></Input>
+                <Input placeholder='new password' value={password} secureTextEntry={true} onChangeText={(password)=>setPass(password)}></Input>
+                <Input placeholder='repeat new password' value={repeat} secureTextEntry={true} onChangeText={(repeat)=>setRepeat(repeat)}></Input>
             </View>
             <NavBar navigation={props.navigation} route={4}/>
           </>

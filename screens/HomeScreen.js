@@ -5,6 +5,7 @@ import * as firebase from 'firebase'
 import 'firebase/firestore'
 import * as Analytics from 'expo-firebase-analytics';
 import * as Notifications from 'expo-notifications';
+import {NavigationEvents} from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import { View, TouchableOpacity, Image, Modal, SafeAreaView,
    ScrollView, ImageBackground} from 'react-native'
@@ -89,6 +90,9 @@ export default function HomeScreen(props){
         askPermissions()
       }
     }
+    const unsubscribe = props.navigation.addListener('focus', () => {
+      setUser('get')
+    });
     checkPermissions()
     setSessionsReference(db.collection('sessions'))
     Analytics.setCurrentScreen('home');

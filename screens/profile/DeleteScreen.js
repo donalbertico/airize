@@ -285,11 +285,11 @@ export default function DeleteScreen(props) {
             )}
             <View style={{marginTop : -20, padding: 10}}>
               <Text style={styles.greyText}>
-                your personally identifiable data will be deleted as soon as possible.
+                Your personally identifiable data will be deleted as soon as possible.
               </Text>
             </View>
             <View style={{marginTop : 20}}></View>
-            <Input placeholder='Why are you deliting the account ?' value={reason}
+            <Input placeholder='Why are you deleting the account ?' value={reason}
               numberOfLines= {2}
               onChangeText={(reason) => setReason(reason)}></Input>
             <View style={{marginTop : -20, padding: 10}}>
