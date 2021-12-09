@@ -71,7 +71,17 @@ export default function PersonalInfoScreen(props) {
   const handleEdit = ()=> {
     setLoading(true)
     let newInfo = {firstName : firstName, lastName : lastName, number : num}
-    if(firstName == '' || lastName == '' || num == '') {
+
+    if(!num || !firstName || !lastName){
+       Toast.show({text1:'Info required',
+              text2: 'please fill all inputs' ,
+              type : 'error',
+              position : 'bottom',
+              visibilityTime: 4000})
+              setLoading(false)
+       return;
+    }
+    if(firstName == '' || lastName == '' || num == '' ) {
       Toast.show({text1:'Info required',
         text2: 'please fill all inputs' ,
         type : 'error',
